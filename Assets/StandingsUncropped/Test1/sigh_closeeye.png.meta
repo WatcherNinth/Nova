@@ -1,0 +1,403 @@
+fileFormatVersion: 2
+guid: 8c024f568f0998340811ef8dbe4b5863
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1075489223621554792
+    second: sigh_closeeye_0
+  - first:
+      213: -7334168776236576691
+    second: sigh_closeeye_1
+  - first:
+      213: 7029944289402983801
+    second: sigh_closeeye_2
+  - first:
+      213: -8193700209552715251
+    second: sigh_closeeye_3
+  - first:
+      213: -2801962726388612537
+    second: sigh_closeeye_4
+  - first:
+      213: -4061961029311605520
+    second: sigh_closeeye_5
+  - first:
+      213: 6307010886306532375
+    second: sigh_closeeye_6
+  - first:
+      213: -950214320504568812
+    second: sigh_closeeye_7
+  - first:
+      213: -2457639929175702323
+    second: sigh_closeeye_8
+  - first:
+      213: -4411233728259205495
+    second: sigh_closeeye_9
+  - first:
+      213: 2638913982565799391
+    second: sigh_closeeye_10
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 1
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sigh_closeeye_0
+      rect:
+        serializedVersion: 2
+        x: 105
+        y: 1583
+        width: 54
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86239bd20c7ecee00800000000000000
+      internalID: 1075489223621554792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_1
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 1604
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4058a92b5cc73a90800000000000000
+      internalID: -7334168776236576691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_2
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1600
+        width: 70
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97596a0c5116f8160800000000000000
+      internalID: 7029944289402983801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_3
+      rect:
+        serializedVersion: 2
+        x: 198
+        y: 1586
+        width: 13
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d02119d42112a4e80800000000000000
+      internalID: -8193700209552715251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_4
+      rect:
+        serializedVersion: 2
+        x: 137
+        y: 1575
+        width: 15
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 742c8bbeebd6d19d0800000000000000
+      internalID: -2801962726388612537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_5
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 1551
+        width: 54
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0f4d66c07f301a7c0800000000000000
+      internalID: -4061961029311605520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_6
+      rect:
+        serializedVersion: 2
+        x: 202
+        y: 1561
+        width: 26
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71c82d03cf0078750800000000000000
+      internalID: 6307010886306532375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_7
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 1532
+        width: 47
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41406d52c1920d2f0800000000000000
+      internalID: -950214320504568812
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_8
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 1549
+        width: 20
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc48aab6185b4edd0800000000000000
+      internalID: -2457639929175702323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_9
+      rect:
+        serializedVersion: 2
+        x: 226
+        y: 1513
+        width: 8
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98653edbb4628c2c0800000000000000
+      internalID: -4411233728259205495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sigh_closeeye_10
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 1493
+        width: 28
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd555ab194e4f9420800000000000000
+      internalID: 2638913982565799391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      sigh_closeeye_0: 1075489223621554792
+      sigh_closeeye_1: -7334168776236576691
+      sigh_closeeye_10: 2638913982565799391
+      sigh_closeeye_2: 7029944289402983801
+      sigh_closeeye_3: -8193700209552715251
+      sigh_closeeye_4: -2801962726388612537
+      sigh_closeeye_5: -4061961029311605520
+      sigh_closeeye_6: 6307010886306532375
+      sigh_closeeye_7: -950214320504568812
+      sigh_closeeye_8: -2457639929175702323
+      sigh_closeeye_9: -4411233728259205495
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

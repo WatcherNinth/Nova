@@ -1,0 +1,26 @@
+@<|
+label 'test_imported_standing'
+is_debug()
+|>
+<|
+show(bg, 'room')
+set_box()
+|>
+测试导入角色
+
+<|
+show(Test1, 'normal', pos_c)
+|>
+测试角色：：正常表情
+
+<|
+show(Test1, 'afraid3_glasses', pos_l)
+|>
+测试角色：：戴眼镜的害怕表情
+
+<|
+show(Test1, 'surprised_blush', pos_r)
+|>
+测试角色：：惊讶脸红表情
+
+@<| is_end() |>

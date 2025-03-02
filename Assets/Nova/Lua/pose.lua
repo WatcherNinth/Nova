@@ -12,6 +12,11 @@ local poses = {
     ['xiben'] = {
         ['normal'] = 'body+mouth_close+eye_normal+eyebrow_normal+hair',
     },
+    ['Test1'] = {
+        ['normal'] = 'body+normal',
+        ['afraid3_glasses'] = "body+afraid3+eyeglasses",
+        ['surprised_blush'] = "body+surprised+blush",
+    },
 
     ['cg'] = {
         ['rain'] = 'rain_back',
