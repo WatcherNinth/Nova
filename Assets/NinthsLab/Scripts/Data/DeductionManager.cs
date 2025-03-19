@@ -59,7 +59,8 @@ namespace Nova
         }
 
         public override void LoadLevel(string levelName)
-        {  
+        {
+            Debug.Log("Load Deduction Level: " + levelName);
             deductionUIManager.ActivateDeductionMode();
         }
 

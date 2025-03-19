@@ -214,6 +214,9 @@ resharper_use_object_or_collection_initializer_highlighting=warning
 resharper_use_string_interpolation_highlighting=warning
 resharper_wrong_indent_size_highlighting=warning
 
+# Default severity for analyzer diagnostics with category 'Style'
+dotnet_analyzer_diagnostic.category-Style.severity = suggestion
+
 [*.{prefab,unity,meta,mat,asset}]
 
 insert_final_newline=false
