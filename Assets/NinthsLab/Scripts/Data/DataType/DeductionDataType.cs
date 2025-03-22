@@ -63,11 +63,10 @@ namespace Nova
     [Serializable]
     public class Interrorgation_Deduction : ScriptableObject
     {
-        public string DeductionID;
-        [Tooltip("这个推理是否默认以选项形式出现，如果不为空则有选项。")]
+        [Tooltip("推理内容")]
+        public string DeductionText;
+        [Tooltip("这个推理在故事模式下以这个选项形式给出")]
         public string ChoiceText;
-        [Tooltip("这个推理是否需要显示提示，如果不为空则有选项。")]
-        public string HintText;
         [TextArea(3, 10)]
         public string DeductionStartScript;
         public List<Interrorgation_DeductionProcedureEntry> DeductionProcedure;
