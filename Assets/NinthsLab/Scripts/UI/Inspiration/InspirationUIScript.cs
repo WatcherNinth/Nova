@@ -27,7 +27,6 @@ namespace Nova
         private Button button_Back;
         [SerializeField]
         private Button button_Confirm;
-        private List<Transform> Trans_locationList = new List<Transform>();
         private GameObject currentCenterInspiration = null;
         private List<List<GameObject>> inspirationButtons = new List<List<GameObject>>();
         // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -204,25 +203,6 @@ namespace Nova
         int getCurrentLayer()
         {
             return inspirationButtons.Count - 1;
-        }
-        Transform createLocationTransform()
-        {
-            var go = Instantiate(Trans_Location.gameObject, Trans_Location.parent);
-            go.SetActive(true);
-            Trans_locationList.Add(go.transform);
-            return go.transform;
-        }
-        void removeLastLocationTransform()
-        {
-            if (Trans_locationList.Count <= 1)
-            {
-                return;
-            }
-            Trans_locationList.RemoveAt(Trans_locationList.Count - 1);
-        }
-        Transform getLastLocationTransform()
-        {
-            return Trans_locationList[Trans_locationList.Count - 1];
         }
         #endregion
         #region Combination
