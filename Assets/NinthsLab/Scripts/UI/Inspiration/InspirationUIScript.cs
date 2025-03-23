@@ -139,6 +139,7 @@ namespace Nova
             if (getCurrentLayer() == 0)
             {
                 button_Back.gameObject.SetActive(false);
+                currentCenterInspiration = null;
             }
             else
             {
