@@ -34,7 +34,6 @@ namespace Nova
         {
             ButtonText.SetActive(false);
             CombinationText.SetActive(false);
-            //Trans_Location.gameObject.SetActive(false);
             QuestionText.transform.parent.gameObject.SetActive(false);
             button_Back.gameObject.SetActive(false);
             button_Confirm.gameObject.SetActive(false);
@@ -97,12 +96,14 @@ namespace Nova
             if (inspiration.IsFinalInspiration())
             {
                 //display question
-                setQuestionText(inspiration.QuestionText);
+                setQuestionText(inspiration.DeductionText);
                 button_Confirm.gameObject.SetActive(true);
                 return;
             }
             for (int i = 0; i < inspiration.NextInspirations.Count; i++)
             {
+                //next inspiration generation
+                //TODO: checkunlockstatus
                 GameObject nextButton = createInspirationButton(inspiration.NextInspirations[i], getAnchorLocationByIndex(0), inspiration);
                 inspirationButtons[getCurrentLayer()].Add(nextButton);
                 nextButton.GetComponent<InspirationUIInspirationButtonScript>().SideLocation = getAnchorLocationByIndex(i + 1);
@@ -149,7 +150,7 @@ namespace Nova
         }
         public void OnConfirmClick()
         {
-
+            
         }
 
         GameObject createInspirationButton(InspirationDataType inspiration, Vector2 initPos, InspirationDataType parent = null)

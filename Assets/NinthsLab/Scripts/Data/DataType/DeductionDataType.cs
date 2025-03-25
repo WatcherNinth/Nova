@@ -63,6 +63,7 @@ namespace Nova
     [Serializable]
     public class Interrorgation_Deduction : ScriptableObject
     {
+        public Interrorgation_Level Level;
         [Tooltip("推理内容")]
         public string DeductionText;
         [Tooltip("这个推理在故事模式下以这个选项形式给出")]
