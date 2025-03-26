@@ -11,6 +11,7 @@ public class InspirationDataType
     public string DeductionText;
     public bool NeedUnlock = false;
     public string UnlockFlag = "";
+    public bool IsLocked = false;
 
     public bool IsFinalInspiration()
     {
@@ -31,8 +32,16 @@ public class InspirationDataType
             Debug.LogError($"加载灵感文件失败：{subPath}");
             return new List<InspirationDataType>();
         }
-
-        string[] lines = textAsset.text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        return ParseInspirations(textAsset.text);   
+    }
+    /// <summary>
+    /// 解析灵感数据文本
+    /// </summary>
+    /// <param name="text">灵感数据文本内容</param>
+    /// <returns>顶级灵感数据列表</returns>
+    public static List<InspirationDataType> ParseInspirations(string text)
+    {
+        string[] lines = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
         List<InspirationDataType> rootInspirations = new List<InspirationDataType>();
 
         // 使用字典跟踪每个缩进级别当前的灵感对象
@@ -123,6 +132,7 @@ public class InspirationDataType
             if (unlockFlagStartIndex >= 0 && unlockFlagEndIndex >= 0)
             {
                 inspiration.NeedUnlock = true;
+                inspiration.IsLocked = true;
                 inspiration.UnlockFlag = line.Substring(unlockFlagStartIndex + 1, unlockFlagEndIndex - unlockFlagStartIndex - 1).Trim();
                 line = line.Substring(0, unlockFlagStartIndex).Trim() + line.Substring(unlockFlagEndIndex + 1).Trim();
             }

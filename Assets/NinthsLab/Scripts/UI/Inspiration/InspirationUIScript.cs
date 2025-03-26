@@ -68,6 +68,10 @@ namespace Nova
             for (int i = 0; i < inspirationData.Count; i++)
             {
                 GameObject button = createInspirationButton(inspirationData[i], getAnchorLocationByIndex(i + 1));
+                if(button == null)
+                {
+                    continue;
+                }
                 inspirationButtons[getCurrentLayer()].Add(button);
             }
         }
@@ -103,8 +107,8 @@ namespace Nova
             for (int i = 0; i < inspiration.NextInspirations.Count; i++)
             {
                 //next inspiration generation
-                //TODO: checkunlockstatus
                 GameObject nextButton = createInspirationButton(inspiration.NextInspirations[i], getAnchorLocationByIndex(0), inspiration);
+                if (nextButton == null) continue;
                 inspirationButtons[getCurrentLayer()].Add(nextButton);
                 nextButton.GetComponent<InspirationUIInspirationButtonScript>().SideLocation = getAnchorLocationByIndex(i + 1);
                 playButtonBackToSideAnimation(nextButton);
@@ -155,6 +159,10 @@ namespace Nova
 
         GameObject createInspirationButton(InspirationDataType inspiration, Vector2 initPos, InspirationDataType parent = null)
         {
+            if(inspiration.IsLocked)
+            {
+                return null;
+            }
             var button = Instantiate(ButtonText, Trans_Location);
             button.SetActive(true);
             button.GetComponent<TMP_Text>().text = inspiration.Text;

@@ -1,3 +1,4 @@
+using Nova;
 using TMPro;
 using UnityEngine;
 
@@ -5,6 +6,8 @@ public class DeductionUIManager : MonoBehaviour
 {
     [SerializeField]
     private TMP_InputField deductionInputField;
+    [SerializeField]
+    private InspirationUIScript inspirationUIManager;
 
     private bool isDeductionModeActive = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -27,6 +30,7 @@ public class DeductionUIManager : MonoBehaviour
     public void ActivateDeductionMode()
     {
         isDeductionModeActive = true;
+        inspirationUIManager.InitByList(DeductionManager.Instance.currentLevel.RootInspirations);
         deductionInputField.gameObject.SetActive(true);
     }
     public void DeactivateDeductionMode()
