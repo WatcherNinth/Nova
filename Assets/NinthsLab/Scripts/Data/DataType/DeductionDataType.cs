@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Nova
-{
+
     [Serializable]
     public class Interrorgation_DeductionProcedure_Answer
     {
@@ -59,7 +58,6 @@ namespace Nova
         }
     }
 
-    [CreateAssetMenu(fileName = "Deduction_", menuName = "Interrorgation/CreateNewDeduction")]
     [Serializable]
     public class Interrorgation_Deduction : ScriptableObject
     {
@@ -87,4 +85,3 @@ namespace Nova
         [TextArea(3, 10)]
         public string LevelFinishScript;
     }
-}
