@@ -29,6 +29,11 @@ namespace Nova
         private Button button_Confirm;
         private GameObject currentCenterInspiration = null;
         private List<List<GameObject>> inspirationButtons = new List<List<GameObject>>();
+
+        void Awake()
+        {
+            this.CheckSerializedFields();
+        }
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
@@ -44,7 +49,7 @@ namespace Nova
             {
                 image.enabled = false;
             }
-            Test();
+            //Test();
         }
 
         // Update is called once per frame
@@ -154,7 +159,9 @@ namespace Nova
         }
         public void OnConfirmClick()
         {
-            
+            DeductionManager.Instance.DiscoverDeduction(
+                currentCenterInspiration.GetComponent<InspirationUIInspirationButtonScript>().inspirationData.DeductionID);
+            //handle combination text
         }
 
         GameObject createInspirationButton(InspirationDataType inspiration, Vector2 initPos, InspirationDataType parent = null)

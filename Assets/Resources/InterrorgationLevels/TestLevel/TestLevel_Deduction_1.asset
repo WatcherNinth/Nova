@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 0}
+  m_Name: TestLevel_Deduction_1
+  m_EditorClassIdentifier: Assembly-CSharp::Interrorgation_Deduction
+  Level: {fileID: 11400000, guid: 2a94f09b683d54c4291c61e317ff23cf, type: 2}
+  DeductionID: TestLevel_Deduction_1
+  DeductionText: "\u65B0\u7684\u63A8\u7406"
+  ChoiceText: "\u65B0\u7684\u9009\u9879"
+  IsDiscovered: 0
+  DeductionStartScript: 
+  DeductionProcedure: []
+  DeductionSuccessScript: 
+  DeductionFailScript: 

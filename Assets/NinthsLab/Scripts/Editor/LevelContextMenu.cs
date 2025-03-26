@@ -63,7 +63,7 @@ namespace Nova.Editor
 
         void OnGUI()
         {
-            GUILayout.Label("Create New Investigation Level");
+            GUILayout.Label("Create New Interrogation Level");
             folderName = EditorGUILayout.TextField("Level Name", folderName);
 
             EditorGUILayout.Space();

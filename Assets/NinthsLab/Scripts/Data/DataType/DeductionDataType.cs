@@ -63,10 +63,12 @@ using UnityEngine;
     public class Interrorgation_Deduction : ScriptableObject
     {
         public Interrorgation_Level Level;
+        public string DeductionID;
         [Tooltip("推理内容")]
         public string DeductionText;
         [Tooltip("这个推理在故事模式下以这个选项形式给出")]
         public string ChoiceText;
+        public bool IsDiscovered = false;
         [TextArea(3, 10)]
         public string DeductionStartScript;
         public List<Interrorgation_DeductionProcedureEntry> DeductionProcedure;

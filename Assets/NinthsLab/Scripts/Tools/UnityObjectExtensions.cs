@@ -98,7 +98,8 @@ public static class UnityObjectExtensions
     {
         var fields = script.GetType()
             .GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-            .Where(f => f.GetCustomAttributes(typeof(SerializeField), true).Length > 0);
+            .Where(f => f.GetCustomAttributes(typeof(SerializeField), true).Length > 0
+            && typeof(UnityEngine.Object).IsAssignableFrom(f.FieldType));
 
         foreach (var field in fields)
         {
@@ -145,6 +146,9 @@ public static class UnityObjectExtensions
         {
             // 跳过没有SerializeField的字段
             if (!field.IsDefined(typeof(SerializeField), true)) continue;
+
+            // 跳过非UnityObject类型的字段    
+            if (!typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType)) continue;
 
             // 跳过标记AllowNull特性的字段
             if (field.IsDefined(typeof(AllowNullAttribute), true)) continue;

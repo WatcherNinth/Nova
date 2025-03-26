@@ -43,9 +43,13 @@ namespace Nova
             }
         }
         #endregion
+        [Header("DebugUI专用，有值意味着为Debug模式")]
+        [SerializeField, AllowNull]
+        private DeductionUIManager DebugUIManager;
         // Manager类列表
         private DeductionUIManager deductionUIManager;
         // 公共变量声明
+        [Header("当前关卡信息")]
         public Interrorgation_Level currentLevel;
         // 确保实例在场景切换时不会销毁
         private void Awake()
@@ -90,10 +94,30 @@ namespace Nova
             Debug.Log("Dialgue Finished: " + (nodeID == "" ? "No node ID" : nodeID));
         }
 
+        public void DiscoverDeduction(string deductionID)
+        {
+            Interrorgation_Deduction discoveredDeduction = currentLevel.Deductions.Find(d => d.DeductionID == deductionID);
+            if(discoveredDeduction == null)
+            {
+                Debug.LogError($"找不到推理ID: {deductionID}");
+                return;
+            }
+            discoveredDeduction.IsDiscovered = true;
+            // 激活推理UI
+            deductionUIManager.DiscoverDeduction(discoveredDeduction);
+        }
+
         private void getUIManager()
         {
+            if(DebugUIManager != null)
+            {
+                deductionUIManager = DebugUIManager;
+                LoadLevel("TestLevel");
+                return;
+            }
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
 
+        
     }
 }

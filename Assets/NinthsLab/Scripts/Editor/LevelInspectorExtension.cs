@@ -39,10 +39,12 @@ namespace Nova.Editor
             newDeduction.ChoiceText = "新的选项";
 
             // 生成一个唯一的文件名
-            string levelName = level.name.Replace("Level_", "");
+            string levelName = level.LevelID.Replace("Level_", "");
             int deductionCount = level.Deductions != null ? level.Deductions.Count + 1 : 1;
-            string assetName = $"Deduction_{levelName}_{deductionCount}.asset";
+            string assetName = $"{levelName}_Deduction_{deductionCount}.asset";
             string assetPath = Path.Combine(directory, assetName);
+
+            newDeduction.DeductionID = assetName.Replace(".asset", "");
 
             // 创建资源文件
             AssetDatabase.CreateAsset(newDeduction, assetPath);

@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: level
   m_EditorClassIdentifier: Assembly-CSharp::Interrorgation_Level
-  LevelID: DemoLevel
+  LevelID: TestLevel
   LevelStartScript: 
-  Deductions: []
+  Deductions:
+  - {fileID: 11400000, guid: cf489b2d342377049a10cd155848257f, type: 2}
   LevelFinishScript: 
   _textFile: {fileID: 4900000, guid: e3748d5d2f866d44baf6c5918010a8fe, type: 3}
