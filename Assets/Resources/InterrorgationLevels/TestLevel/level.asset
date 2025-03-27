@@ -9,12 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: 11500000, guid: 37efc1f48fefeb6418434ca18b0f202f, type: 3}
   m_Name: level
-  m_EditorClassIdentifier: Assembly-CSharp::Interrorgation_Level
+  m_EditorClassIdentifier: 
   LevelID: TestLevel
   LevelStartScript: 
   Deductions:
-  - {fileID: 11400000, guid: cf489b2d342377049a10cd155848257f, type: 2}
+  - {fileID: 11400000, guid: c68d603100c16f243b27e07715ebaaba, type: 2}
+  - {fileID: 11400000, guid: c2ffb99d0d8beea46abd19c2ca840c7f, type: 2}
   LevelFinishScript: 
   _textFile: {fileID: 4900000, guid: e3748d5d2f866d44baf6c5918010a8fe, type: 3}

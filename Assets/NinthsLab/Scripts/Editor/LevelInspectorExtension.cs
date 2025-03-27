@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
 using Nova;
 
 namespace Nova.Editor
@@ -10,60 +11,59 @@ namespace Nova.Editor
     {
         public override void OnInspectorGUI()
         {
-            // 绘制默认的Inspector
             DrawDefaultInspector();
-
-            // 获取当前编辑的Level对象
             Interrorgation_Level level = (Interrorgation_Level)target;
 
-            // 添加创建Deduction的按钮
             EditorGUILayout.Space(10);
-            if (GUILayout.Button("创建新的推理(Deduction)"))
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("创建新的论点(Topic)"))
             {
-                CreateNewDeduction(level);
+                CreateNewTopic(level);
             }
+            if (GUILayout.Button("创建新的论据(Proof)"))
+            {
+                CreateNewProof(level);
+            }
+            EditorGUILayout.EndHorizontal();
         }
 
-        private void CreateNewDeduction(Interrorgation_Level level)
+        private void CreateNewTopic(Interrorgation_Level level)
         {
-            // 获取Level资源的路径
+            CreateDeductionAsset<Interrorgation_Topic>(level, "Topic");
+        }
+
+        private void CreateNewProof(Interrorgation_Level level)
+        {
+            CreateDeductionAsset<Interrorgation_Proof>(level, "Proof");
+        }
+
+        private void CreateDeductionAsset<T>(Interrorgation_Level level, string typeName) where T : Interrorgation_Deduction
+        {
             string levelPath = AssetDatabase.GetAssetPath(level);
             string directory = Path.GetDirectoryName(levelPath);
 
-            // 创建新的Deduction资源
-            Interrorgation_Deduction newDeduction = ScriptableObject.CreateInstance<Interrorgation_Deduction>();
-
-            // 设置新Deduction的基本属性
+            T newDeduction = ScriptableObject.CreateInstance<T>();
             newDeduction.Level = level;
-            newDeduction.DeductionText = "新的推理";
-            newDeduction.ChoiceText = "新的选项";
+            newDeduction.DeductionText = $"新的{typeName}";
 
-            // 生成一个唯一的文件名
             string levelName = level.LevelID.Replace("Level_", "");
-            int deductionCount = level.Deductions != null ? level.Deductions.Count + 1 : 1;
-            string assetName = $"{levelName}_Deduction_{deductionCount}.asset";
+            int deductionCount = level.Deductions?.Count + 1 ?? 1;
+            string assetName = $"{levelName}_{typeName}_{deductionCount}.asset";
             string assetPath = Path.Combine(directory, assetName);
 
             newDeduction.DeductionID = assetName.Replace(".asset", "");
 
-            // 创建资源文件
             AssetDatabase.CreateAsset(newDeduction, assetPath);
 
-            // 将新创建的Deduction添加到Level的Deductions列表中
             if (level.Deductions == null)
             {
-                level.Deductions = new System.Collections.Generic.List<Interrorgation_Deduction>();
+                level.Deductions = new List<Interrorgation_Deduction>();
             }
             level.Deductions.Add(newDeduction);
 
-            // 标记Level为已修改，以便Unity保存更改
             EditorUtility.SetDirty(level);
             AssetDatabase.SaveAssets();
-
-            // 选中新创建的Deduction资源
             Selection.activeObject = newDeduction;
-
-            Debug.Log($"成功创建推理：{assetPath}，并关联到Level：{level.name}");
         }
     }
 }
