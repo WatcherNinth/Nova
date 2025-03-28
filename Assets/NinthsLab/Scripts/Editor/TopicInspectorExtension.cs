@@ -2,20 +2,26 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
+using System;
 
 [CustomEditor(typeof(Interrorgation_Topic))]
 public class TopicInspectorExtension : Editor
 {
+    private Type _baseType = typeof(Interrorgation_Deduction);
+
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
         Interrorgation_Topic topic = (Interrorgation_Topic)target;
 
-        // 用更安全的方式处理数组
-        SerializedProperty phasesProp = serializedObject.FindProperty("ProofPhases");
-        EditorGUILayout.PropertyField(phasesProp, true);
+        // 自动绘制基类所有序列化属性
+        DrawBaseClassProperties();
 
-        // 添加自适应布局空间
+        // 子类特有属性
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("ProofPhases"), true);
+
+        // 操作按钮
         EditorGUILayout.Space(15);
         if (GUILayout.Button("创建一个论据阶段"))
         {
@@ -25,7 +31,35 @@ public class TopicInspectorExtension : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    // 添加新论据阶段的基础方法
+    private void DrawBaseClassProperties()
+    {
+        SerializedProperty prop = serializedObject.GetIterator();
+        bool enterChildren = true;
+
+        while (prop.NextVisible(enterChildren))
+        {
+            enterChildren = false;
+
+            // 跳过脚本引用和子类自有属性
+            if (prop.name == "m_Script" ||
+                IsPropertyDefinedInChildClass(prop.propertyPath)) continue;
+
+            EditorGUILayout.PropertyField(serializedObject.FindProperty(prop.propertyPath), true);
+        }
+    }
+
+    private bool IsPropertyDefinedInChildClass(string propertyPath)
+    {
+        // 获取目标类的字段声明信息
+        FieldInfo field = target.GetType().GetField(
+            propertyPath,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+        );
+
+        // 若字段声明类型不是基类，则为子类自有属性
+        return field != null && field.DeclaringType != _baseType;
+    }
+
     private void AddNewProofPhase(Interrorgation_Topic topic)
     {
         Undo.RecordObject(topic, "Add Proof Phase");
@@ -49,7 +83,6 @@ public class ProofPhaseDrawer : PropertyDrawer
         // 原始属性绘制
         Rect contentRect = new Rect(position.x, position.y, position.width, position.height - 24);
         EditorGUI.PropertyField(contentRect, property, label, true);
-
         // 按钮区域
         Rect buttonRect = new Rect(position.x + position.width - 200, position.yMax - 22, 200, 20);
         if (GUI.Button(buttonRect, "+ 添加论据到本阶段"))
@@ -99,7 +132,7 @@ public class ProofPhaseDrawer : PropertyDrawer
 
         int phaseIndex = int.Parse(indexMatch.Groups[1].Value);
         // 在对应阶段添加关联
-        var phase = parentTopic.ProofPhases[phaseIndex]; 
+        var phase = parentTopic.ProofPhases[phaseIndex];
         phase.ProofDialogues.Add(new Interrorgation_Topic.ProofDialoguePair
         {
             Proof = newProof,
