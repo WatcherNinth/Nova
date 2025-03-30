@@ -19,6 +19,8 @@ public class TopicInspectorExtension : Editor
         DrawBaseClassProperties();
 
         // 子类特有属性
+        EditorGUILayout.LabelField("子类特有属性", EditorStyles.boldLabel);
+        EditorGUILayout.PropertyField(serializedObject.FindProperty("TopicSuccessfulDialogue"), true);
         EditorGUILayout.PropertyField(serializedObject.FindProperty("ProofPhases"), true);
 
         // 操作按钮

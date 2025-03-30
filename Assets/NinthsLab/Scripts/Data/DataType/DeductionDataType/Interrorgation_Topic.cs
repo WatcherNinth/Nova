@@ -16,6 +16,8 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         public Interrorgation_Proof Proof;
         [TextArea(3, 10)]
         public string PostProofDialogue;
+        [TextArea(3, 10)]
+        public string AlreadyProvedDialogue;
         public bool IsFalseProof = false;
     }
 
@@ -36,6 +38,10 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         public List<ProofDialoguePair> ProofDialogues = new List<ProofDialoguePair>();
         public bool IsSingleProof => RequiredProofCount <= 1; // 是否为单论据阶段
     }
+
+    [Tooltip("成功对话")]
+    [TextArea(3, 10)]
+    public string TopicSuccessfulDialogue;
 
     [Tooltip("论据阶段列表")]
     public List<ProofPhase> ProofPhases = new List<ProofPhase>();
