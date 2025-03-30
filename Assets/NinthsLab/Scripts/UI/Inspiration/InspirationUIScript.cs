@@ -28,6 +28,13 @@ namespace Nova
         [SerializeField]
         private Button button_Confirm;
         private GameObject currentCenterInspiration = null;
+        /// <summary>
+        /// 存储当前关卡的灵感数据
+        /// </summary>
+        private List<InspirationDataType> inspirationLevelData = new List<InspirationDataType>();
+        /// <summary>
+        /// 灵感层按钮列表，按层存储
+        /// </summary>
         private List<List<GameObject>> inspirationButtons = new List<List<GameObject>>();
 
         void Awake()
@@ -42,7 +49,7 @@ namespace Nova
             QuestionText.transform.parent.gameObject.SetActive(false);
             button_Back.gameObject.SetActive(false);
             button_Confirm.gameObject.SetActive(false);
-            clearCombination();
+            clearCombinationText();
             button_Back.onClick.AddListener(OnBackClick);
             button_Confirm.onClick.AddListener(OnConfirmClick);
             foreach (Image image in Trans_Location.GetComponentsInChildren<Image>())
@@ -58,27 +65,12 @@ namespace Nova
 
         }
 
-        void Test()
-        {
-            // 假设文件路径为 "Assets/Resources/InterrorgationLevels/DemoLevel/Inspiration_Test"
-            InitByList(InspirationDataType.LoadFromFile("InterrorgationLevels/DemoLevel/Inspiration_Test"));
-        }
-
         public void InitByList(List<InspirationDataType> inspirationData)
         {
             Debug.Log($"加载到{inspirationData.Count}个灵感");
             Debug.Log(JsonConvert.SerializeObject(inspirationData, Formatting.Indented));
-            //createLocationTransform();
-            inspirationButtons.Add(new List<GameObject>());
-            for (int i = 0; i < inspirationData.Count; i++)
-            {
-                GameObject button = createInspirationButton(inspirationData[i], getAnchorLocationByIndex(i + 1));
-                if(button == null)
-                {
-                    continue;
-                }
-                inspirationButtons[getCurrentLayer()].Add(button);
-            }
+            inspirationLevelData = inspirationData;
+            loadRootInspirations();
         }
         public void OnInspirationClick(InspirationDataType inspiration, GameObject button)
         {
@@ -99,9 +91,11 @@ namespace Nova
             playButtonToCenterAnimation(button);
             button.GetComponent<InspirationUIInspirationButtonScript>().isCentered = true;
             currentCenterInspiration = button;
-            //add new layer
-            inspirationButtons.Add(new List<GameObject>());
+            // add text to combination
             addTextToCombination(inspiration.Text);
+            //添加新层，必须放在final inspiration check之前，因为返回的时候一定退一层
+            inspirationButtons.Add(new List<GameObject>());
+            // check if final inspiration
             if (inspiration.IsFinalInspiration())
             {
                 //display question
@@ -109,14 +103,16 @@ namespace Nova
                 button_Confirm.gameObject.SetActive(true);
                 return;
             }
+            //添加新灵感按钮
             for (int i = 0; i < inspiration.NextInspirations.Count; i++)
             {
                 //next inspiration generation
-                GameObject nextButton = createInspirationButton(inspiration.NextInspirations[i], getAnchorLocationByIndex(0), inspiration);
-                if (nextButton == null) continue;
-                inspirationButtons[getCurrentLayer()].Add(nextButton);
-                nextButton.GetComponent<InspirationUIInspirationButtonScript>().SideLocation = getAnchorLocationByIndex(i + 1);
-                playButtonBackToSideAnimation(nextButton);
+                addButtonToCurrentLayer(inspiration.NextInspirations[i], i, inspiration);
+            }
+            resortButtonIndexInLayer(getCurrentLayer());
+            foreach (var newButton in inspirationButtons[getCurrentLayer()])
+            {
+                playButtonBackToSideAnimation(newButton);
             }
         }
 
@@ -126,6 +122,7 @@ namespace Nova
             hideQuestionText();
             button_Confirm.gameObject.SetActive(false);
             // remove currentlayer
+            //TODO：这个脚本之后考虑用destroyLayer替代，现在没法让他在动画放完后只执行一次
             foreach (var button in inspirationButtons[getCurrentLayer()])
             {
                 playButtonToCenterAnimation(button);
@@ -136,7 +133,7 @@ namespace Nova
             }
             inspirationButtons.RemoveAt(getCurrentLayer());
             //handle conbination text
-            removeTextFromCombination();
+            removeLastTextFromCombination();
             //restore last layer
             playButtonBackToSideAnimation(currentCenterInspiration);
             foreach (var otherbutton in inspirationButtons[getCurrentLayer()])
@@ -144,6 +141,7 @@ namespace Nova
                 if (otherbutton.GetComponent<InspirationUIInspirationButtonScript>().isCentered) continue;
                 playButtonFadeInAnimation(otherbutton);
             }
+            currentCenterInspiration.GetComponent<InspirationUIInspirationButtonScript>().isCentered = false;
 
             if (getCurrentLayer() == 0)
             {
@@ -162,6 +160,7 @@ namespace Nova
             DeductionManager.Instance.DiscoverDeduction(
                 currentCenterInspiration.GetComponent<InspirationUIInspirationButtonScript>().inspirationData.DeductionID);
             //handle combination text
+            resetInspirations();
         }
 
         GameObject createInspirationButton(InspirationDataType inspiration, Vector2 initPos, InspirationDataType parent = null)
@@ -185,15 +184,73 @@ namespace Nova
             return button;
         }
 
-        #region Question
-        void setQuestionText(string question)
+        GameObject addButtonToCurrentLayer(InspirationDataType inspiration, int index, InspirationDataType parentIns = null)
         {
-            QuestionText.GetComponent<TMP_Text>().text = question;
-            QuestionText.transform.parent.gameObject.SetActive(true);
+            GameObject NewButton = createInspirationButton(inspiration, getAnchorLocationByIndex(0), parentIns);
+            if (NewButton == null) return null;
+            inspirationButtons[getCurrentLayer()].Add(NewButton);
+            NewButton.GetComponent<InspirationUIInspirationButtonScript>().SideLocation = getAnchorLocationByIndex(index + 1);
+            return NewButton;
         }
-        void hideQuestionText()
+
+        #region Layer
+
+        void loadRootInspirations()
         {
-            QuestionText.transform.parent.gameObject.SetActive(false);
+            inspirationButtons.Add(new List<GameObject>());
+            for (int i = 0; i < inspirationLevelData.Count; i++)
+            {
+                var NewButton = addButtonToCurrentLayer(inspirationLevelData[i], i);
+                playButtonBackToSideAnimation(NewButton);
+            }
+        }
+
+        void resetInspirations()
+        {
+            Debug.Log("重置灵感");
+            var currentlayer = getCurrentLayer();
+            for (int i = currentlayer; i >= 0; i--)
+            {
+                destroyLayer(i); // 销毁指定层
+            }
+            inspirationButtons.Clear();
+            loadRootInspirations(); // 重新加载根灵感
+            resetQuestionText(); // 重置问题文本
+            clearCombinationText(); // 清除组合文本
+            currentCenterInspiration = null; // 重置当前中心灵感
+            button_Back.gameObject.SetActive(false); // 隐藏返回按钮
+            button_Confirm.gameObject.SetActive(false); // 隐藏确认按钮
+        }
+
+        int getCurrentLayer()
+        {
+            return inspirationButtons.Count - 1;
+        }
+
+        void destroyLayer(int layer)
+        {
+            Debug.Log($"Destroying layer {layer}"); // 添加日志以便调试
+            if (layer < 0 || layer >= inspirationButtons.Count)
+            {
+                Debug.LogError("Invalid layer index");
+                return;
+            }
+            foreach (var button in inspirationButtons[layer])
+            {
+                Destroy(button);
+            }
+            inspirationButtons.RemoveAt(layer);
+        }
+
+        void resortButtonIndexInLayer(int layerIndex)
+        {
+            Debug.Log($"Resorting buttons in layer {layerIndex}"); // 添加日志以便调试
+            var layer = inspirationButtons[layerIndex];
+            for (int i = 0; i < layer.Count; i++)
+            {
+                var newSideLocation = getAnchorLocationByIndex(i + 1);
+                layer[i].GetComponent<InspirationUIInspirationButtonScript>().SideLocation = newSideLocation;
+            }
         }
         #endregion
 
@@ -216,13 +273,10 @@ namespace Nova
                 return Vector2.zero;
             }
         }
-        int getCurrentLayer()
-        {
-            return inspirationButtons.Count - 1;
-        }
+
         #endregion
         #region Combination
-        void clearCombination()
+        void clearCombinationText()
         {
             for (int i = 0; i < Trans_Combination.childCount; i++)
             {
@@ -244,7 +298,7 @@ namespace Nova
             LayoutRebuilder.ForceRebuildLayoutImmediate(Trans_Combination.GetComponent<RectTransform>());
         }
 
-        void removeTextFromCombination()
+        void removeLastTextFromCombination()
         {
             var count = Trans_Combination.childCount;
             if (count == 0)
@@ -258,13 +312,32 @@ namespace Nova
             }
             else
             {
-                clearCombination();
+                clearCombinationText();
             }
+        }
+        #endregion
+        #region Question
+        void setQuestionText(string question)
+        {
+            QuestionText.GetComponent<TMP_Text>().text = question;
+            QuestionText.transform.parent.gameObject.SetActive(true);
+        }
+        void hideQuestionText()
+        {
+            QuestionText.transform.parent.gameObject.SetActive(false);
+        }
+
+        void resetQuestionText()
+        {
+            QuestionText.GetComponent<TMP_Text>().text = ""; // 清空文本
+            hideQuestionText(); // 隐藏问题文本框
         }
         #endregion
         #region InspirationAnimation
         void playButtonToCenterAnimation(GameObject button)
         {
+            var sidepos = button.GetComponent<InspirationUIInspirationButtonScript>().SideLocation;
+            button.GetComponent<RectTransform>().anchoredPosition = sidepos;
             button.GetComponent<Button>().enabled = false;
             button.GetComponent<RectTransform>().DOAnchorPos(getAnchorLocationByIndex(0), AnimationDuration);
         }
@@ -272,6 +345,7 @@ namespace Nova
         void playButtonBackToSideAnimation(GameObject button)
         {
             var pos = button.GetComponent<InspirationUIInspirationButtonScript>().SideLocation;
+            button.GetComponent<RectTransform>().anchoredPosition = getAnchorLocationByIndex(0);
             button.GetComponent<RectTransform>().DOAnchorPos(pos, AnimationDuration).OnComplete(() =>
             {
                 button.GetComponent<Button>().enabled = true;
@@ -280,6 +354,7 @@ namespace Nova
         }
         void playButtonFadeOutAnimation(GameObject button, UnityAction<GameObject> callback)
         {
+            button.GetComponent<CanvasGroup>().alpha = 1.0f;
             button.GetComponent<CanvasGroup>().interactable = false;
             button.GetComponent<CanvasGroup>().DOFade(0, AnimationDuration).OnComplete(() =>
             {
@@ -290,6 +365,7 @@ namespace Nova
         }
         void playButtonFadeInAnimation(GameObject button)
         {
+            button.GetComponent<CanvasGroup>().alpha = 0.0f;
             button.GetComponent<CanvasGroup>().DOFade(1, AnimationDuration).OnComplete(() =>
             {
                 button.GetComponent<CanvasGroup>().interactable = true;
