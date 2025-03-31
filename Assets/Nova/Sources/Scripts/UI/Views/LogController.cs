@@ -6,32 +6,35 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Newtonsoft.Json;
 
 namespace Nova
 {
-    public class LogEntry
-    {
-        public float height;
-        public float prefixHeight;
-        public readonly long nodeOffset;
-        public readonly long checkpointOffset;
-        public readonly ReachedDialogueData dialogueData;
-        public readonly DialogueDisplayData displayData;
+    // LogEntry 类扩展：新增 branchChoice 字段用于记录分支选择日志
+    // public class LogEntry
+    // {
+    //     public float height;
+    //     public float prefixHeight;
+    //     public readonly long nodeOffset;
+    //     public readonly long checkpointOffset;
+    //     public readonly ReachedDialogueData dialogueData;
+    //     public readonly DialogueDisplayData displayData;
+    //     public string branchChoice;  // 如果不为 null，则表示这是一个分支选择记录
 
-        public LogEntry(float height, float prefixHeight, long nodeOffset, long checkpointOffset,
-            ReachedDialogueData dialogueData, DialogueDisplayData displayData)
-        {
-            this.height = height;
-            this.prefixHeight = prefixHeight;
-            this.nodeOffset = nodeOffset;
-            this.checkpointOffset = checkpointOffset;
-            this.dialogueData = dialogueData;
-            this.displayData = displayData;
-        }
-    }
+    //     public LogEntry(float height, float prefixHeight, long nodeOffset, long checkpointOffset,
+    //         ReachedDialogueData dialogueData, DialogueDisplayData displayData)
+    //     {
+    //         this.height = height;
+    //         this.prefixHeight = prefixHeight;
+    //         this.nodeOffset = nodeOffset;
+    //         this.checkpointOffset = checkpointOffset;
+    //         this.dialogueData = dialogueData;
+    //         this.displayData = displayData;
+    //         this.branchChoice = null;
+    //     }
+    // }
 
-    public class LogController : ViewControllerBase, IRestorable, LoopScrollPrefabSource, LoopScrollDataSource,
-        LoopScrollSizeHelper
+    public class LogController : ViewControllerBase, IRestorable, LoopScrollPrefabSource, LoopScrollDataSource, LoopScrollSizeHelper
     {
         [Serializable]
         private class LogEntryRestoreData
@@ -77,11 +80,15 @@ namespace Nova
             checkpointManager = controller.CheckpointManager;
             configManager = controller.ConfigManager;
 
+            // 初始化 UI 组件（如果存在）
             scrollRect = myPanel.GetComponentInChildren<LoopVerticalScrollRectWithSwitch>();
-            scrollRect.prefabSource = this;
-            scrollRect.dataSource = this;
-            scrollRect.sizeHelper = this;
-            scrollLayout = scrollRect.GetComponentInChildren<VerticalLayoutGroup>();
+            if (scrollRect != null)
+            {
+                scrollRect.prefabSource = this;
+                scrollRect.dataSource = this;
+                scrollRect.sizeHelper = this;
+                scrollLayout = scrollRect.GetComponentInChildren<VerticalLayoutGroup>();
+            }
 
             myPanel.GetComponent<Button>().onClick.AddListener(Hide);
             closeButton.onClick.AddListener(Hide);
@@ -96,7 +103,8 @@ namespace Nova
 
         protected override void ForceRebuildLayoutAndResetTransitionTarget()
         {
-            // fake content to test size
+            if (scrollRect == null) return;
+
             if (logEntryForTest == null)
             {
                 logEntryForTest = Instantiate(logEntryPrefab, scrollRect.content);
@@ -143,7 +151,7 @@ namespace Nova
 
         private void UpdateContentForTest()
         {
-            if (scrollRect.content.childCount > 0)
+            if (scrollRect != null && scrollRect.content.childCount > 0)
             {
                 var newContentForTest = scrollRect.content.GetChild(0).GetComponent<TextProxy>();
                 if (newContentForTest != null)
@@ -151,11 +159,14 @@ namespace Nova
                     contentForTest = newContentForTest;
                 }
             }
-
-            contentForTest.GetComponent<FontSizeReader>().UpdateValue();
-            contentForTest.ForceRefresh();
+            if (contentForTest != null)
+            {
+                contentForTest.GetComponent<FontSizeReader>().UpdateValue();
+                contentForTest.ForceRefresh();
+            }
         }
 
+        // 添加对话日志记录（对话记录 displayData 不为空）
         private void AddEntry(NodeRecord nodeRecord, long checkpointOffset, ReachedDialogueData dialogueData,
             DialogueDisplayData displayData)
         {
@@ -166,21 +177,95 @@ namespace Nova
             }
 
             UpdateContentForTest();
-            var height = contentForTest.GetPreferredHeight(text, contentDefaultWidth);
-            var cnt = logEntries.Count;
-            var prefixHeight = height + (cnt > 0 ? logEntries[cnt - 1].prefixHeight : 0);
-            logEntries.Add(new LogEntry(height, prefixHeight, nodeRecord.offset, checkpointOffset, dialogueData,
-                displayData));
+            float height = (contentForTest != null) ? contentForTest.GetPreferredHeight(text, contentDefaultWidth) : 0f;
+            int cnt = logEntries.Count;
+            float prefixHeight = height + (cnt > 0 ? logEntries[cnt - 1].prefixHeight : 0);
+            logEntries.Add(new LogEntry(height, prefixHeight, nodeRecord.offset, checkpointOffset, dialogueData, displayData));
 
-            if (!RestrainLogEntryNum(maxLogEntryNum))
+            if (scrollRect != null && !RestrainLogEntryNum(maxLogEntryNum))
             {
                 scrollRect.totalCount = logEntries.Count;
             }
+
+            // 每次添加对话日志后，输出当前最新日志到 Console
+            ExportLatestLogEntry();
         }
+
+        // 新增方法：记录分支选择日志（此时 displayData 为 null）
+        public void AddChoiceEntry(string choiceText)
+        {
+            float height = 0f;
+            float prefixHeight = (logEntries.Count > 0 ? logEntries[logEntries.Count - 1].prefixHeight : 0f);
+            LogEntry entry = new LogEntry(height, prefixHeight, 0, 0, null, null);
+            entry.branchChoice = choiceText;
+            logEntries.Add(entry);
+            if (scrollRect != null)
+            {
+                scrollRect.totalCount = logEntries.Count;
+                scrollRect.RefillCellsFromEnd();
+            }
+            ExportLatestLogEntry();
+        }
+
+        // 输出最新一条日志记录到 Console（只输出当前这条记录的内容）
+        // 输出最新一条日志记录到 Console，并按照指定格式显示对话和所有选项
+        public void ExportLatestLogEntry()
+        {
+            if (logEntries.Count == 0)
+                return;
+
+            LogEntry currentEntry = logEntries[logEntries.Count - 1];
+            string outputStr = "";
+
+            // 如果是对话记录（displayData 不为空）
+            if (currentEntry.displayData != null)
+            {
+                var displayDTO = new DialogueDisplayDataDTO(currentEntry.displayData);
+                string displayName = "";
+                string dialogueText = "";
+                if (displayDTO.displayNames != null && displayDTO.displayNames.TryGetValue("ChineseSimplified", out var dn))
+                {
+                    displayName = dn;
+                }
+                if (displayDTO.dialogues != null && displayDTO.dialogues.TryGetValue("ChineseSimplified", out var dText))
+                {
+                    dialogueText = dText;
+                }
+                outputStr = displayName + "\n" + dialogueText;
+            }
+            // 如果最新记录为分支记录，则只显示分支信息
+            else if (currentEntry.branchChoice != null)
+            {
+                outputStr = "选项：{\n" + currentEntry.branchChoice + "\n}";
+            }
+            else
+            {
+                outputStr = "";
+            }
+
+            // 收集所有分支选择日志（无论是否最新）
+            var branchChoices = logEntries
+                                .Where(entry => entry.branchChoice != null)
+                                .Select(entry => entry.branchChoice)
+                                .ToList();
+
+            if (branchChoices.Count > 0)
+            {
+                outputStr += "\n选项：{\n";
+                foreach (var branch in branchChoices)
+                {
+                    outputStr += branch + "\n";
+                }
+                outputStr += "}";
+            }
+
+            Debug.Log(outputStr);
+        }
+
 
         private void OnFontSizeChanged()
         {
-            if (active && scrollRect.totalCount > 0)
+            if (scrollRect != null && active && scrollRect.totalCount > 0)
             {
                 var firstIdx = scrollRect.GetFirstItem(out var _);
                 var lastIdx = scrollRect.GetLastItem(out _);
@@ -200,19 +285,17 @@ namespace Nova
             }
         }
 
-        // TODO: Use multiple frames to refresh heights of all entries if it lags
         private void RefreshEntryHeight()
         {
             UpdateContentForTest();
             for (var i = 0; i < logEntries.Count; i++)
             {
-                var text = logEntries[i].displayData.FormatNameDialogue();
-                var height = contentForTest.GetPreferredHeight(text, contentDefaultWidth);
-                var prefixHeight = height + (i > 0 ? logEntries[i - 1].prefixHeight : 0);
+                var text = (logEntries[i].displayData != null) ? logEntries[i].displayData.FormatNameDialogue() : "";
+                float height = (contentForTest != null) ? contentForTest.GetPreferredHeight(text, contentDefaultWidth) : 0f;
+                float prefixHeight = height + (i > 0 ? logEntries[i - 1].prefixHeight : 0);
                 logEntries[i].height = height;
                 logEntries[i].prefixHeight = prefixHeight;
             }
-
             needRefreshEntryHeight = false;
         }
 
@@ -231,15 +314,16 @@ namespace Nova
             {
                 logEntries[i].prefixHeight = logEntries[i].height + (i > 0 ? logEntries[i - 1].prefixHeight : 0);
             }
-
             logEntriesRestoreData.RemoveAll(x => x.index >= index && x.index < index + count);
             logEntriesRestoreData.ForEach(x =>
             {
                 if (x.index >= index) x.index -= count;
             });
-
-            scrollRect.totalCount = logEntries.Count;
-            scrollRect.RefillCellsFromEnd();
+            if (scrollRect != null)
+            {
+                scrollRect.totalCount = logEntries.Count;
+                scrollRect.RefillCellsFromEnd();
+            }
         }
 
         public void Clear()
@@ -252,7 +336,7 @@ namespace Nova
             return random.Next(logEntries);
         }
 
-        #region LoopScrollRect
+        #region LoopScrollRect 接口实现
 
         public Vector2 GetItemsSize(int itemsCount)
         {
@@ -263,7 +347,6 @@ namespace Nova
             {
                 height += scrollLayout.padding.bottom;
             }
-
             return new Vector2(0, height);
         }
 
@@ -276,7 +359,6 @@ namespace Nova
                 var element = Instantiate(logEntryPrefab, scrollRect.content);
                 return element.gameObject;
             }
-
             Transform candidate = pool.Pop();
             candidate.SetParent(scrollRect.content, false);
             var go = candidate.gameObject;
@@ -294,18 +376,22 @@ namespace Nova
         public void ProvideData(Transform transform, int idx)
         {
             var logEntry = logEntries[idx];
-            UnityAction onGoBackButtonClicked = () => MoveBack(logEntry, idx);
+            // 当这是分支选择记录时，避免调用 Init（因为 displayData 为 null），直接输出到 Console即可
+            if (logEntry.branchChoice != null && logEntry.displayData == null)
+            {
+                Debug.Log("ProvideData: Branch Log Entry detected. Branch text: " + logEntry.branchChoice);
+                return;
+            }
 
+            UnityAction onGoBackButtonClicked = () => MoveBack(logEntry, idx);
             UnityAction onPlayVoiceButtonClicked = null;
-            var voices = logEntry.dialogueData.voices;
-            if (GameCharacterController.CanPlayVoice(voices))
+            var voices = logEntry.dialogueData?.voices;
+            if (voices != null && GameCharacterController.CanPlayVoice(voices))
             {
                 onPlayVoiceButtonClicked = () => GameCharacterController.ReplayVoice(voices);
             }
-
             var logEntryController = transform.GetComponent<LogEntryController>();
-            logEntryController.Init(logEntry.displayData, onGoBackButtonClicked, onPlayVoiceButtonClicked,
-                logEntry.height);
+            logEntryController.Init(logEntry.displayData, onGoBackButtonClicked, onPlayVoiceButtonClicked, logEntry.height);
         }
 
         #endregion
@@ -345,19 +431,14 @@ namespace Nova
                 Alert.Show("log.first.hint");
                 configManager.SetInt(LogViewFirstShownKey, 1);
             }
-
             base.Show(doTransition, onFinish);
-
             if (needRefreshEntryHeight)
             {
                 RefreshEntryHeight();
             }
-
             scrollRect.RefillCellsFromEnd();
             scrollRect.verticalNormalizedPosition = 1f;
             selectedLogEntryIndex = -1;
-
-            // Disable scrolling when just showed
             scrollRect.scrollable = false;
         }
 
@@ -368,28 +449,20 @@ namespace Nova
         protected override void OnActivatedUpdate()
         {
             base.OnActivatedUpdate();
-
             var delta = Mouse.current?.scroll.ReadValue().y ?? 0f;
             if (delta < -1e-3f)
             {
-                // If the content does not extend beyond the viewport, immediately hide log view
-                // In this case, verticalNormalizedPosition is always 0
                 scrollRect.GetVerticalOffsetAndSize(out var contentHeight, out _);
                 if (contentHeight < scrollRect.viewport.rect.height)
                 {
                     Hide();
                     return;
                 }
-
-                // Otherwise, the first scrolling down stops when reaches the bottom,
-                // and the second scrolling down hides log view
-                // verticalNormalizedPosition can be > 1
                 if (scrollIdleTime > MaxScrollIdleTime && lastScrollPosition > 1f - 1e-3f)
                 {
                     Hide();
                     return;
                 }
-
                 scrollIdleTime = 0f;
             }
             else if (delta > 1e-3f)
@@ -400,27 +473,21 @@ namespace Nova
             {
                 scrollIdleTime += Time.unscaledDeltaTime;
             }
-
             if (scrollIdleTime > MaxScrollIdleTime)
             {
                 lastScrollPosition = scrollRect.verticalNormalizedPosition;
             }
-
-            // Enable scrolling after MaxScrollIdleTime
             if (!scrollRect.scrollable && scrollIdleTime > MaxScrollIdleTime)
             {
                 scrollRect.scrollable = true;
             }
-
             if (scrollRect.scrollable)
             {
-                // TODO: fully support keyboard navigation
                 if (Keyboard.current?[Key.UpArrow].isPressed == true)
                 {
                     Cursor.visible = false;
                     scrollRect.velocity += scrollRect.scrollSensitivity * Vector2.down;
                 }
-
                 if (Keyboard.current?[Key.DownArrow].isPressed == true)
                 {
                     Cursor.visible = false;
@@ -437,7 +504,6 @@ namespace Nova
         private class LogControllerRestoreData : IRestoreData
         {
             public readonly List<LogEntryRestoreData> logEntriesRestoreData;
-
             public LogControllerRestoreData(LogController parent)
             {
                 logEntriesRestoreData = parent.logEntriesRestoreData;
@@ -457,33 +523,26 @@ namespace Nova
             {
                 return;
             }
-
-            // TODO: In each checkpoint, only save logEntriesRestoreData from the last checkpoint
-            // Or we can use a binary indexed tree to store them
             var data = restoreData as LogControllerRestoreData;
             logEntriesRestoreData.AddRange(data.logEntriesRestoreData);
-
-            var i = 0;
+            int i = 0;
             var logEntryRestoreData = logEntriesRestoreData.FirstOrDefault();
             foreach (var pos in gameState.GetDialogueHistory(maxLogEntryNum))
             {
                 var dialogueData = checkpointManager.GetReachedDialogueData(pos.nodeRecord.name, pos.dialogueIndex);
                 DialogueDisplayData displayData = null;
-
                 if (logEntryRestoreData != null && logEntryRestoreData.index == logEntries.Count)
                 {
                     displayData = logEntryRestoreData.displayData;
                     ++i;
                     logEntryRestoreData = i < logEntriesRestoreData.Count ? logEntriesRestoreData[i] : null;
                 }
-
                 if (displayData == null)
                 {
                     var node = gameState.GetNode(pos.nodeRecord.name);
                     var entry = node.GetDialogueEntryAt(pos.dialogueIndex);
                     displayData = entry.GetDisplayData();
                 }
-
                 AddEntry(pos.nodeRecord, pos.checkpointOffset, dialogueData, displayData);
             }
         }
