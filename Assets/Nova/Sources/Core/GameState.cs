@@ -489,6 +489,9 @@ namespace Nova
                     checkpointManager.SetEndReached(endName);
                     routeEnded.Invoke(new RouteEndedData(endName));
                     break;
+                case FlowChartNodeType.Pending:
+                    // do nothing, wait for external trigger
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

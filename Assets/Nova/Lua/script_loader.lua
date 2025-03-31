@@ -64,6 +64,12 @@ function jump_to(dest)
     __Nova.scriptLoader:RegisterJump(dest)
 end
 
+function pending()
+    if not check_eager('pending') then
+        return
+    end
+    __Nova.scriptLoader:RegisterPending()
+end
 --- add branches to the current node
 --- should be called at the end of the node
 --- should be called only once for each node, i.e., all branches of the node should be added at once

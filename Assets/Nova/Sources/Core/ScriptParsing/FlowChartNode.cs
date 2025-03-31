@@ -12,7 +12,8 @@ namespace Nova
     {
         Normal,
         Branching,
-        End
+        End,
+        Pending,
     }
 
     /// <summary>

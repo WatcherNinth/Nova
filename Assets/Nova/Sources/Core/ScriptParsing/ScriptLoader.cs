@@ -339,6 +339,17 @@ namespace Nova
         }
 
         /// <summary>
+        /// Register a pending state for the current node.
+        /// This method is designed to be called externally by scripts.
+        /// </summary>
+        public void RegisterPending()
+        {
+            lazyBindingLinks.Add(new LazyBindingEntry(currentNode, currentNode.name, BranchInformation.Default));
+            currentNode = null;
+        }
+
+
+        /// <summary>
         /// Add a branch to the current node.
         /// The type of the current node will be switched to Branching.
         /// This method is designed to be called externally by scripts.
