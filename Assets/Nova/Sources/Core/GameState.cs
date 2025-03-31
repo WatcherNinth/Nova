@@ -587,6 +587,11 @@ namespace Nova
             GameStart(GetNode(nodeName));
         }
 
+        public void MoveToNextNode(string nodeName)
+        {
+            MoveToNextNode(GetNode(nodeName));
+        }
+
         public FlowChartNode GetNode(string name, bool addDeferred = true)
         {
             var node = flowChartGraph.GetNode(name);

@@ -92,6 +92,8 @@ public class DeductionUIManager : MonoBehaviour
     {
         Debug.Log("Selected Deduction: " + deductionData.DeductionText);
         // Handle deduction selection logic here
+        //gameState.MoveToNextNode("demo01");
+        DeductionManager.Instance.SubmitDeduction(deductionData);
     }
 
 }

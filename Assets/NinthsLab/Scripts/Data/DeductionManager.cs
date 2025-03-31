@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
 
 namespace Nova
@@ -48,14 +50,22 @@ namespace Nova
         private DeductionUIManager DebugUIManager;
         // Manager类列表
         private DeductionUIManager deductionUIManager;
-        // 公共变量声明
+
+        #region 关卡信息管理
         [Header("当前关卡信息")]
         public Interrorgation_Level currentLevel;
+
+        private List<Interrorgation_Deduction> provedDeductions = new List<Interrorgation_Deduction>();
+        private Interrorgation_Topic currentTopic;
+        #endregion
+        private GameState gameState;
         // 确保实例在场景切换时不会销毁
         private void Awake()
         {
             instanceFunctionInAwake();
             LuaRuntime.Instance.BindObject("deductionManager", this);
+            var controller = Utils.FindNovaController();
+            gameState = controller.GameState;
         }
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -80,7 +90,7 @@ namespace Nova
             currentLevel = Resources.Load<Interrorgation_Level>(resourcePath);
 
             // 异常处理
-            if(currentLevel == null)
+            if (currentLevel == null)
             {
                 Debug.LogError($"找不到关卡资源: {resourcePath}");
                 return;
@@ -97,7 +107,7 @@ namespace Nova
         public void DiscoverDeduction(string deductionID)
         {
             Interrorgation_Deduction discoveredDeduction = currentLevel.Deductions.Find(d => d.DeductionID == deductionID);
-            if(discoveredDeduction == null)
+            if (discoveredDeduction == null)
             {
                 Debug.LogError($"找不到推理ID: {deductionID}");
                 return;
@@ -109,7 +119,7 @@ namespace Nova
 
         private void getUIManager()
         {
-            if(DebugUIManager != null)
+            if (DebugUIManager != null)
             {
                 deductionUIManager = DebugUIManager;
                 LoadLevel("TestLevel");
@@ -118,6 +128,65 @@ namespace Nova
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
 
+        #region Deduction Procedure
+        public void SubmitDeduction(Interrorgation_Deduction deductionData)
+        {
+            if (deductionData == null)
+            {
+                Debug.LogError("提交的推理数据为空");
+                return;
+            }
+            switch (deductionData)
+            {
+                case Interrorgation_Topic topic:
+                    topicHandler(topic);
+                    break;
+                case Interrorgation_Proof proof:
+                    proofHandler(proof);
+                    break;
+                default:
+                    Debug.LogError($"{deductionData.DeductionID}：未知的推理类型");
+                    break;
+            }
+        }
+        private void topicHandler(Interrorgation_Topic topic)
+        {
+
+        }
+        private void proofHandler(Interrorgation_Proof proof)
+        {
+            var provedDeduction = GetProvedDeduction(proof);
+            if (provedDeduction != null)
+            {
+                callDialogue(proof.GetPostTopicDialogue(provedDeduction.DeductionID));
+            }
+            else
+            {
+                callDialogue(proof.PreTopicDialogue);
+            }
+        }
+
+        private void callDialogue(string label)
+        {
+            gameState.MoveToNextNode(label);
+        }
+
+        public Interrorgation_Deduction GetProvedDeduction(Interrorgation_Deduction deductionData)
+        {
+            if (deductionData == null)
+            {
+                Debug.LogError("检查的推理数据为空");
+                return null;
+            }
+            return GetProvedDeduction(deductionData.DeductionID);
+        }
+
+        public Interrorgation_Deduction GetProvedDeduction(string deductionID)
+        {
+            return provedDeductions.FindLast(x => x.DeductionID == deductionID);
+        }
+
+        #endregion
         
     }
 }

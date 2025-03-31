@@ -19,7 +19,12 @@ public class Interrorgation_Proof : Interrorgation_Deduction
     }
     [TextArea(3, 10)]
     public string PreTopicDialogue;
-    public List<TopicDialoguePair> PostTopicDialogues = new List<TopicDialoguePair>(); 
+    public List<TopicDialoguePair> PostTopicDialogues = new List<TopicDialoguePair>();
+
+    public string GetPostTopicDialogue(string topicID)
+    {
+        return PostTopicDialogues.Find(x => x.Topic.DeductionID == topicID).PostTopicDialogue;
+    }
 }
 
 
