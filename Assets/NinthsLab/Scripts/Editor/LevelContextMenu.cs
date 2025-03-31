@@ -40,6 +40,9 @@ namespace Nova.Editor
             string assetPath = Path.Combine(newFolderPath, "level.asset");
             Interrorgation_Level levelAsset = ScriptableObject.CreateInstance<Interrorgation_Level>();
             levelAsset.LevelID = folderName;
+            levelAsset.LevelStartScript = "l_level_start_script";
+            levelAsset.LevelFinishScript = "l_level_finish_script";
+
 
             AssetDatabase.CreateAsset(levelAsset, assetPath);
             AssetDatabase.SaveAssets();

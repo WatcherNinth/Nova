@@ -14,12 +14,21 @@ public class Interrorgation_Proof : Interrorgation_Deduction
     {
         public Interrorgation_Topic Topic;
 
-        [TextArea(3, 10)]
         public string PostTopicDialogue;
+
+        public void Init(string proof)
+        {
+            PostTopicDialogue = $"{proof}_to_{Topic.DeductionID}_PostTopicDialogue";
+        }
     }
-    [TextArea(3, 10)]
     public string PreTopicDialogue;
     public List<TopicDialoguePair> PostTopicDialogues = new List<TopicDialoguePair>();
+
+    public override void Init()
+    {
+        base.Init();
+        PreTopicDialogue = $"{DeductionID}_PreTopicDialogue";
+    }
 
     public string GetPostTopicDialogue(string topicID)
     {

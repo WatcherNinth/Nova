@@ -52,6 +52,7 @@ namespace Nova.Editor
             string assetPath = Path.Combine(directory, assetName);
 
             newDeduction.DeductionID = assetName.Replace(".asset", "");
+            newDeduction.Init();
 
             AssetDatabase.CreateAsset(newDeduction, assetPath);
 

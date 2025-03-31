@@ -15,4 +15,9 @@ public class Interrorgation_Deduction : ScriptableObject
     public bool DiscoveredInStoryMode = false;
     [NonSerialized]
     public bool IsDiscovered = false;
+
+    public virtual void Init()
+    {
+        
+    }
 }

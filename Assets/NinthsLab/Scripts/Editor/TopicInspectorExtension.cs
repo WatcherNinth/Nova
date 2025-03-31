@@ -65,7 +65,9 @@ public class TopicInspectorExtension : Editor
     private void AddNewProofPhase(Interrorgation_Topic topic)
     {
         Undo.RecordObject(topic, "Add Proof Phase");
-        topic.ProofPhases.Add(new Interrorgation_Topic.ProofPhase());
+        var newPhase = new Interrorgation_Topic.ProofPhase();
+        newPhase.Init(topic.DeductionID);
+        topic.ProofPhases.Add(newPhase);
         EditorUtility.SetDirty(topic);
     }
 }
@@ -113,6 +115,7 @@ public class ProofPhaseDrawer : PropertyDrawer
         string assetPath = Path.Combine(directory, assetName);
 
         newProof.DeductionID = assetName.Replace(".asset", "");
+        newProof.Init();
         AssetDatabase.CreateAsset(newProof, assetPath);
 
         if (level.Deductions == null)
@@ -135,20 +138,22 @@ public class ProofPhaseDrawer : PropertyDrawer
         int phaseIndex = int.Parse(indexMatch.Groups[1].Value);
         // 在对应阶段添加关联
         var phase = parentTopic.ProofPhases[phaseIndex];
-        phase.ProofDialogues.Add(new Interrorgation_Topic.ProofDialoguePair
+        var proofdialogue = new Interrorgation_Topic.ProofDialoguePair
         {
             Proof = newProof,
-            PostProofDialogue = "默认对话内容"
-        });
+        };
+        proofdialogue.Init($"{parentTopic.DeductionID}_Phase_{phaseIndex}");
+        phase.ProofDialogues.Add(proofdialogue);
 
         // 设置Proof的对话映射
+        var topicDialoguePair = new Interrorgation_Proof.TopicDialoguePair
+        {
+            Topic = parentTopic,
+        };
+        topicDialoguePair.Init(newProof.DeductionID);
         newProof.PostTopicDialogues = new List<Interrorgation_Proof.TopicDialoguePair>
         {
-            new Interrorgation_Proof.TopicDialoguePair
-            {
-                Topic = parentTopic,
-                PostTopicDialogue = "默认对话内容"
-            }
+            topicDialoguePair
         };
 
         EditorUtility.SetDirty(phaseProperty.serializedObject.targetObject);
