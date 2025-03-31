@@ -96,12 +96,8 @@ namespace Nova
                 return;
             }
             currentLevel.Init();
+            getUIManager();
             deductionUIManager.ActivateDeductionMode();
-        }
-
-        public override void DialogueFinished(string nodeID = "")
-        {
-            Debug.Log("Dialgue Finished: " + (nodeID == "" ? "No node ID" : nodeID));
         }
 
         public void DiscoverDeduction(string deductionID)
@@ -125,9 +121,9 @@ namespace Nova
                 LoadLevel("TestLevel");
                 return;
             }
+            if (deductionUIManager != null) return;
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
-
         #region 推理流程
         public void SubmitDeduction(Interrorgation_Deduction deductionData)
         {
@@ -186,12 +182,14 @@ namespace Nova
         #region 对话
         private void callDialogue(string label)
         {
+            gameState.ReleaseActionPause();
             gameState.MoveToNextNode(label);
         }
 
-        public void LastDialogueFinished()
+        public override void DialogueFinished(string nodeID = "")
         {
-            
+            Debug.Log("Dialgue Finished: " + (nodeID == "" ? "No node ID" : nodeID));
+            gameState.AcquireActionPause();
         }
         #endregion
 
