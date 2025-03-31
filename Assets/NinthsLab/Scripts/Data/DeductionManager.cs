@@ -128,7 +128,7 @@ namespace Nova
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
 
-        #region Deduction Procedure
+        #region 推理流程
         public void SubmitDeduction(Interrorgation_Deduction deductionData)
         {
             if (deductionData == null)
@@ -166,11 +166,6 @@ namespace Nova
             }
         }
 
-        private void callDialogue(string label)
-        {
-            gameState.MoveToNextNode(label);
-        }
-
         public Interrorgation_Deduction GetProvedDeduction(Interrorgation_Deduction deductionData)
         {
             if (deductionData == null)
@@ -187,6 +182,18 @@ namespace Nova
         }
 
         #endregion
-        
+
+        #region 对话
+        private void callDialogue(string label)
+        {
+            gameState.MoveToNextNode(label);
+        }
+
+        public void LastDialogueFinished()
+        {
+            
+        }
+        #endregion
+
     }
 }
