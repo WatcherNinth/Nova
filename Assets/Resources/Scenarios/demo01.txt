@@ -11,7 +11,7 @@ box_hide_show(2)
 【有条件的话，做一段恶搞龙标的开场，没条件就直接拿那个FBI的警告图，总之就是提示这是电影】
 
 <|
-__Nova.deductionManager:LoadLevel('demo01')
+__Nova.deductionManager:LoadLevel('TestLevel')
 |>
 【电影标题《故事新编·奔月》，领衔主演这里先用AB代替，想好偶像名字了再换进去】
 

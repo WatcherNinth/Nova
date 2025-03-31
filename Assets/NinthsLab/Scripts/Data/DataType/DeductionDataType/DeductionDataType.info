@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using Unity.Mathematics;
+using UnityEngine;
+
+
+[Serializable]
+public class Interrorgation_Deduction : ScriptableObject
+{
+    public Interrorgation_Level Level;
+    public string DeductionID;
+    [Tooltip("推理内容")]
+    public string DeductionText;
+    [Tooltip("在故事难度中默认解锁")]
+    public bool DiscoveredInStoryMode = false;
+    [NonSerialized]
+    public bool IsDiscovered = false;
+}
+
+[CreateAssetMenu(fileName = "DebugTopic", menuName = "Interrorgation/CreateNewTopic", order = 1)]
+[Serializable]
+public class Interrorgation_Topic : Interrorgation_Deduction
+{
+
+    // 嵌套关联型类
+    [Serializable]
+    public class ProofDialoguePair
+    {
+        public Interrorgation_Proof Proof;
+        [TextArea(3, 10)]
+        public string PostProofDialogue;
+        public bool IsFalseProof = false;
+    }
+
+    // 嵌套核心类
+    [Serializable]
+    public class ProofPhase
+    {
+        [Header("基本设置")]
+        [Tooltip("阶段类型")]
+        public int RequiredProofCount = 1;
+        [TextArea(3, 10)]
+        public string PreProofDialogue;
+        [TextArea(3, 10)]
+        public string DefaultProofFailedDialogue;
+
+        [Header("论据列表")]
+        [Tooltip("论据ID与后续对话的映射")]
+        public List<ProofDialoguePair> ProofDialogues;
+        public bool IsSingleProof => RequiredProofCount <= 1; // 是否为单论据阶段
+    }
+
+    [Tooltip("论据阶段列表")]
+    public List<ProofPhase> ProofPhases = new List<ProofPhase>();
+}
+
+[CreateAssetMenu(fileName = "DebugProof", menuName = "Interrorgation/CreateNewProof", order = 1)]
+[Serializable]
+public class Interrorgation_Proof : Interrorgation_Deduction
+{
+    [Serializable]
+    public class TopicDialoguePair
+    {
+        public Interrorgation_Topic Topic;
+
+        [TextArea(3, 10)]
+        public string PostTopicDialogue;
+    }
+    [TextArea(3, 10)]
+    public string PreTopicDialogue;
+    public List<TopicDialoguePair> PostTopicDialogues; 
+}
+
+public class Interrorgation_Level : ScriptableObject
+{
+    public string LevelID;
+    [TextArea(3, 10)]
+    public string LevelStartScript;
+    public List<Interrorgation_Deduction> Deductions;
+    [TextArea(3, 10)]
+    public string LevelFinishScript;
+    [SerializeField] private TextAsset _textFile;  // 使用Unity的TextAsset类型接收文本文件
+                                                   // 属性用于安全访问
+    public string TextContent => _textFile ? _textFile.text : string.Empty;
+    [NonSerialized]
+    public List<InspirationDataType> RootInspirations = new List<InspirationDataType>();
+    public void Init()
+    {
+        RootInspirations = InspirationDataType.ParseInspirations(TextContent);
+    }
+}
+
+
