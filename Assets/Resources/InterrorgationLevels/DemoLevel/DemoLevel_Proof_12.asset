@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 653562b6f384d6a4c915a2f063cd5fb7, type: 3}
+  m_Name: DemoLevel_Proof_12
+  m_EditorClassIdentifier: 
+  Level: {fileID: 11400000, guid: 9ded66d456bc0634cb67f69f1f785481, type: 2}
+  DeductionID: DemoLevel_Proof_12
+  DeductionText: "\u65B0\u7684Proof"
+  DiscoveredInStoryMode: 0
+  PreTopicDialogue: DemoLevel_Proof_12_PreTopicDialogue
+  PostTopicDialogues:
+  - Topic: {fileID: 11400000, guid: ba90bb42d161c574aa5e9fd43a078442, type: 2}
+    PostTopicDialogue: DemoLevel_Proof_12_to_DemoLevel_Topic_11_PostTopicDialogue

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 154036f689703284aaa76d107cfe9822, type: 3}
+  m_Name: DemoLevel_Topic_11
+  m_EditorClassIdentifier: 
+  Level: {fileID: 11400000, guid: 9ded66d456bc0634cb67f69f1f785481, type: 2}
+  DeductionID: DemoLevel_Topic_11
+  DeductionText: "\u6211\u6551\u4E86\u4F0F\u7FB2"
+  DiscoveredInStoryMode: 0
+  TopicSuccessfulDialogue: DemoLevel_Topic_11_TopicSuccessfulDialogue
+  ProofPhases:
+  - RequiredProofCount: 1
+    PreProofDialogue: DemoLevel_Topic_11_PreProofDialogue
+    DefaultProofFailedDialogue: DemoLevel_Topic_11_DefaultProofFailedDialogue
+    DefaultProofContinueDialogue: DemoLevel_Topic_11_DefaultProofContinueDialogue
+    ProofDialogues:
+    - Proof: {fileID: 11400000, guid: acccf574a7322f4418f8109a26add0ec, type: 2}
+      PostProofDialogue: DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_PostProofDialogue
+      AlreadyProvedDialogue: DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_AlreadyProvedDialogue
+      IsFalseProof: 0
+    - Proof: {fileID: 11400000, guid: 7cbc2b1440206744e9710594214c2c43, type: 2}
+      PostProofDialogue: DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_PostProofDialogue
+      AlreadyProvedDialogue: DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_AlreadyProvedDialogue
+      IsFalseProof: 0

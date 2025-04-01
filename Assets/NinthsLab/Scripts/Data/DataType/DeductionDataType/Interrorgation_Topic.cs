@@ -35,6 +35,8 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         public int RequiredProofCount = 1;
         public string PreProofDialogue;
         public string DefaultProofFailedDialogue;
+        public string DefaultProofContinueDialogue;
+
 
         [Header("论据列表")]
         [Tooltip("论据ID与后续对话的映射")]
@@ -46,6 +48,8 @@ public class Interrorgation_Topic : Interrorgation_Deduction
             RequiredProofCount = 1;
             PreProofDialogue = $"{deductionID}_PreProofDialogue";
             DefaultProofFailedDialogue = $"{deductionID}_DefaultProofFailedDialogue";
+            DefaultProofContinueDialogue = $"{deductionID}_DefaultProofContinueDialogue";
+
         }
     }
 
