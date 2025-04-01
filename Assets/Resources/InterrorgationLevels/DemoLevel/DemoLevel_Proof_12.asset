@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Level: {fileID: 11400000, guid: 9ded66d456bc0634cb67f69f1f785481, type: 2}
   DeductionID: DemoLevel_Proof_12
-  DeductionText: "\u65B0\u7684Proof"
+  DeductionText: "\u5C04\u4E2D\u9D55\u9E03\u7684\u7BAD\u77E2\u662F\u6211\u81EA\u5236\u7684"
   DiscoveredInStoryMode: 0
   PreTopicDialogue: DemoLevel_Proof_12_PreTopicDialogue
   PostTopicDialogues:
