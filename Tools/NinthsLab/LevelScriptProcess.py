@@ -81,7 +81,6 @@ def extract_dialogue_values(file_path):
                 recursive_search(item)
     
     recursive_search(data)
-    print(data)
     return dialogues
 
 
