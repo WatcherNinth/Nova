@@ -19,9 +19,11 @@ MonoBehaviour:
   TopicSuccessfulDialogue: DemoLevel_Topic_8_TopicSuccessfulDialogue
   ProofPhases:
   - RequiredProofCount: 1
-    PreProofDialogue: DemoLevel_Topic_8_PreProofDialogue
-    DefaultProofFailedDialogue: DemoLevel_Topic_8_DefaultProofFailedDialogue
-    DefaultProofContinueDialogue: DemoLevel_Topic_8_DefaultProofContinueDialogue
+    PreProofDialogue: DemoLevel_Topic_8_Phase_0_PreProofDialogue
+    DefaultProofFailedDialogue: DemoLevel_Topic_8_Phase_0_DefaultProofFailedDialogue
+    DefaultProofContinueDialogue:
+    - DemoLevel_Topic_8_Phase_0_DefaultProofContinueDialogue_0
+    DisarrayedContinueDialogue: 0
     ProofDialogues:
     - Proof: {fileID: 11400000, guid: 32a8edbc27623284c98b935f361c22c3, type: 2}
       PostProofDialogue: DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_PostProofDialogue

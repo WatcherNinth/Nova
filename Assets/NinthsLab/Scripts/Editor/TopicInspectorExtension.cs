@@ -66,7 +66,7 @@ public class TopicInspectorExtension : Editor
     {
         Undo.RecordObject(topic, "Add Proof Phase");
         var newPhase = new Interrorgation_Topic.ProofPhase();
-        newPhase.Init(topic.DeductionID);
+        newPhase.Init(topic.DeductionID, topic.ProofPhases.Count);
         topic.ProofPhases.Add(newPhase);
         EditorUtility.SetDirty(topic);
     }
