@@ -102,7 +102,8 @@ def generate_script_content(asset_files, folder_path):
     for d in dialogues:
             script_content.append(f"@<| label '{d}' |>")
             script_content.append("这里放对话")
-            script_content.append("<| __Nova.deductionManager:DialogueFinished() |>")
+            script_content.append("")
+            script_content.append(f"<| __Nova.deductionManager:DialogueFinished('{d}') |>")
             script_content.append("@<| is_end() |>")
             script_content.append("")
     return script_content
