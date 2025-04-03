@@ -71,13 +71,17 @@ def extract_dialogue_values(file_path):
             for k, v in obj.items():
                 # 检查是否符合以Dialogue结尾的键名要求
                 if re.fullmatch(r'.*Dialogue$', k):
-                    dialogues.append(v)
+                    if isinstance(v, str):
+                        dialogues.append(v)
+                    elif isinstance(v, list):
+                        dialogues.extend(v)
                 recursive_search(v)
         elif isinstance(obj, list):
             for item in obj:
                 recursive_search(item)
     
     recursive_search(data)
+    print(data)
     return dialogues
 
 

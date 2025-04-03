@@ -4,22 +4,22 @@
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_1_PreProofDialogue' |>
+@<| label 'DemoLevel_Topic_1_Phase_0_PreProofDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_PreProofDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_1_DefaultProofFailedDialogue' |>
+@<| label 'DemoLevel_Topic_1_Phase_0_DefaultProofFailedDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_DefaultProofFailedDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_1_DefaultProofContinueDialogue' |>
+@<| label 'DemoLevel_Topic_1_Phase_0_DefaultProofContinueDialogue_0' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_DefaultProofContinueDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_2_PostProofDialogue' |>
@@ -52,22 +52,28 @@
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_4_PreProofDialogue' |>
+@<| label 'DemoLevel_Topic_4_Phase_0_PreProofDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_PreProofDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_4_DefaultProofFailedDialogue' |>
+@<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofFailedDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_DefaultProofFailedDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_4_DefaultProofContinueDialogue' |>
+@<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_0' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_DefaultProofContinueDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_0') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_1' |>
+这里放对话
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_1') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_5_PostProofDialogue' |>
@@ -112,22 +118,22 @@
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_8_PreProofDialogue' |>
+@<| label 'DemoLevel_Topic_8_Phase_0_PreProofDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_PreProofDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_8_DefaultProofFailedDialogue' |>
+@<| label 'DemoLevel_Topic_8_Phase_0_DefaultProofFailedDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_DefaultProofFailedDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_8_DefaultProofContinueDialogue' |>
+@<| label 'DemoLevel_Topic_8_Phase_0_DefaultProofContinueDialogue_0' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_DefaultProofContinueDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_PostProofDialogue' |>
@@ -160,22 +166,22 @@
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_11_PreProofDialogue' |>
+@<| label 'DemoLevel_Topic_11_Phase_0_PreProofDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_PreProofDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_11_DefaultProofFailedDialogue' |>
+@<| label 'DemoLevel_Topic_11_Phase_0_DefaultProofFailedDialogue' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_DefaultProofFailedDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
-@<| label 'DemoLevel_Topic_11_DefaultProofContinueDialogue' |>
+@<| label 'DemoLevel_Topic_11_Phase_0_DefaultProofContinueDialogue_0' |>
 这里放对话
 
-<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_DefaultProofContinueDialogue') |>
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_PostProofDialogue' |>
