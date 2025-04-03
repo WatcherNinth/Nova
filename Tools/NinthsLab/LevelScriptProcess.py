@@ -91,10 +91,15 @@ def natural_sort_key(s):
 def generate_script_content(asset_files, folder_path):
     """生成剧本内容的内部方法"""
     script_content = []
-    # 按文件名含"Topic"的优先，然后含"Proof"，最后自然排序
+    # 修改后排序逻辑: 1.level.asset排最前 2.含Topic的次之 3.含Proof的再次之 4.自然排序
     sorted_files = sorted(
         asset_files,
-        key=lambda x: (not x.lower().startswith("topic"), "proof" in x.lower(), natural_sort_key(x))
+        key=lambda x: (
+            x.lower() != 'level.asset',  # 第一优先级
+            not x.lower().startswith("topic"),
+            "proof" in x.lower(),
+            natural_sort_key(x)
+        )
     )
 
     dialogues = []
@@ -121,7 +126,7 @@ def generate_level_scripts():
         asset_files = [
             f for f in os.listdir(folder_path)
             if f.endswith(".asset")
-            and ("Topic" in f or "Proof" in f)
+            and ("Topic" in f or "Proof" in f or f == "level.asset")
         ]
 
         # 生成剧本内容

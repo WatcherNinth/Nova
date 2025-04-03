@@ -1,3 +1,15 @@
+@<| label 'DemoLevel_Start_Dialogue' |>
+这里放对话
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Start_Dialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Finish_Dialogue' |>
+这里放对话
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Finish_Dialogue') |>
+@<| is_end() |>
+
 @<| label 'DemoLevel_Topic_1_TopicSuccessfulDialogue' |>
 这里放对话
 

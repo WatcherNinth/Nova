@@ -7,9 +7,9 @@ using UnityEngine;
 public class Interrorgation_Level : ScriptableObject
 {
     public string LevelID;
-    public string LevelStartScript;
+    public string LevelStartDialogue;
     public List<Interrorgation_Deduction> Deductions;
-    public string LevelFinishScript;
+    public string LevelFinishDialogue;
     [SerializeField] private TextAsset _textFile;  // 使用Unity的TextAsset类型接收文本文件
                                                    // 属性用于安全访问
     public string TextContent => _textFile ? _textFile.text : string.Empty;

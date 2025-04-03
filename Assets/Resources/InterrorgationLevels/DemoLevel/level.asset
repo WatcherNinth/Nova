@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: level
   m_EditorClassIdentifier: 
   LevelID: DemoLevel
-  LevelStartScript: DemoLevel_start_script
+  LevelStartDialogue: DemoLevel_Start_Dialogue
   Deductions:
   - {fileID: 11400000, guid: cd88d653ce23f9345b27fe871dd41645, type: 2}
   - {fileID: 11400000, guid: fd107697182b4a5479580466c58941d4, type: 2}
@@ -28,5 +28,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ba90bb42d161c574aa5e9fd43a078442, type: 2}
   - {fileID: 11400000, guid: acccf574a7322f4418f8109a26add0ec, type: 2}
   - {fileID: 11400000, guid: 7cbc2b1440206744e9710594214c2c43, type: 2}
-  LevelFinishScript: DemoLevel_finish_script
+  LevelFinishDialogue: DemoLevel_Finish_Dialogue
   _textFile: {fileID: 4900000, guid: 363cbcb1cb0396846a80c32abf97af97, type: 3}

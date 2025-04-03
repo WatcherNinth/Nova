@@ -102,7 +102,7 @@ namespace Nova
             currentLevel.Init();
             getUIManager();
             deductionUIManager.ActivateDeductionMode();
-            callDialogue(currentLevel.LevelStartScript);
+            callDialogue(currentLevel.LevelStartDialogue);
         }
 
         public void DiscoverDeduction(string deductionID)
