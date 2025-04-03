@@ -42,7 +42,7 @@ public class DeductionUIManager : MonoBehaviour
     }
     #endregion
     [SerializeField]
-    private TMP_InputField deductionInputField;
+    private GameObject DeductionUIPanel;
     [SerializeField]
     private InspirationUIScript inspirationUIManager;
     [SerializeField]
@@ -57,30 +57,29 @@ public class DeductionUIManager : MonoBehaviour
     void Start()
     {
         this.CheckSerializedFields();
-        deductionInputField.gameObject.SetActive(false);
+        HideDeductionUI(); // 确保在游戏开始时隐藏UI面板
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     void initialize()
     {
-        
+
     }
 
     public void ActivateDeductionMode()
     {
         isDeductionModeActive = true;
         inspirationUIManager.InitByList(DeductionManager.Instance.currentLevel.RootInspirations);
-        deductionInputField.gameObject.SetActive(true);
     }
     public void DeactivateDeductionMode()
     {
         isDeductionModeActive = false;
-        deductionInputField.gameObject.SetActive(false);
     }
 
     public void DiscoverDeduction(Interrorgation_Deduction deductionData)
@@ -91,9 +90,17 @@ public class DeductionUIManager : MonoBehaviour
     public void SelectDeduction(Interrorgation_Deduction deductionData)
     {
         Debug.Log("Selected Deduction: " + deductionData.DeductionText);
-        // Handle deduction selection logic here
-        //gameState.MoveToNextNode("demo01");
         DeductionManager.Instance.SubmitDeduction(deductionData);
+    }
+
+    public void ShowDeductionUI()
+    {
+        DeductionUIPanel.SetActive(true);
+    }
+
+    public void HideDeductionUI()
+    {
+        DeductionUIPanel.SetActive(false);
     }
 
 }

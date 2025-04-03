@@ -26,6 +26,8 @@ namespace Nova
         private ConfigViewController configViewController;
         private ChoicesController choicesController;
 
+        private bool fenceFromDeductionLevel = false;
+
         private void Awake()
         {
             var controller = Utils.FindNovaController();
@@ -147,6 +149,7 @@ namespace Nova
 
         private void HandleShortcutWhenDialogueHidden()
         {
+            if (fenceFromDeductionLevel) return;
             if (inputManager.IsTriggered(AbstractKey.ToggleDialogue))
             {
                 gameViewController.ShowUI();
@@ -191,7 +194,7 @@ namespace Nova
         }
 
         private bool needShowUI =>
-            !gameViewController.uiActive && !NovaAnimation.IsPlayingAny(AnimationType.PerDialogue);
+            !gameViewController.uiActive && !NovaAnimation.IsPlayingAny(AnimationType.PerDialogue) && !fenceFromDeductionLevel;
 
         public void OnPointerDown(PointerEventData _eventData)
         {
@@ -405,6 +408,13 @@ namespace Nova
             scriptCanAbortAnimation = data.scriptCanAbortAnimation;
         }
 
+        #endregion
+
+        #region Deduction
+        public void SetFenceFromDeduction(bool isDeductionLevel)
+        { 
+            fenceFromDeductionLevel = isDeductionLevel;
+        }
         #endregion
     }
 }

@@ -3216,11 +3216,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7611828680793600126, guid: 68bda17d3044b4344852e02e4c58e8c4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -56.299927
+      value: -56.299805
       objectReference: {fileID: 0}
     - target: {fileID: 8049959921000225447, guid: 68bda17d3044b4344852e02e4c58e8c4, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -40.000122
+      value: -40
       objectReference: {fileID: 0}
     - target: {fileID: 8733886360927594596, guid: 68bda17d3044b4344852e02e4c58e8c4, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -4045,6 +4045,10 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4900786017992548507, guid: 3c27b5526c09db84e89cdd483dd6af66, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5373337544648958631, guid: 3c27b5526c09db84e89cdd483dd6af66, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -4135,7 +4139,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6649287637053913662, guid: 3c27b5526c09db84e89cdd483dd6af66, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00003029792
+      value: 0.00007848859
       objectReference: {fileID: 0}
     - target: {fileID: 7447712415433603452, guid: 3c27b5526c09db84e89cdd483dd6af66, type: 3}
       propertyPath: avatarConfigs.Array.data[0].characterController

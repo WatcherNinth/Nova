@@ -29,4 +29,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: acccf574a7322f4418f8109a26add0ec, type: 2}
   - {fileID: 11400000, guid: 7cbc2b1440206744e9710594214c2c43, type: 2}
   LevelFinishScript: DemoLevel_finish_script
-  _textFile: {fileID: 0}
+  _textFile: {fileID: 4900000, guid: 363cbcb1cb0396846a80c32abf97af97, type: 3}

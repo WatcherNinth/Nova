@@ -35,7 +35,8 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         public int RequiredProofCount = 1;
         public string PreProofDialogue;
         public string DefaultProofFailedDialogue;
-        public string DefaultProofContinueDialogue;
+        public List<string> DefaultProofContinueDialogue;
+        public bool DisarrayedContinueDialogue = false;
 
 
         [Header("论据列表")]
@@ -43,14 +44,33 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         public List<ProofDialoguePair> ProofDialogues = new List<ProofDialoguePair>();
         public bool IsSingleProof => RequiredProofCount <= 1; // 是否为单论据阶段
 
-        public void Init(string deductionID)
+        [NonSerialized]
+        public int SubmittedProofCount = 0; // 已提交的论据数量
+
+        public void Init(string deductionID, int index)
         {
             RequiredProofCount = 1;
-            PreProofDialogue = $"{deductionID}_PreProofDialogue";
-            DefaultProofFailedDialogue = $"{deductionID}_DefaultProofFailedDialogue";
-            DefaultProofContinueDialogue = $"{deductionID}_DefaultProofContinueDialogue";
-
+            PreProofDialogue = $"{deductionID}_Phase{index}_PreProofDialogue";
+            DefaultProofFailedDialogue = $"{deductionID}_Phase{index}_DefaultProofFailedDialogue";
+            DefaultProofContinueDialogue = new List<string>();
         }
+
+        public string GetContinueDialogue()
+        {
+            if (DisarrayedContinueDialogue)
+            {
+                // 随机选择一个对话
+                return DefaultProofContinueDialogue[UnityEngine.Random.Range(0, DefaultProofContinueDialogue.Count)];
+            }
+            else
+            {
+                return DefaultProofContinueDialogue[SubmittedProofCount - 1];
+            }
+        }
+
+        public bool isValidProof(string proofID) => ProofDialogues.Exists(pair => pair.Proof.DeductionID == proofID);
+        public bool IsProved => SubmittedProofCount >= RequiredProofCount;
+
     }
 
     [Tooltip("成功对话")]
@@ -59,9 +79,23 @@ public class Interrorgation_Topic : Interrorgation_Deduction
     [Tooltip("论据阶段列表")]
     public List<ProofPhase> ProofPhases = new List<ProofPhase>();
 
+    [NonSerialized]
+    public int CurrentProofPhaseIndex = 0; // 当前论据阶段索引
+
     public override void Init()
     {
         base.Init();
         TopicSuccessfulDialogue = $"{DeductionID}_TopicSuccessfulDialogue";
     }
+
+    public ProofPhase getCurrentProofPhase()
+    {
+        if (CurrentProofPhaseIndex >= 0 && CurrentProofPhaseIndex < ProofPhases.Count)
+        {
+            return ProofPhases[CurrentProofPhaseIndex];
+        }
+        return null;
+    }
+
+    public bool IsProved => CurrentProofPhaseIndex >= ProofPhases.Count - 1;
 }

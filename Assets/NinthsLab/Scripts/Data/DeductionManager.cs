@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
@@ -54,11 +55,11 @@ namespace Nova
         #region 关卡信息管理
         [Header("当前关卡信息")]
         public Interrorgation_Level currentLevel;
-
-        private List<Interrorgation_Deduction> provedDeductions = new List<Interrorgation_Deduction>();
-        private Interrorgation_Topic currentTopic;
         #endregion
         private GameState gameState;
+        private GameViewInput gameViewInput;
+        private GameViewController gameViewController;
+
         // 确保实例在场景切换时不会销毁
         private void Awake()
         {
@@ -66,12 +67,15 @@ namespace Nova
             LuaRuntime.Instance.BindObject("deductionManager", this);
             var controller = Utils.FindNovaController();
             gameState = controller.GameState;
+
         }
 
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Start()
         {
             getUIManager();
+            gameViewInput = FindAnyObjectByType<GameViewInput>();
+            gameViewController = FindAnyObjectByType<GameViewController>();
         }
 
         // Update is called once per frame
@@ -98,6 +102,7 @@ namespace Nova
             currentLevel.Init();
             getUIManager();
             deductionUIManager.ActivateDeductionMode();
+            callDialogue(currentLevel.LevelStartScript);
         }
 
         public void DiscoverDeduction(string deductionID)
@@ -125,6 +130,9 @@ namespace Nova
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
         #region 推理流程
+        
+        private List<Interrorgation_Deduction> provedDeductions = new List<Interrorgation_Deduction>();
+        private Interrorgation_Topic currentTopic;
         public void SubmitDeduction(Interrorgation_Deduction deductionData)
         {
             if (deductionData == null)
@@ -147,10 +155,44 @@ namespace Nova
         }
         private void topicHandler(Interrorgation_Topic topic)
         {
-
+            if (currentTopic != null)
+            {
+                callDialogue(currentTopic.getCurrentProofPhase().DefaultProofFailedDialogue);
+                return;
+            }
+            currentTopic = topic;
+            callDialogue(topic.getCurrentProofPhase().PreProofDialogue);
         }
         private void proofHandler(Interrorgation_Proof proof)
         {
+            if (currentTopic != null)
+            {
+                var proofPhase = currentTopic.getCurrentProofPhase();
+                if (proofPhase.isValidProof(proof.DeductionID))
+                {
+                    proofPhase.SubmittedProofCount++;
+                    if (proofPhase.IsProved)
+                    {
+                        currentTopic.CurrentProofPhaseIndex++;
+                        if (currentTopic.IsProved)
+                        {
+                            callDialogue(currentTopic.TopicSuccessfulDialogue);
+                        }
+                        else
+                        {
+                            callDialogue(currentTopic.getCurrentProofPhase().PreProofDialogue);
+                        }
+                    }
+                    else
+                    {
+                        callDialogue(proofPhase.GetContinueDialogue());
+                    }
+                }
+                else
+                {
+                    callDialogue(proofPhase.DefaultProofFailedDialogue);
+                }
+            }
             var provedDeduction = GetProvedDeduction(proof);
             if (provedDeduction != null)
             {
@@ -182,15 +224,41 @@ namespace Nova
         #region 对话
         private void callDialogue(string label)
         {
-            gameState.ReleaseActionPause();
+            hideDeductionUI();
             gameState.MoveToNextNode(label);
         }
 
         public override void DialogueFinished(string nodeID = "")
         {
             Debug.Log("Dialgue Finished: " + (nodeID == "" ? "No node ID" : nodeID));
-            gameState.AcquireActionPause();
+            onDialogueFinishedCallback(nodeID); // 调用对话结束回调函数
+
         }
+
+        private void onDialogueFinishedCallback(string nodeID)
+        {
+            showDeductionUI();
+        }
+
+        #endregion
+
+        #region UI
+        private void showDeductionUI()
+        {
+            deductionUIManager.ShowDeductionUI();
+            gameState.AcquireActionPause();
+            gameViewInput.SetFenceFromDeduction(true);
+            gameViewController.HideUI();
+        }
+
+        private void hideDeductionUI()
+        {
+            deductionUIManager.HideDeductionUI();
+            gameState.ReleaseActionPause();
+            gameViewInput.SetFenceFromDeduction(false);
+            gameViewController.ShowUI();
+        }
+
         #endregion
 
     }
