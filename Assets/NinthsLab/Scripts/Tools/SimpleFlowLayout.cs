@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 
-namespace LogicEngine.UI
+namespace UnityEngine.UI
 {
     /// <summary>
     /// 简易流式布局组件。

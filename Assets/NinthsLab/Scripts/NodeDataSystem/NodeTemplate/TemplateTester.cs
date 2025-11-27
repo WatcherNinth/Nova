@@ -7,13 +7,13 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace LogicEngine.UI
+namespace LogicEngine.Tests
 {
     /// <summary>
     /// Template功能的测试UI控制器。
     /// 现在的版本支持直接输入JSON字符串来模拟真实的数据加载流程。
     /// </summary>
-    public class TemplateTestRunner : MonoBehaviour
+    public class TemplateTester : MonoBehaviour
     {
         [Header("UI References")]
         [SerializeField] private TMP_Text _textPrefab;         // 必须挂载ContentSizeFitter(Horizontal=Preferred)

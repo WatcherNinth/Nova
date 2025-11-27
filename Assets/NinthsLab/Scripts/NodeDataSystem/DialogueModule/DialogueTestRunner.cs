@@ -5,12 +5,14 @@ using LogicEngine; // 引用逻辑脚本的命名空间
 using UnityEditor; // 仅在编辑器环境下引用，防止打包报错
 #endif
 
-public class DialogueTestRunner : MonoBehaviour
+namespace LogicEngine.Tests
 {
-    [Header("测试配置")]
-    [Tooltip("在这里直接编辑或粘贴JSON对话数据")]
-    [TextArea(10, 25)] 
-    public string jsonInput = @"
+    public class DialogueTestRunner : MonoBehaviour
+    {
+        [Header("测试配置")]
+        [Tooltip("在这里直接编辑或粘贴JSON对话数据")]
+        [TextArea(10, 25)]
+        public string jsonInput = @"
     {
         ""on_proven"": {
             ""text_intro"": ""[测试] 这是一个测试文本块。"",
@@ -30,62 +32,63 @@ public class DialogueTestRunner : MonoBehaviour
         }
     }";
 
-    private void Start()
-    {
-        PerformTest();
-    }
-
-    /// <summary>
-    /// 执行解析并打印结果
-    /// </summary>
-    public void PerformTest()
-    {
-        if (string.IsNullOrWhiteSpace(jsonInput))
+        private void Start()
         {
-            Debug.LogWarning("[DialogueTestRunner] JSON输入为空！");
-            return;
+            PerformTest();
         }
 
-        Debug.Log($"<color=cyan>[DialogueTestRunner] 开始解析...</color>");
+        /// <summary>
+        /// 执行解析并打印结果
+        /// </summary>
+        public void PerformTest()
+        {
+            if (string.IsNullOrWhiteSpace(jsonInput))
+            {
+                Debug.LogWarning("[DialogueTestRunner] JSON输入为空！");
+                return;
+            }
 
-        float t0 = Time.realtimeSinceStartup;
+            Debug.Log($"<color=cyan>[DialogueTestRunner] 开始解析...</color>");
 
-        // 调用 LogicEngine.DialogueParser
-        string resultJson = DialogueParser.ParseDialogue(jsonInput);
+            float t0 = Time.realtimeSinceStartup;
 
-        Debug.Log(DialogueParser.ValidateDialogue(jsonInput).ToString());
+            // 调用 LogicEngine.DialogueParser
+            string resultJson = DialogueParser.ParseDialogue(jsonInput);
 
-        float t1 = Time.realtimeSinceStartup;
+            Debug.Log(DialogueParser.ValidateDialogue(jsonInput).ToString());
 
-        Debug.Log($"<b>[解析结果 (耗时: {(t1 - t0) * 1000:F2}ms)]</b>:\n{resultJson}");
+            float t1 = Time.realtimeSinceStartup;
+
+            Debug.Log($"<b>[解析结果 (耗时: {(t1 - t0) * 1000:F2}ms)]</b>:\n{resultJson}");
+        }
     }
-}
 
-// --------------------------------------------------------------------------
-// 自定义编辑器扩展部分 (Custom Editor)
-// --------------------------------------------------------------------------
+    // --------------------------------------------------------------------------
+    // 自定义编辑器扩展部分 (Custom Editor)
+    // --------------------------------------------------------------------------
 #if UNITY_EDITOR
-[CustomEditor(typeof(DialogueTestRunner))]
-public class DialogueTestRunnerEditor : Editor
-{
-    public override void OnInspectorGUI()
+    [CustomEditor(typeof(DialogueTestRunner))]
+    public class DialogueTestRunnerEditor : Editor
     {
-        // 1. 绘制默认的Inspector（包括脚本引用、TextArea文本框等）
-        DrawDefaultInspector();
-
-        // 获取目标脚本对象
-        DialogueTestRunner runner = (DialogueTestRunner)target;
-
-        // 2. 添加空行，美观一点
-        EditorGUILayout.Space(10);
-
-        // 3. 绘制按钮
-        // 只有在 Play Mode (运行模式) 下按钮才有效，或者根据需求在编辑模式下也能跑（纯逻辑通常可以在编辑模式跑）
-        // 这里没有限制 Application.isPlaying，所以你在不运行游戏时点击也能看到Console输出
-        if (GUILayout.Button("Run Test Again (手动执行)", GUILayout.Height(30)))
+        public override void OnInspectorGUI()
         {
-            runner.PerformTest();
+            // 1. 绘制默认的Inspector（包括脚本引用、TextArea文本框等）
+            DrawDefaultInspector();
+
+            // 获取目标脚本对象
+            DialogueTestRunner runner = (DialogueTestRunner)target;
+
+            // 2. 添加空行，美观一点
+            EditorGUILayout.Space(10);
+
+            // 3. 绘制按钮
+            // 只有在 Play Mode (运行模式) 下按钮才有效，或者根据需求在编辑模式下也能跑（纯逻辑通常可以在编辑模式跑）
+            // 这里没有限制 Application.isPlaying，所以你在不运行游戏时点击也能看到Console输出
+            if (GUILayout.Button("Run Test Again (手动执行)", GUILayout.Height(30)))
+            {
+                runner.PerformTest();
+            }
         }
     }
-}
 #endif
+}
