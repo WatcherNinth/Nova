@@ -328,7 +328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &268157653
 Transform:
   m_ObjectHideFlags: 0
@@ -955,6 +955,379 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 719384080}
   m_CullTransparentMesh: 1
+--- !u!1 &744896731
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 744896732}
+  - component: {fileID: 744896733}
+  m_Layer: 0
+  m_Name: PhaseDataParserTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &744896732
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 744896731}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1230176546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &744896733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 744896731}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6760680a08cbd7e4b911fe3eb15e4a49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jsonContent: "{\n\"phase1\": {\r\n        \"name\": \"\u8428\u5BBE\u5A1C\u7684\u6B7B\u56E0\u662F\u4EC0\u4E48\",\r\n       
+    \"dialogue\": {\r\n            \"on_phase_start\": {\r\n                \"text\":
+    \"\u8FD9\u91CC\u586B\u5199\u9636\u6BB5\u5F00\u59CB\u5BF9\u8BDD\"\r\n           
+    },\r\n            \"on_phase_complete\": {\r\n                \"triggered_text_1\":
+    {\r\n                    \"limit\": {\r\n                        \"phase2\":
+    true\r\n                    },\r\n                    \"text\": \"\u4F60\u8BA4\u4E3A\u662F\u65F6\u5019\u7ED9\u51FA\u5B89\u4E54\u88AB\u5AC1\u7978\u8FD9\u4E00\u7ED3\u8BBA\u4E86\u3002\"\r\n               
+    },\r\n                \"triggered_text_2\": {\r\n                    \"limit\":
+    {\r\n                        \"phase2\": false\r\n                    },\r\n                   
+    \"text\": \"\u4F60\u8BA4\u4E3A\u73B0\u5728\u662F\u65F6\u5019\u63D0\u4E00\u4E0B\u6D82\u9E26\u7684\u4E8B\uFF0C\u6765\u8BC1\u660E\u72AF\u4EBA\u662F\u51B2\u7740\u5B89\u4E54\u6765\u7684\u3002\"\r\n               
+    }\r\n            }\r\n        },\r\n        \"depends_on\": {},\r\n        \"nodes\":
+    {\r\n            \"fifteenth_floor_bloodstain_falsified\": {\r\n               
+    \"description\": \"\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u88AB\u4F2A\u9020\u7684\",\r\n               
+    \"prompt\": \"\u5728\u6848\u53D1\u73B0\u573A\u5341\u4E94\u697C\u7684\u5927\u91CF\u8840\u8FF9\u53EF\u80FD\u5E76\u4E0D\u5C5E\u4E8E\u6B7B\u8005\u8428\u5BBE\u5A1C\uFF0C\u6216\u8005\u4E0D\u662F\u65A9\u9996\u540E\u8840\u6DB2\u55B7\u6E85\u5BFC\u81F4\u7684\u3002\",\r\n               
+    \"extra_input_sample\": [\r\n                    \"\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u88AB\u4F2A\u9020\u7684\",\r\n                   
+    \"\u697C\u4E0A\u7684\u8840\u4E0D\u662F\u65A9\u9996\u7559\u4E0B\u7684\"\r\n               
+    ],\r\n                \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"fifteenth_floor\",\r\n                    \"bloodstain\",\r\n                   
+    \"sabina\"\r\n                ],\r\n                \"special_node_template\":
+    \"is_bloodstain_from_sabinna_template\",\r\n                \"dialogue\": {\r\n                   
+    \"on_proven\": {\r\n                        \"triggered_text_1\": {\r\n                           
+    \"limit\": {\r\n                                \"sabina_death_reason_falling\":
+    true\r\n                            },\r\n                            \"text\":
+    \"\u5B89\xB7\u674E\uFF1A\\n\u8BA9\u6211\u4EEC\u7EE7\u7EED\u5148\u524D\u7684\u5047\u8BBE\u3002\u6B7B\u8005\u662F\u4ECE\u5341\u4E94\u697C\u5760\u697C\u800C\u6B7B\u3002\\n\u4EE5\u6B64\u4E3A\u57FA\u70B9\u6765\u770B\u5F85\u5341\u4E94\u697C\u7684\u8840\u8FF9\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u55EF\u2026\u2026\\n\"\r\n                       
+    },\r\n                        \"text_1\": \"\u5B89\xB7\u674E\uFF1A\\n\u5341\u4E94\u697C\u7684\u8840\u6DB2\u662F\u4F2A\u9020\u7684\uFF0C\u4E0D\u5C5E\u4E8E\u6B7B\u8005\u2014\u2014\u8FD9\u4E5F\u662F\u6709\u5145\u5206\u53EF\u80FD\u7684\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u56E0\u4E3A\u5341\u4E94\u697C\u4E0E\u5730\u9762\u540C\u65F6\u5B58\u5728\u7684\u4E24\u5904\u8840\u6DB2\uFF0C\u6709\u4E00\u4E2A\u81F4\u547D\u7684\u77DB\u76FE\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u77DB\u76FE\uFF1F\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u5982\u679C\u6B7B\u8005\u662F\u5728\u5341\u4E94\u697C\u6B7B\u4E8E\u65A9\u9996\uFF0C\u90A3\u4E48\u5728\u5341\u4E94\u697C\u55B7\u6E85\u5B8C\u8840\u6DB2\u540E\uFF0C\u5728\u5730\u9762\u5C31\u4E0D\u5E94\u8BE5\u8FD8\u80FD\u6D41\u51FA\u90A3\u4E48\u591A\u8840\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u800C\u5982\u679C\u6B7B\u8005\u662F\u5728\u5341\u4E94\u697C\u6B7B\u4E8E\u5760\u697C\uFF0C\u5934\u9885\u662F\u5728\u90A3\u4E4B\u540E\u624D\u88AB\u5272\u4E0B\u7684\u2014\u2014\u90A3\u4E48\u5341\u4E94\u697C\u5C31\u4E0D\u5E94\u8BE5\u6709\u8840\u8FF9\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u4E0D\u8BBA\u5982\u4F55\uFF0C\u5341\u4E94\u697C\u7684\u8840\u6DB2\u90FD\u6781\u6709\u53EF\u80FD\u662F\u4F2A\u88C5\u7684\uFF0C\u81F3\u5C11\u8FD9\u70B9\u80AF\u5B9A\u9519\u4E0D\u4E86\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u786E\u5B9E\u2026\u2026\u8FD9\u4E48\u4E00\u60F3\uFF0C\u662F\u8FD9\u4E2A\u9053\u7406\u3002\\n\u6211\u4E4B\u524D\u5B8C\u5168\u6CA1\u6709\u6CE8\u610F\u5230\u8FD9\u4E2A\u95EE\u9898\u3002\\n\",\r\n                       
+    \"triggered_text_2\": {\r\n                            \"limit\": {\r\n                               
+    \"too_much_bloodstain_in_total\": true\r\n                            },\r\n                           
+    \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u8FD9\u6837\u4E00\u6765\uFF0C\u8FD9\u4E24\u5904\u8840\u6DB2\u76F8\u52A0\uFF0C\u603B\u91CF\u8FC7\u591A\u7684\u539F\u56E0\u4E5F\u5C31\u5341\u5206\u660E\u663E\u4E86\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u5BF9\u54E6\uFF01\\n\u5176\u4E2D\u4E00\u5904\u662F\u4F2A\u9020\u7684\uFF0C\u90A3\u5F53\u7136\u4F1A\u6709\u591A\u51FA\u6765\u7684\u4E86\uFF01\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u6B63\u662F\u5982\u6B64\u3002\\n\"\r\n                       
+    },\r\n                        \"triggered_text_3\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_footprints\": false\r\n                           
+    },\r\n                            \"text\": \"\u5B89\u4E54\uFF1A\\n\u53EF\u8FD9\u4E48\u4E00\u6765\uFF0C\u5730\u9762\u7684\u90A3\u4E9B\u75D5\u8FF9\uFF0C\u53C8\u90FD\u662F\u600E\u4E48\u4E00\u56DE\u4E8B\u5462\uFF1F\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u5173\u4E8E\u8FD9\u70B9\uFF0C\u5BB9\u6211\u6574\u7406\u4E00\u4E0B\u601D\u8DEF\u3002\\n\"\r\n                       
+    }\r\n                    },\r\n                    \"on_mutex\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_true\":
+    true,\r\n                                    \"falsified_ground_bloodstain\":
+    true,\r\n                                    \"sabina_death_reason_decapitated\":
+    true\r\n                                }\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u6447\u6447\u5934\u3002\\n\u6B7B\u8005\u80AF\u5B9A\u5728\u5341\u4E94\u697C\u53D1\u751F\u4E86\u4EC0\u4E48\u2014\u2014\u4F60\u5DF2\u7ECF\u8BBA\u8BC1\u4E86\u8FD9\u70B9\u3002\\n\u800C\u4E14\u90A3\u5FC5\u5B9A\u662F\u4F1A\u5BFC\u81F4\u6709\u8840\u8FF9\u6B8B\u7559\u4E0B\u6765\u7684\u4E8B\u3002\\n\\n\u73B0\u5728\u518D\u8BF4\u8FD9\u79CD\u8BDD\u53EA\u4F1A\u964D\u4F4E\u81EA\u5DF1\u7684\u8BF4\u670D\u529B\uFF0C\u8FD8\u662F\u7B97\u4E86\u5427\u3002\\n\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"falsified_footprints\": {\r\n                \"description\": \"\u5C38\u4F53\u9644\u8FD1\u5730\u9762\u4E0A\u7684\u8DB3\u8FF9\u662F\u4F2A\u9020\u7684\",\r\n               
+    \"prompt\": \"\u6B7B\u8005\u5C38\u4F53\u6240\u5728\u7684\u5730\u9762\u4E0A\u7684\u8DB3\u8FF9\u662F\u88AB\u72AF\u4EBA\u4F2A\u9020\u51FA\u6765\u7684\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"ground\",\r\n                    \"footprint\",\r\n                    \"falsify\"\r\n               
+    ],\r\n                \"special_node_template\": \"ground_falsified_template\",\r\n               
+    \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"sabina_death_reason_falling\": true\r\n                            },\r\n                           
+    \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u8BA9\u6211\u4EEC\u7EE7\u7EED\u5148\u524D\u7684\u5047\u8BBE\u3002\u6B7B\u8005\u662F\u4ECE\u5341\u4E94\u697C\u5760\u697C\u800C\u6B7B\u3002\\n\u8FD9\u4E48\u4E00\u770B\uFF0C\u5730\u9762\u8DB3\u8FF9\u7684\u95EE\u9898\u5C31\u5341\u5206\u660E\u663E\u4E86\u3002\\n\"\r\n                       
+    },\r\n                        \"text_1\": \"\u5B89\xB7\u674E\uFF1A\\n\u5047\u5982\u6B7B\u8005\u7684\u5934\u9885\u662F\u5728\u5730\u9762\u624D\u88AB\u4EBA\u53D6\u8D70\u7684\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u800C\u5730\u9762\u6CA1\u6709\u8DB3\u8FF9\u3002\u8FD9\u53EF\u80FD\u5417\uFF1F\\n\u4E00\u4E2A\u4EBA\u5728\u4E0D\u7559\u4E0B\u8DB3\u8FF9\u7684\u60C5\u51B5\u4E0B\uFF0C\u5272\u8D70\u53E6\u4E00\u4E2A\u4EBA\u7684\u5934\uFF1F\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u6211\u4E0D\u8FD9\u4E48\u8BA4\u4E3A\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u4F46\u8FD9\u4E48\u8BF4\u7684\u8BDD\u2026\u2026\u6CA1\u6709\u8DB3\u8FF9\u7684\u539F\u56E0\u2026\u2026\\n\\n\u5B89\u4E54\uFF1A\\n\u4E0D\u5C31\u53EA\u80FD\u662F\u56E0\u4E3A\u72AF\u4EBA\u63A9\u76D6\u4E86\u8FD9\u4E00\u75D5\u8FF9\u4E86\u5417\uFF1F\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u7B54\u5BF9\u4E86\u3002\u72AF\u4EBA\u63A9\u76D6\u4E86\u5730\u9762\u5E94\u6709\u7684\u8DB3\u8FF9\u2014\u2014\u5C3D\u7BA1\u6211\u4EEC\u6682\u65F6\u8FD8\u4E0D\u6E05\u695A\u4ED6\u7684\u624B\u6CD5\uFF0C\u4F46\u8FD9\u8D77\u6848\u4EF6\u7684\u672A\u89E3\u4E4B\u8C1C\u672C\u8EAB\u4E5F\u4E0D\u5DEE\u8FD9\u4E00\u4E2A\u3002\\n\u6682\u4E14\u53EF\u4EE5\u5148\u5C06\u8FD9\u4E2A\u5047\u8BBE\u7EB3\u5165\u8003\u8651\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u5514\u2026\u2026\\n\",\r\n                       
+    \"triggered_text_2\": {\r\n                            \"limit\": {\r\n                               
+    \"fifteenth_floor_bloodstain_falsified\": false\r\n                           
+    },\r\n                            \"text\": \"\u5B89\u4E54\uFF1A\\n\u54CE\uFF0C\u7B49\u7B49\uFF0C\u90A3\u5341\u4E94\u697C\u7684\u8840\u6DB2\u53C8\u662F\u600E\u4E48\u56DE\u4E8B\u5462\uFF1F\\n\\n\u5B89\u4E54\uFF1A\\n\u6B7B\u8005\u5728\u5730\u9762\u88AB\u65A9\u9996\uFF0C\u4F46\u5341\u4E94\u697C\u53C8\u6709\u90A3\u4E48\u591A\u8840\u8FF9\u2026\u2026\\n\\n\u5B89\u4E54\uFF1A\\n\u554A\uFF0C\u597D\u590D\u6742\u2026\u2026\\n\"\r\n                       
+    }\r\n                    },\r\n                    \"on_mutex\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_true\":
+    true,\r\n                                    \"falsified_ground_bloodstain\":
+    true,\r\n                                    \"sabina_death_reason_decapitated\":
+    true\r\n                                }\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u611F\u89C9\u4E0D\u5BF9\u3002\\n\u6B7B\u8005\u80AF\u5B9A\u5728\u5341\u4E94\u697C\u53D1\u751F\u4E86\u4EC0\u4E48\u2014\u2014\u4F60\u5DF2\u7ECF\u8BBA\u8BC1\u4E86\u8FD9\u70B9\u3002\\n\u4F46\u90A3\u548C\u5730\u9762\u6CA1\u6709\u8DB3\u8FF9\u5E76\u6CA1\u6709\u76F4\u63A5\u5173\u8054\u3002\\n\\n\u8BA8\u8BBA\u8FD9\u4E2A\u53EA\u4F1A\u8BA9\u8BDD\u9898\u91CD\u5FC3\u504F\u79FB\uFF0C\u4F60\u51B3\u5B9A\u91CD\u65B0\u8003\u8651\u4E00\u4E0B\u3002\\n\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"sabina_death_reason_falling\": {\r\n                \"description\": \"\u8428\u5BBE\u5A1C\u7684\u6B7B\u56E0\u662F\u5760\u697C\",\r\n               
+    \"prompt\": \"\u4E0E\u8B66\u5BDF\u7684\u7ED3\u8BBA\u4E0D\u540C\uFF0C\u8428\u5BBE\u5A1C\u5176\u5B9E\u662F\u5148\u4ECE\u5341\u4E94\u697C\u5760\u4E0B\u6454\u6B7B\uFF0C\u7136\u540E\u5C38\u4F53\u624D\u88AB\u65A9\u9996\u7684\u3002\",\r\n               
+    \"mutex_group\": \"sabina_death_reason_mutex_group\",\r\n                \"depends_on\":
+    {\r\n                    \"or\": {\r\n                        \"fifteenth_floor_bloodstain_falsified\":
+    true,\r\n                        \"falsified_footprints\": true\r\n                   
+    }\r\n                },\r\n                \"entities\": [\r\n                   
+    \"sabina\",\r\n                    \"death_reason_fall\"\r\n                ],\r\n               
+    \"special_node_template\": \"death_reason_template\",\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u5B89\xB7\u674E\uFF1A\\n\u5C38\u68C0\u7ED3\u679C\u6307\u51FA\uFF0C\u5C38\u4F53\u4E0A\u6709\u5927\u91CF\u5760\u843D\u5BFC\u81F4\u7684\u4F24\u52BF\u3002\\n\u518D\u52A0\u4E0A\u697C\u5185\u7684\u72AF\u7F6A\u73B0\u573A\u4F4D\u4E8E\u5341\u4E94\u697C\u7684\u9AD8\u5EA6\uFF0C\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u867D\u7136\u8FD8\u4E0D\u77E5\u9053\u6B7B\u8005\u7684\u5934\u9885\u4E3A\u4F55\u4E0D\u7FFC\u800C\u98DE\uFF0C\u4F46\u5149\u51ED\u8FD9\u4E24\u70B9\uFF0C\u8BA4\u4E3A\u6B7B\u8005\u662F\u4ECE\u5341\u4E94\u697C\u5760\u697C\u800C\u6B7B\uFF0C\u4E5F\u5DF2\u7ECF\u8DB3\u591F\u6709\u529B\u4E86\u3002\\n\\n\u5B89\u4E54\u70B9\u4E86\u70B9\u5934\u3002\u5F88\u663E\u7136\uFF0C\u4ED6\u4E5F\u5B8C\u5168\u540C\u610F\u8FD9\u662F\u4E2A\u53EF\u80FD\u6027\u6781\u9AD8\u7684\u5047\u8BBE\u3002\\n\",\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"fifteenth_floor_bloodstain_falsified\": true\r\n                           
+    },\r\n                            \"text\": \"\u800C\u6211\u4EEC\u5DF2\u7ECF\u77E5\u9053\uFF0C\u5341\u4E94\u697C\u7684\u8840\u6DB2\u662F\u72AF\u4EBA\u4F2A\u9020\u7684\u3002\\n\u8FD9\u70B9\u4E5F\u4E0E\u8FD9\u4E00\u63A8\u8BBA\u5408\u5F97\u4E0A\u2014\u2014\u72AF\u4EBA\u6B63\u662F\u60F3\u8981\u8BEF\u5BFC\u5927\u5BB6\u8BA4\u4E3A\u6B7B\u8005\u6B7B\u4E8E\u5728\u5341\u4E94\u697C\u88AB\u65A9\u9996\uFF0C\u624D\u8D39\u8FD9\u4E48\u5927\u52B2\u5728\u5341\u4E94\u697C\u4F2A\u9020\u4E86\u8840\u6DB2\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u554A\uFF0C\u7684\u786E\uFF0C\u8FD9\u4E48\u4E00\u6765\u5C31\u8BF4\u5F97\u901A\u4E86\u3002\\n\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_footprints\": true\r\n                           
+    },\r\n                            \"text\": \"\u4E0E\u6B64\u540C\u65F6\uFF0C\u5730\u9762\u7684\u95EE\u9898\u4E5F\u4E0D\u80FD\u88AB\u5FFD\u89C6\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u72AF\u4EBA\u523B\u610F\u4E0D\u7559\u4E0B\u811A\u5370\uFF0C\u4E5F\u662F\u4E3A\u4E86\u4E0D\u8BA9\u5927\u5BB6\u610F\u8BC6\u5230\u201C\u539F\u6765\u662F\u6709\u4EBA\u5728\u5730\u9762\u53D6\u8D70\u4E86\u5C38\u4F53\u7684\u5934\u9885\u201D\u8FD9\u4E00\u4E8B\u5B9E\u3002\\n\\n\u4E8B\u5B9E\u8BC1\u660E\uFF0C\u4F60\u7684\u8BC1\u660E\u5341\u5206\u6210\u529F\u3002\u4E00\u73AF\u5957\u4E00\u73AF\uFF0C\u4EE4\u5B89\u4E54\u5B8C\u5168\u8BA4\u540C\u4E86\u8FD9\u4E00\u5047\u8BF4\u3002\\n\"\r\n                       
+    }\r\n                    },\r\n                    \"on_mutex\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"sabina_death_reason_decapitated\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u610F\u8BC6\u5230\u4E0D\u5BF9\u3002\\n\u4F60\u5DF2\u7ECF\u8BC1\u660E\u4E86\u6B7B\u56E0\u662F\u65A9\u9996\u3002\u73B0\u5728\u518D\u63D0\u51FA\u8FD9\u4E2A\u89C2\u70B9\u53EA\u4F1A\u663E\u5F97\u81EA\u76F8\u77DB\u76FE\u3002\\n\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"or\": {\r\n                                   
+    \"fifteenth_floor_bloodstain_true\": true,\r\n                                   
+    \"falsified_ground_bloodstain\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u6B7B\u8005\u6B7B\u4E8E\u5760\u697C\u2026\u2026\u8FD9\u4E00\u8BF4\u6CD5\u786E\u4E4E\u6709\u5408\u7406\u6027\u3002\\n\u4F46\u4F60\u5FC3\u4E2D\u603B\u611F\u89C9\u6709\u4E00\u4E2A\u7599\u7629\uFF0C\u8FD9\u4F3C\u4E4E\u4E0E\u4F60\u4E4B\u524D\u6240\u8BF4\u7684\u4EC0\u4E48\u5185\u5BB9\u5BF9\u4E0D\u4E0A\u3002\\n\u8FD8\u662F\u5148\u4E0D\u8981\u63D0\u8FD9\u4E8B\u4E86\u3002\\n\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"fifteenth_floor_bloodstain_true\": {\r\n                \"description\": \"\u5341\u4E94\u697C\u7684\u8840\u8FF9\u5C5E\u4E8E\u6B7B\u8005\",\r\n               
+    \"prompt\": \"\u5728\u6848\u53D1\u73B0\u573A\u5341\u4E94\u697C\u7684\u5927\u91CF\u8840\u8FF9\u5C5E\u4E8E\u6B7B\u8005\u8428\u5BBE\u5A1C\u3002\",\r\n               
+    \"extra_input_sample\": [\r\n                    \"\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u8428\u5BBE\u5A1C\u7559\u4E0B\u7684\",\r\n                   
+    \"\u5341\u4E94\u697C\u7684\u8840\u8FF9\u4E0D\u662F\u4F2A\u9020\u7684\"\r\n               
+    ],\r\n                \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"fifteenth_floor\",\r\n                    \"bloodstain\",\r\n                   
+    \"sabina\"\r\n                ],\r\n                \"special_node_template\":
+    \"is_bloodstain_from_sabinna_template\",\r\n                \"dialogue\": {\r\n                   
+    \"on_proven\": {\r\n                        \"triggered_text_1\": {\r\n                           
+    \"limit\": {\r\n                                \"sabina_death_reason_decapitated\":
+    true\r\n                            },\r\n                            \"text\":
+    \"\u4F60\u63D0\u51FA\u4E86\u4EE5\u65A9\u9996\u6B7B\u4EA1\u4E3A\u524D\u63D0\u6761\u4EF6\u3002\"\r\n                       
+    },\r\n                        \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u5341\u4E94\u697C\u8840\u6DB2\u5C5E\u4E8E\u6B7B\u8005\",\r\n                       
+    \"triggered_text_2\": {\r\n                            \"limit\": {\r\n                               
+    \"sabina_death_reason_decapitated\": false\r\n                            },\r\n                           
+    \"text\": \"\u5B89\u4E54\u8FFD\u95EE\u5730\u9762\u7684\u95EE\u9898\u3002\"\r\n                       
+    }\r\n                    },\r\n                    \"on_mutex\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_falsified\":
+    true,\r\n                                    \"falsified_footprints\": true,\r\n                                   
+    \"sabina_death_reason_falling\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u4F60\u81EA\u6211\u5426\u51B3\u4E86\u8FD9\u4E00\u76F8\u4E92\u77DB\u76FE\u7684\u8BF4\u6CD5\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"falsified_ground_bloodstain\": {\r\n                \"description\": \"\u5730\u9762\u4E0A\u7684\u8840\u8FF9\u662F\u4F2A\u9020\u7684\",\r\n               
+    \"prompt\": \"\u6B7B\u8005\u5C38\u4F53\u8EAB\u4E0B\u6D78\u900F\u6CE5\u5730\u7684\u8840\u8FF9\u662F\u88AB\u72AF\u4EBA\u4F2A\u9020\u51FA\u6765\u7684\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"ground\",\r\n                    \"bloodstain\",\r\n                    \"falsify\"\r\n               
+    ],\r\n                \"special_node_template\": \"ground_falsified_template\",\r\n               
+    \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"sabina_death_reason_decapitated\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u63D0\u51FA\u4E86\u4EE5\u65A9\u9996\u6B7B\u4EA1\u4E3A\u524D\u63D0\u6761\u4EF6\u3002\"\r\n                       
+    },\r\n                        \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u5730\u9762\u8840\u6DB2\u662F\u4F2A\u9020\u7684\u3002\",\r\n                       
+    \"triggered_text_2\": {\r\n                            \"limit\": {\r\n                               
+    \"too_much_bloodstain_in_total\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u8FDB\u4E00\u6B65\u8BC1\u660E\u4E86\u8FD9\u5C31\u662F\u8840\u6DB2\u8FC7\u591A\u7684\u539F\u56E0\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_3\": {\r\n                           
+    \"limit\": {\r\n                                \"fifteenth_floor_bloodstain_true\":
+    false\r\n                            },\r\n                            \"text\":
+    \"\u5B89\u4E54\u8FFD\u95EE\u5341\u4E94\u697C\u8840\u6DB2\u7684\u95EE\u9898\u3002\"\r\n                       
+    }\r\n                    },\r\n                    \"on_mutex\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_falsified\":
+    true,\r\n                                    \"falsified_footprints\": true,\r\n                                   
+    \"sabina_death_reason_falling\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u4F60\u81EA\u6211\u5426\u51B3\u4E86\u8FD9\u4E00\u76F8\u4E92\u77DB\u76FE\u7684\u8BF4\u6CD5\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"sabina_death_reason_decapitated\": {\r\n                \"description\": \"\u8428\u5BBE\u5A1C\u7684\u6B7B\u56E0\u662F\u88AB\u65A9\u9996\",\r\n               
+    \"prompt\": \"\u8DDF\u8B66\u5BDF\u7684\u7ED3\u8BBA\u7C7B\u4F3C\uFF0C\u8428\u5BBE\u5A1C\u662F\u5728\u5341\u4E94\u697C\u88AB\u65A9\u9996\u800C\u6B7B\u7684\u3002\u4F46\u662F\u8428\u5BBE\u5A1C\",\r\n               
+    \"depends_on\": {\r\n                    \"or\": {\r\n                       
+    \"fifteenth_floor_bloodstain_true\": true,\r\n                        \"falsified_ground_bloodstain\":
+    true\r\n                    }\r\n                },\r\n                \"entities\":
+    [\r\n                    \"sabina\",\r\n                    \"decapitated\"\r\n               
+    ],\r\n                \"special_node_template\": \"death_reason_template\",\r\n               
+    \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u8428\u5BBE\u5A1C\u6B7B\u4E8E\u5728\u5341\u4E94\u697C\u88AB\u65A9\u9996\u3002\",\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"fifteenth_floor_bloodstain_true\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u5C06\u5341\u4E94\u697C\u8840\u6DB2\u5C5E\u4E8E\u6B7B\u8005\u4E0E\u5760\u697C\u8054\u7CFB\u5230\u4E86\u4E00\u8D77\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_ground_bloodstain\":
+    true\r\n                            },\r\n                            \"text\":
+    \"\u4F60\u5C06\u5730\u9762\u8840\u6DB2\u662F\u4F2A\u9020\u7684\u4E0E\u5760\u697C\u8054\u7CFB\u5230\u4E86\u4E00\u8D77\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_3\": {\r\n                           
+    \"limit\": {\r\n                                \"too_less_bloodstain_outside\":
+    true\r\n                            },\r\n                            \"text\":
+    \"\u3010\u5F85\u529E\u3011\u5916\u9762\u8840\u6DB2\u8FC7\u5C11\uFF0C\u6240\u4EE5\u662F\u65A9\u9996\u540E\u4E00\u6BB5\u65F6\u95F4\u624D\u4ECE\u697C\u4E0A\u4E22\u4E0B\u53BB\u7684\"\r\n                       
+    }\r\n                    },\r\n                    \"on_pending\": {\r\n                       
+    \"text_1\": \"\"\r\n                    },\r\n                    \"on_mutex\":
+    {\r\n                        \"triggered_text_1\": {\r\n                           
+    \"limit\": {\r\n                                \"sabina_death_reason_falling\":
+    true\r\n                            },\r\n                            \"text\":
+    \"\u4F60\u81EA\u6211\u5426\u51B3\u4E86\u8FD9\u4E00\u76F8\u4E92\u77DB\u76FE\u7684\u8BF4\u6CD5\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"or\": {\r\n                                   
+    \"fifteenth_floor_bloodstain_falsified\": true,\r\n                                   
+    \"falsified_footprints\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u4F60\u603B\u611F\u89C9\u8FD9\u4E2A\u8BF4\u6CD5\u548C\u4F60\u5DF2\u63D0\u51FA\u7684\u67D0\u4E9B\u4E1C\u897F\u5408\u4E0D\u4E0A\uFF0C\u6CA1\u6709\u5C06\u8FD9\u4E2A\u60F3\u6CD5\u8BF4\u51FA\u53E3\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"too_less_bloodstain_outside\": {\r\n                \"description\": \"\u5916\u5899\u548C\u5730\u9762\u7F3A\u4E4F\u55B7\u6E85\u8840\u8FF9\",\r\n               
+    \"prompt\": \"\u6848\u53D1\u73B0\u573A\u5927\u697C\u7684\u5916\u5899\u548C\u5730\u9762\u7559\u4E0B\u7684\u8840\u8FF9\u8FC7\u5C11\u800C\u4E14\u975E\u5E38\u96C6\u4E2D\u3002\u5982\u679C\u662F\u4E00\u5177\u6B63\u5728\u55B7\u6E85\u8840\u8FF9\u7684\u5C38\u4F53\u4ECE\u5341\u4E94\u697C\u63A8\u4E0B\uFF0C\u5E94\u8BE5\u7559\u4E0B\u76F8\u5F53\u591A\u4E14\u5206\u5E03\u5E7F\u7684\u8840\u8FF9\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"building_facade\",\r\n                    \"ground\",\r\n                   
+    \"bloodstain\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"{0}\u548C{1}\u7F3A\u4E4F{2}\uFF0C\u6240\u4EE5\u8428\u5BBE\u5A1C\u4E0D\u662F\u88AB\u65A9\u9996\u540E\u63A8\u4E0B\u697C\u7684\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"building_facade\",\r\n                            \"ground\",\r\n                           
+    \"bloodstain\"\r\n                        ],\r\n                        \"this_1\":
+    [\r\n                            \"ground\",\r\n                            \"building_facade\",\r\n                           
+    \"bloodstain\"\r\n                        ]\r\n                    }\r\n               
+    },\r\n                \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u5916\u5899\u548C\u5730\u9762\u7F3A\u4E4F\u55B7\u6E85\u8840\u8FF9\u3002\"\r\n                   
+    }\r\n                }\r\n            },\r\n            \"too_much_bloodstain_in_total\":
+    {\r\n                \"description\": \"\u5730\u9762\u4E0E\u5341\u4E94\u697C\u7684\u8840\u6DB2\u603B\u91CF\u8FC7\u591A\",\r\n               
+    \"prompt\": \"\u5730\u9762\u548C\u5341\u4E94\u697C\u7559\u4E0B\u7684\u8840\u8FF9\u52A0\u8D77\u6765\u5DF2\u7ECF\u8D85\u8FC7\u4E86\u4E00\u4E2A\u4EBA\u7C7B\u53EF\u80FD\u62E5\u6709\u7684\u8840\u91CF\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"fifteenth_floor\",\r\n                    \"ground\",\r\n                   
+    \"bloodstain\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"{0}\u548C{1}\u7559\u4E0B\u7684{2}\u52A0\u8D77\u6765\u5DF2\u7ECF\u8D85\u8FC7\u4E86\u6B63\u5E38\u4EBA\u7684\u9608\u503C\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"fifteenth_floor\",\r\n                            \"ground\",\r\n                           
+    \"bloodstain\"\r\n                        ],\r\n                        \"this_1\":
+    [\r\n                            \"ground\",\r\n                            \"fifteenth_floor\",\r\n                           
+    \"bloodstain\"\r\n                        ]\r\n                    }\r\n               
+    },\r\n                \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_falsified\":
+    true,\r\n                                    \"falsified_ground_bloodstain\":
+    true\r\n                                }\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u8BC1\u660E\u72AF\u4EBA\u72AF\u4E86\u4E00\u4E2A\u81F4\u547D\u9519\u8BEF\u2014\u2014\u4ED6\u5FD8\u8BB0\u4E86\u8FD9\u4E24\u5904\u8840\u8FF9\u7684\u8840\u6DB2\u91CF\u76F8\u52A0\u4F1A\u663E\u5F97\u8FC7\u591A\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"and\": {\r\n                                   
+    \"fifteenth_floor_bloodstain_falsified\": false,\r\n                                   
+    \"falsified_ground_bloodstain\": false\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u4F60\u8BC1\u660E\u4E86\u5730\u9762\u4E0E\u5341\u4E94\u697C\u7684\u8840\u6DB2\u603B\u91CF\u8FC7\u591A\uFF0C\u5E76\u63D0\u53CA\u5176\u4E2D\u6709\u4E00\u5904\u8840\u8FF9\u5E94\u8BE5\u662F\u5047\u7684\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"possible_accomplice\": {\r\n                \"description\": \"\u72AF\u4EBA\u53EF\u80FD\u6709\u5E2E\u51F6\",\r\n               
+    \"prompt\": \"\u72AF\u4EBA\u53EF\u80FD\u4E0D\u662F\u72EC\u81EA\u72AF\u6848\u7684\uFF0C\u6709\u4EBA\u534F\u52A9\u4ED6\u4F5C\u6848\u6216\u63A9\u76D6/\u4F2A\u9020\u8BC1\u636E\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"accomplice\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"\u72AF\u4EBA\u53EF\u80FD\u6709{0}\",\r\n                    \"answer\":
+    {\r\n                        \"this\": [\r\n                            \"accomplice\"\r\n                       
+    ]\r\n                    }\r\n                },\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u5B89\xB7\u674E\uFF1A\\n\u72AF\u4EBA\u6709\u53EF\u80FD\u6709\u5E2E\u51F6\u3002\\n\u8003\u8651\u5230\u8FD9\u8D77\u6848\u4EF6\u91CC\u5B58\u5728\u5927\u91CF\u7531\u5355\u4EBA\u4F5C\u6848\u4F1A\u4E0E\u8BC1\u8A00\u4E92\u76F8\u77DB\u76FE\u7684\u60C5\u51B5\uFF0C\u5982\u6B64\u5047\u8BBE\u5E94\u8BE5\u662F\u7406\u6240\u5F53\u7136\u7684\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u786E\u5B9E\u662F\u8FD9\u6837\u5566\u3002\u4F46\u603B\u611F\u89C9\u8FD9\u6837\u7684\u8BDD\u5F88\u2026\u2026\u8FD9\u6837\u4E00\u6765\uFF0C\u603B\u611F\u89C9\u4E0D\u8BBA\u4EC0\u4E48\u4E8B\u90FD\u53EF\u4EE5\u662F\u5E2E\u51F6\u5E72\u7684\u4E86\u3002\\n\\n\u5B89\u4E54\u7684\u5047\u8BBE\u5728\u5B9E\u8DF5\u4E2D\u5F53\u7136\u53EF\u80FD\u6210\u7ACB\uFF0C\u4F46\u4F5C\u4E3A\u5047\u8BBE\uFF0C\u786E\u5B9E\u4F1A\u663E\u5F97\u7A0D\u663E\u7F3A\u4E4F\u8BF4\u670D\u529B\u3002\\n\u4F60\u51B3\u5B9A\u540E\u9000\u4E00\u6B65\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u5982\u4F60\u6240\u8BF4\uFF0C\u6EE5\u7528\u8FD9\u4E2A\u5047\u8BBE\u662F\u4E0D\u597D\u7684\u3002\\n\u201C\u88AB\u89C2\u5BDF\u5230\u4E0A\u4E86\u697C\u7684\u4EBA\u662F\u72AF\u4EBA\u201D\uFF0C\u5728\u8FD9\u4E2A\u524D\u63D0\u4E0B\uFF0C\u6211\u4EEC\u518D\u53BB\u601D\u8003\u4EC0\u4E48\u662F\u5FC5\u987B\u5E2E\u51F6\u624D\u80FD\u5B8C\u6210\u7684\u884C\u4E3A\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u8C28\u614E\u589E\u52A0\u6848\u4EF6\u4E2D\u7684\u5B9E\u4F53\u5427\u3002\\n\",\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"falsified_footprints\": true,\r\n                                   
+    \"falsified_ground_bloodstain\": true,\r\n                                   
+    \"falsified_watch_time\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u5728\u8FD9\u4E2A\u524D\u63D0\u4E0B\uFF0C\\n\u5C31\u6211\u4EEC\u76EE\u524D\u5DF2\u77E5\u7684\u60C5\u62A5\u6765\u770B\uFF0C\\n\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_footprints\": true\r\n                           
+    },\r\n                            \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u5730\u9762\u6D88\u5931\u7684\u8DB3\u8FF9\u2026\u2026\\n\"\r\n                       
+    },\r\n                        \"triggered_text_3\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_footprints\": true\r\n                           
+    },\r\n                            \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u5730\u9762\u7684\u4F2A\u9020\u8840\u6DB2\u2026\u2026\\n\"\r\n                       
+    },\r\n                        \"triggered_text_4\": {\r\n                           
+    \"limit\": {\r\n                                \"falsified_footprints\": true\r\n                           
+    },\r\n                            \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u660E\u663E\u88AB\u8C03\u6574\u8FC7\u7684\u624B\u8868\u65F6\u95F4\u2026\u2026\\n\"\r\n                       
+    },\r\n                        \"triggered_text_5\": {\r\n                           
+    \"limit\": {\r\n                                \"or\": {\r\n                                   
+    \"falsified_footprints\": true,\r\n                                    \"falsified_ground_bloodstain\":
+    true,\r\n                                    \"falsified_watch_time\": true\r\n                               
+    }\r\n                            },\r\n                            \"text\":
+    \"\u5B89\xB7\u674E\uFF1A\\n\u5F88\u663E\u7136\uFF0C\\n\u8FD9\u8D77\u6848\u4EF6\u4E2D\u5B58\u5728\u4E0E\u72AF\u4EBA\u4E0A\u697C\u540E\u5C31\u6CA1\u6709\u4E0B\u6765\u8FD9\u4E00\u8BC1\u8A00\u77DB\u76FE\u7684\u7591\u70B9\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u4F46\u5982\u679C\u5C06\u72AF\u4EBA\u6709\u5E2E\u624B\u8FD9\u4E00\u70B9\u8003\u8651\u8FDB\u53BB\u7684\u8BDD\uFF0C\u5C31\u80FD\u591F\u5177\u5907\u53EF\u884C\u6027\u4E86\u3002\\n\u6211\u8BA4\u4E3A\u81F3\u5C11\u5728\u8FD9\u65B9\u9762\uFF0C\u5047\u8BBE\u72AF\u4EBA\u4F7F\u7528\u4E86\u5E2E\u51F6\u5E94\u8BE5\u662F\u76F8\u5BF9\u5408\u7406\u7684\u60F3\u6CD5\u3002\\n\\n\u4F60\u89C2\u5BDF\u5230\u5B89\u4E54\u88AB\u8BF4\u670D\u7684\u8868\u60C5\u2014\u2014\u5F88\u663E\u7136\uFF0C\u8FD9\u662F\u4E2A\u4ED6\u65E0\u4ECE\u53CD\u9A73\u7684\u53EF\u80FD\u6027\u3002\\n\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"falsified_watch_time\": {\r\n                \"description\": \"\u624B\u8868\u4E0A\u7684\u65F6\u95F4\u6709\u53EF\u80FD\u662F\u4F2A\u9020\u7684\",\r\n               
+    \"prompt\": \"\u5728\u73B0\u573A\u53D1\u73B0\u4E86\u6B7B\u8005\u88AB\u6454\u574F\u7684\u624B\u8868\uFF0C\u4E0A\u9762\u51BB\u7ED3\u7684\u65F6\u95F4\u88AB\u8BA4\u5B9A\u4E3A\u662F\u6B7B\u8005\u4ECE\u697C\u4E0A\u5760\u843D\u7684\u65F6\u95F4\u3002\u4F46\u624B\u8868\u4E0A\u7684\u65F6\u95F4\u5F88\u53EF\u80FD\u662F\u72AF\u4EBA\u4F2A\u9020\u7684\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"watch\",\r\n                    \"time\",\r\n                    \"falsify\"\r\n               
+    ],\r\n                \"template\": {\r\n                    \"text\": \"\u9057\u7559\u5728\u73B0\u573A\u7684{0}\uFF0C\u4E0A\u9762\u7684{1}\u6709\u53EF\u80FD\u662F{2}\u7684\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"watch\",\r\n                            \"time\",\r\n                           
+    \"falsify\"\r\n                        ]\r\n                    }\r\n               
+    },\r\n                \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u72AF\u4EBA\u6709\u80FD\u529B\u4F2A\u9020\u624B\u8868\u65F6\u95F4\u3002\",\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"possible_accomplice\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u6307\u51FA\u4E86\u8FD9\u5C31\u662F\u5E2E\u51F6\u505A\u7684\u4E8B\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"time_mismatch\": true\r\n                           
+    },\r\n                            \"text\": \"\u4F60\u6307\u51FA\u4E86\u8FD9\u5C31\u662F\u65F6\u95F4\u4E0D\u7B26\u7684\u539F\u56E0\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"time_mismatch\": {\r\n                \"description\": \"\u624B\u8868\u65F6\u95F4\u4E0E\u5760\u697C\u58F0\u4E0D\u7B26\",\r\n               
+    \"prompt\": \"\u5728\u73B0\u573A\u53D1\u73B0\u4E86\u6B7B\u8005\u88AB\u6454\u574F\u7684\u624B\u8868\uFF0C\u4E0A\u9762\u51BB\u7ED3\u7684\u65F6\u95F4\u88AB\u8BA4\u5B9A\u4E3A\u662F\u6B7B\u8005\u4ECE\u697C\u4E0A\u5760\u843D\u7684\u65F6\u95F4\u3002\u4F46\u624B\u8868\u4E0A\u7684\u65F6\u95F4\u5F88\u53EF\u80FD\u662F\u72AF\u4EBA\u4F2A\u9020\u7684\",\r\n               
+    \"depends_on\": {},\r\n                \"entities\": [\r\n                   
+    \"watch\",\r\n                    \"time\",\r\n                    \"falsify\"\r\n               
+    ],\r\n                \"template\": {\r\n                    \"text\": \"\u9057\u7559\u5728\u73B0\u573A\u7684{0}\uFF0C\u4E0A\u9762\u7684{1}\u6709\u53EF\u80FD\u662F{2}\u7684\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"watch\",\r\n                            \"time\",\r\n                           
+    \"falsify\"\r\n                        ]\r\n                    }\r\n               
+    },\r\n                \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"text_1\": \"\u4F60\u8BC1\u660E\u4E86\u624B\u8868\u65F6\u95F4\u4E0E\u5760\u697C\u58F0\u4E0D\u7B26\u3002\",\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"falsified_watch_time\": true\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u6307\u51FA\u4E86\u8FD9\u4E0E\u72AF\u4EBA\u4F2A\u9020\u624B\u8868\u65F6\u95F4\u4E4B\u95F4\u7684\u8054\u7CFB\u3002\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"limit\": {\r\n                                \"and\": {\r\n                                   
+    \"falsified_watch_time\": true,\r\n                                    \"possible_accomplice\":
+    true\r\n                                }\r\n                            },\r\n                           
+    \"text\": \"\u4F60\u66F4\u8FDB\u4E00\u6B65\u7684\u6307\u51FA\u4E86\u8FD9\u5C31\u662F\u72AF\u4EBA\u7528\u5E2E\u51F6\u8981\u505A\u7684\u4E8B\u3002\"\r\n                       
+    }\r\n                    }\r\n                }\r\n            },\r\n           
+    \"suspicious_jogging\": {\r\n                \"description\": \"\u5B89\u4E54\u7684\u6668\u8DD1\u5F88\u53EF\u7591\",\r\n               
+    \"prompt\": \"\u5B89\u4E54\u8BF4\u4ED6\u662F\u65E9\u4E0A\u8D77\u6765\u6668\u8DD1\u7684\u65F6\u5019\u8DEF\u8FC7\u6848\u53D1\u5730\u70B9\u77E5\u9053\u7684\u6848\u4EF6\u60C5\u62A5\uFF0C\u4F46\u5B89\u4E54\u6839\u672C\u6CA1\u6709\u6668\u8DD1\u7684\u4E60\u60EF\",\r\n               
+    \"is_wrong\": true,\r\n                \"depends_on\": {},\r\n               
+    \"entities\": [\r\n                    \"AnQiao\",\r\n                    \"jogging\"\r\n               
+    ],\r\n                \"template\": {\r\n                    \"text\": \"{0}\u58F0\u79F0\u4ED6\u53BB{1}\u4E86\uFF0C\u4F46\u4ED6\u6839\u672C\u6CA1\u6709\u8FD9\u4E2A\u4E60\u60EF\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"AnQiao\",\r\n                            \"jogging\"\r\n                       
+    ]\r\n                    }\r\n                },\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u8FD9\u53EA\u53D6\u51B3\u4E8E\u5B89\u4E54\u7684\u5FC3\u8BC1\uFF0C\u5B89\u4E54\u7684\u575A\u51B3\u53CD\u9A73\u4EE4\u4F60\u653E\u5F03\u4E86\u4ECE\u8FD9\u4E2A\u601D\u8DEF\u7EE7\u7EED\u8BA8\u8BBA\u3002\"\r\n                   
+    }\r\n                }\r\n            },\r\n            \"AnQiao_witnessed_crime\":
+    {\r\n                \"description\": \"\u5B89\u4E54\u5728\u73B0\u573A\u76EE\u51FB\u4E86\u6848\u4EF6\u7684\u53D1\u751F\",\r\n               
+    \"prompt\": \"\u5B89\u4E54\u7684\u53D1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u66F4\u50CF\u4ED6\u76EE\u51FB\u4E86\u6848\u4EF6\u7684\u53D1\u751F\u3002\",\r\n               
+    \"extra_input_sample\": [\r\n                    \"\u5B89\u4E54\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u66F4\u50CF\u4ED6\u5F53\u65F6\u5C31\u5728\u6848\u53D1\u73B0\u573A\"\r\n               
+    ],\r\n                \"is_wrong\": true,\r\n                \"depends_on\":
+    {},\r\n                \"entities\": [\r\n                    \"AnQiao\",\r\n                   
+    \"jogging\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"{0}\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u4EFF\u4F5B\u4ED6\u5F53\u65F6\u5C31\u5728{1}\u4E00\u6837\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"AnQiao\",\r\n                            \"fifteenth_floor\"\r\n                       
+    ]\r\n                    }\r\n                },\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u5B89\u4E54\u5B8C\u5168\u5426\u51B3\u4E86\u8FD9\u4E2A\u8BF4\u6CD5\u3002\u5B89\u4E54\u7684\u575A\u51B3\u53CD\u9A73\u4EE4\u4F60\u653E\u5F03\u4E86\u4ECE\u8FD9\u4E2A\u601D\u8DEF\u7EE7\u7EED\u8BA8\u8BBA\u3002\"\r\n                   
+    }\r\n                }\r\n            },\r\n            \"sabina_is_alive\":
+    {\r\n                \"description\": \"\u8428\u5BBE\u5A1C\u53EF\u80FD\u8FD8\u6D3B\u7740\",\r\n               
+    \"prompt\": \"\u73B0\u573A\u7684\u5C38\u4F53\u6CA1\u6709\u5934\uFF0C\u96BE\u4EE5\u786E\u8BA4\u8EAB\u4EFD\uFF0C\u6240\u4EE5\u8428\u5BBE\u5A1C\u53EF\u80FD\u8FD8\u6D3B\u7740\",\r\n               
+    \"extra_input_sample\": [\r\n                    \"\u8428\u5BBE\u5A1C\u53EF\u80FD\u6CA1\u6B7B\"\r\n               
+    ],\r\n                \"is_wrong\": true,\r\n                \"depends_on\":
+    {},\r\n                \"entities\": [\r\n                    \"sabina\",\r\n                   
+    \"alive\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"\u73B0\u573A\u7684\u5C38\u4F53\u662F\u65E0\u5934\u5C38\u4F53\uFF0C\u96BE\u4EE5\u786E\u8BA4\u8EAB\u4EFD\u3002\u56E0\u6B64\uFF0C{0}\u5176\u5B9E\u6709\u53EF\u80FD\u8FD8{1}\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"sabina\",\r\n                            \"alive\"\r\n                       
+    ]\r\n                    }\r\n                },\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u5B89\xB7\u674E\uFF1A\\n\u8428\u5BBE\u5A1C\u7684\u5C38\u4F53\u662F\u65E0\u5934\u5C38\uFF0C\u65E0\u6CD5\u786E\u8BA4\u6B7B\u8005\u5C31\u662F\u5979\u672C\u4EBA\u3002\\n\u4ECE\u8FD9\u4E2A\u89D2\u5EA6\u51FA\u53D1\uFF0C\u8428\u5BBE\u5A1C\u5176\u5B9E\u8FD8\u6D3B\u7740\uFF0C\u6B7B\u8005\u53E6\u6709\u5176\u4EBA\u2014\u2014\u8FD9\u4E48\u60F3\u4E5F\u4E0D\u5947\u602A\u5427\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u2026\u2026\u662F\u8FD9\u6837\u5566\u3002\u4F46\u90A3\u53C8\u600E\u4E48\u6837\u5462\uFF1F\\n\\n\u5B89\u4E54\uFF1A\\n\u65E0\u8BBA\u5982\u4F55\uFF0C\u6709\u4E2A\u4EBA\u6B7B\u4E86\u90FD\u662F\u4E8B\u5B9E\u554A\u3002\\n\u800C\u4E14\u5982\u679C\u4E0D\u662F\u8428\u5BBE\u5A1C\u7684\u8BDD\uFF0C\u90A3\u6D41\u6D6A\u6C49\u751A\u81F3\u6CA1\u6709\u76EE\u51FB\u5230\u6B7B\u8005\u4E0A\u4E0B\u697C\u7684\u60C5\u62A5\uFF0C\u8FD9\u4E5F\u5F88\u5947\u602A\u5427\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u2026\u2026\u7684\u786E\u3002\u4F60\u8BF4\u5F97\u6709\u9053\u7406\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u6682\u4E14\u5148\u5C06\u8FD9\u4E2A\u60F3\u6CD5\u653E\u4E0B\u5427\u3002\\n\"\r\n                   
+    }\r\n                }\r\n            },\r\n            \"police_abnormal_behaviour\":
+    {\r\n                \"description\": \"\u8B66\u5BDF\u7684\u884C\u4E3A\u53CD\u5E38\",\r\n               
+    \"prompt\": \"\u5373\u4F7F\u4EE5\u9EC4\u660F\u57CE\u7684\u8B66\u5BDF\u4E3A\u57FA\u51C6\uFF0C\u672C\u6B21\u6848\u4EF6\u4E2D\u4ED6\u4EEC\u7684\u8C03\u67E5\u4E5F\u4ECD\u79F0\u5F97\u4E0A\u884C\u4E3A\u53CD\u5E38\u3002\",\r\n               
+    \"is_wrong\": true,\r\n                \"depends_on\": {},\r\n               
+    \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"text_1\": \"\u5B89\u4E54\u5B8C\u5168\u5426\u51B3\u4E86\u8FD9\u4E2A\u8BF4\u6CD5\uFF0C\u6307\u51FA\u9EC4\u660F\u57CE\u7684\u8B66\u5BDF\u5C31\u90A3\u6837\u3002\u5B89\u4E54\u6839\u6DF1\u8482\u56FA\u7684\u770B\u6CD5\u4EE4\u4F60\u653E\u5F03\u4E86\u4ECE\u8FD9\u4E2A\u601D\u8DEF\u7EE7\u7EED\u8BA8\u8BBA\u3002\"\r\n                   
+    }\r\n                }\r\n            },\r\n            \"sabina_died_elsewhere\":
+    {\r\n                \"description\": \"\u8428\u5BBE\u5A1C\u662F\u5728\u5176\u4ED6\u5730\u65B9\u6B7B\u4EA1\u7684\",\r\n               
+    \"prompt\": \"\u8428\u5BBE\u5A1C\u5F88\u53EF\u80FD\u662F\u5728\u5176\u4ED6\u5730\u65B9\u88AB\u6740\uFF0C\u7136\u540E\u88AB\u8FD0\u9001\u5230\u6848\u53D1\u73B0\u573A\u7684\",\r\n               
+    \"is_wrong\": true,\r\n                \"depends_on\": {},\r\n               
+    \"dialogue\": {\r\n                    \"on_proven\": {\r\n                       
+    \"triggered_text_1\": {\r\n                            \"limit\": {\r\n                               
+    \"or\": {\r\n                                    \"fifteenth_floor_bloodstain_true\":
+    true,\r\n                                    \"falsified_ground_bloodstain\":
+    true,\r\n                                    \"sabina_death_reason_decapitated\":
+    true,\r\n                                    \"fifteenth_floor_bloodstain_falsified\":
+    true,\r\n                                    \"falsified_footprints\": true,\r\n                                   
+    \"sabina_death_reason_falling\": true\r\n                                }\r\n                           
+    },\r\n                            \"text\": \"\u4E0D\u5BF9\uFF0C\u8FD9\u4E2A\u60F3\u6CD5\u8BF4\u4E0D\u901A\u3002\\n\u5B83\u548C\u4F60\u5DF2\u7ECF\u8BC1\u660E\u7684\u89C2\u70B9\u76F8\u8FDD\u80CC\uFF0C\u6050\u6015\u4E0D\u662F\u4E2A\u9002\u5408\u63D0\u51FA\u7684\u89C2\u70B9\u3002\\n\"\r\n                       
+    },\r\n                        \"triggered_text_2\": {\r\n                           
+    \"and\": {\r\n                                \"sabina_death_reason_decapitated\":
+    false,\r\n                                \"sabina_death_reason_falling\": false\r\n                           
+    }\r\n                        },\r\n                        \"text\": \"\u5B89\xB7\u674E\uFF1A\\n\u73B0\u573A\u4E0E\u6B7B\u8005\u7684\u5C38\u4F53\u5B58\u5728\u8BF8\u591A\u7591\u70B9\u3002\u6211\u6709\u4E00\u4E2A\u53EF\u4EE5\u89E3\u91CA\u8FD9\u4E9B\u7591\u70B9\u7684\u63A8\u8BBA\u3002\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u90A3\u5C31\u662F\u6B7B\u8005\u5176\u5B9E\u662F\u5728\u5176\u4ED6\u5730\u65B9\u88AB\u6740\u7684\uFF0C\u5979\u6839\u672C\u6CA1\u6709\u53BB\u8FC7\u5341\u4E94\u697C\u3002\\n\\n\u5B89\u4E54\uFF1A\\n\u53EF\u6D41\u6D6A\u6C49\u7684\u8BC1\u8A00\u91CC\u660E\u786E\u8BF4\u4E86\uFF0C\u8428\u5BBE\u5A1C\u786E\u5B9E\u4E0A\u8FC7\u5341\u4E94\u697C\uFF0C\u800C\u4E14\u5C31\u6B64\u5931\u8E2A\u4E86\u554A\uFF1F\\n\\n\u5B89\u4E54\uFF1A\\n\u8FD9\u548C\u8BC1\u8A00\u76F8\u77DB\u76FE\u4E86\u5427\u2026\u2026\\n\\n\u5B89\xB7\u674E\uFF1A\\n\u554A\u2026\u2026\u662F\u6211\u5FFD\u89C6\u4E86\u8FD9\u70B9\u3002\\n\\n\u867D\u7136\u4E5F\u4E0D\u662F\u6CA1\u6709\u53EF\u80FD\u505A\u5230\u8FD9\u4E9B\u3002\\n\u4F46\u4F60\u8111\u6D77\u91CC\u95EA\u8FC7\u7684\u90E8\u5206\u624B\u6CD5\u786E\u5B9E\u592A\u5938\u5F20\u4E86\uFF0C\u4F60\u76EE\u524D\u6CA1\u6709\u8BC1\u636E\u6765\u8BC1\u660E\u8FD9\u4E9B\u60F3\u6CD5\u3002\\n\\n\u8FD8\u662F\u6682\u4E14\u5148\u653E\u4E0B\u8FD9\u4E2A\u63A8\u8BBA\u5427\uFF0C\u5B83\u6050\u6015\u65E0\u6CD5\u8BF4\u670D\u5B89\u4E54\u3002\\n\"\r\n                   
+    }\r\n                }\r\n            }\r\n        },\r\n        \"completion_nodes\":
+    [\r\n            \"sabina_death_reason_decapitated\",\r\n            \"sabina_death_reason_falling\"\r\n       
+    ]\r\n    }\n}"
 --- !u!1 &772221750
 GameObject:
   m_ObjectHideFlags: 0
@@ -1076,7 +1449,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &850854762
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1689,6 +2062,7 @@ Transform:
   - {fileID: 1369141992}
   - {fileID: 850854763}
   - {fileID: 268157653}
+  - {fileID: 744896732}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301098746
@@ -1794,7 +2168,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1369141991
 MonoBehaviour:
   m_ObjectHideFlags: 0
