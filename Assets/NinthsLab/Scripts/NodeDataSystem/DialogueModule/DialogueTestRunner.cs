@@ -1,11 +1,15 @@
 using UnityEngine;
 using LogicEngine; // 引用逻辑脚本的命名空间
 
+#if UNITY_EDITOR
+using UnityEditor; // 仅在编辑器环境下引用，防止打包报错
+#endif
+
 public class DialogueTestRunner : MonoBehaviour
 {
     [Header("测试配置")]
     [Tooltip("在这里直接编辑或粘贴JSON对话数据")]
-    [TextArea(10, 25)] // 设置文本框高度，方便查看长JSON
+    [TextArea(10, 25)] 
     public string jsonInput = @"
     {
         ""on_proven"": {
@@ -34,7 +38,6 @@ public class DialogueTestRunner : MonoBehaviour
     /// <summary>
     /// 执行解析并打印结果
     /// </summary>
-    [ContextMenu("Run Test Again")] // 运行游戏时，可以在组件右上角齿轮菜单里手动再次点击触发
     public void PerformTest()
     {
         if (string.IsNullOrWhiteSpace(jsonInput))
@@ -45,15 +48,42 @@ public class DialogueTestRunner : MonoBehaviour
 
         Debug.Log($"<color=cyan>[DialogueTestRunner] 开始解析...</color>");
 
-        // 记录一下耗时（可选，用于简单的性能参考）
         float t0 = Time.realtimeSinceStartup;
 
-        // 调用核心静态方法
+        // 调用 LogicEngine.DialogueParser
         string resultJson = DialogueParser.ParseDialogue(jsonInput);
 
         float t1 = Time.realtimeSinceStartup;
 
-        // 输出结果
         Debug.Log($"<b>[解析结果 (耗时: {(t1 - t0) * 1000:F2}ms)]</b>:\n{resultJson}");
     }
 }
+
+// --------------------------------------------------------------------------
+// 自定义编辑器扩展部分 (Custom Editor)
+// --------------------------------------------------------------------------
+#if UNITY_EDITOR
+[CustomEditor(typeof(DialogueTestRunner))]
+public class DialogueTestRunnerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        // 1. 绘制默认的Inspector（包括脚本引用、TextArea文本框等）
+        DrawDefaultInspector();
+
+        // 获取目标脚本对象
+        DialogueTestRunner runner = (DialogueTestRunner)target;
+
+        // 2. 添加空行，美观一点
+        EditorGUILayout.Space(10);
+
+        // 3. 绘制按钮
+        // 只有在 Play Mode (运行模式) 下按钮才有效，或者根据需求在编辑模式下也能跑（纯逻辑通常可以在编辑模式跑）
+        // 这里没有限制 Application.isPlaying，所以你在不运行游戏时点击也能看到Console输出
+        if (GUILayout.Button("Run Test Again (手动执行)", GUILayout.Height(30)))
+        {
+            runner.PerformTest();
+        }
+    }
+}
+#endif
