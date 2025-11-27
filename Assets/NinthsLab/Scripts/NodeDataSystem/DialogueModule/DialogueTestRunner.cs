@@ -53,6 +53,8 @@ public class DialogueTestRunner : MonoBehaviour
         // 调用 LogicEngine.DialogueParser
         string resultJson = DialogueParser.ParseDialogue(jsonInput);
 
+        Debug.Log(DialogueParser.ValidateDialogue(jsonInput).ToString());
+
         float t1 = Time.realtimeSinceStartup;
 
         Debug.Log($"<b>[解析结果 (耗时: {(t1 - t0) * 1000:F2}ms)]</b>:\n{resultJson}");

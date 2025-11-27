@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using LogicEngine.Validation;
 
 namespace LogicEngine
 {
@@ -31,7 +32,7 @@ namespace LogicEngine
 
             // 规则2: 忽视对话头，直接取第一个有效的内容对象
             if (!root.HasValues) return "{}";
-            
+
             JProperty firstProp = root.Properties().First();
             JObject dialogueContent = firstProp.Value as JObject;
 
@@ -53,7 +54,7 @@ namespace LogicEngine
                     string txt = value.ToString();
                     AppendText(textBuffer, txt);
                 }
-                else if (key.StartsWith("first_valid")) 
+                else if (key.StartsWith("first_valid"))
                 {
                     string txt = ResolveFirstValid(value);
                     AppendText(textBuffer, txt);
@@ -90,7 +91,7 @@ namespace LogicEngine
         private static void AppendText(StringBuilder buffer, string text)
         {
             if (string.IsNullOrEmpty(text)) return;
-            
+
             // 如果缓冲区不为空，添加换行符连接多段对话
             if (buffer.Length > 0)
             {
@@ -112,14 +113,14 @@ namespace LogicEngine
             {
                 output.Add("text_1", buffer.ToString());
             }
-            else 
+            else
             {
                 // 防御性编码：理论上遇call_choice_group会截断，不会出现第二次Flush
                 // 但如果逻辑变更，这里做追加处理
                 string existing = output["text_1"].ToString();
                 output["text_1"] = existing + "\n" + buffer.ToString();
             }
-            
+
             buffer.Clear();
         }
 
@@ -184,7 +185,7 @@ namespace LogicEngine
         {
             JObject obj = token as JObject;
             // 如果不是对象，视为无条件通过
-            if (obj == null) return true; 
+            if (obj == null) return true;
 
             if (obj.ContainsKey("limit"))
             {
@@ -208,6 +209,91 @@ namespace LogicEngine
                 return obj["text"]?.ToString();
             }
             return null;
+        }
+        public static List<ValidationEntry> ValidateDialogue(JToken dialogueContent)
+        {
+            List<ValidationEntry> logs = new List<ValidationEntry>();
+            JObject root = dialogueContent as JObject;
+
+            if (root == null)
+            {
+                logs.Add(new ValidationEntry
+                {
+                    Severity = ValidationSeverity.Error,
+                    Message = "传入的对话节点不是有效的JSON对象 (JObject)。"
+                });
+                return logs;
+            }
+
+            bool hasGuaranteedOutput = false;
+            bool hasEncounteredChoice = false; // 新增：标记是否已经遇到过选项组
+
+            // 模拟从上往下的执行流
+            foreach (var property in root.Properties())
+            {
+                string key = property.Name;
+                JToken value = property.Value;
+
+                // --- 新增功能：检查截断后的无效内容 ---
+                if (hasEncounteredChoice)
+                {
+                    // 如果已经在之前遇到了选项组，后续任何 文本、逻辑判断 或 另一个选项组 都是无效的
+                    if (key.StartsWith("text") ||
+                        key.StartsWith("first_valid") ||
+                        key.StartsWith("triggered_text") ||
+                        key.StartsWith("call_choice_group"))
+                    {
+                        logs.Add(new ValidationEntry
+                        {
+                            Severity = ValidationSeverity.Warning,
+                            Message = $"检测到不可达的节点 '{key}'：该节点位于 'call_choice_group' 之后，运行时将被解析器忽略。"
+                        });
+                    }
+                    // 既然已经是无效节点，就不再参与 hasGuaranteedOutput 的计算，直接处理下一个
+                    continue;
+                }
+
+                // --- 原有逻辑判定 ---
+
+                // 1. 检查是否是无条件文本
+                if (key.StartsWith("text"))
+                {
+                    hasGuaranteedOutput = true;
+                }
+                // 2. 检查是否是带 fallback 的 first_valid
+                else if (key.StartsWith("first_valid"))
+                {
+                    JObject fvObj = value as JObject;
+                    if (fvObj != null && fvObj.ContainsKey("fallback_text"))
+                    {
+                        hasGuaranteedOutput = true;
+                    }
+                }
+                // 3. 检查是否遇到流程截断点 (选项组)
+                else if (key.StartsWith("call_choice_group"))
+                {
+                    // 遇到选项组，标记截断点。
+                    // 注意：这里不再 break，而是设置标志位，以便循环继续运行去抓后面的“漏网之鱼”
+                    hasEncounteredChoice = true;
+                }
+
+                // triggered_text 继续被视为非保底输出
+            }
+
+            // 结算：如果没有找到保底输出
+            // 注意：如果有选项组但前面没文本（例如直接进选项），这在某些设计里是合法的（比如直接选路），
+            // 但如果你的设计要求进选项前必须有话说，可以在这里根据 hasEncounteredChoice 调整逻辑。
+            // 目前保持原逻辑：只要整个有效流里没文本就报警告。
+            if (!hasGuaranteedOutput)
+            {
+                logs.Add(new ValidationEntry
+                {
+                    Severity = ValidationSeverity.Warning,
+                    Message = "对话结构可能没有输出：没有检测到无条件的 'text' 或带有 'fallback_text' 的 'first_valid' 模块。"
+                });
+            }
+
+            return logs;
         }
     }
 }

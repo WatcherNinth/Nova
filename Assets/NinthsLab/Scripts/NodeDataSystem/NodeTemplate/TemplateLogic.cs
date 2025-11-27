@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using LogicEngine.Validation;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace LogicEngine.Templates
 {
@@ -32,7 +34,7 @@ namespace LogicEngine.Templates
     /// Template的运行时数据实体。
     /// 不包含MonoBehaviour，纯C#类。
     /// </summary>
-    public class TemplateData
+    public class TemplateData: IValidatable
     {
         public enum e_TemplateConditionType
         {
@@ -77,6 +79,11 @@ namespace LogicEngine.Templates
         public void AddAnswer(AnswerData answer)
         {
             Answers.Add(answer);
+        }
+
+        public void OnValidate(ValidationContext context)
+        {
+            
         }
     }
 
@@ -135,7 +142,7 @@ namespace LogicEngine.Templates
                 foreach (var prop in answerObj.Properties())
                 {
                     string rawKey = prop.Name;
-                    string targetId = ResolveTargetId(rawKey, ownerId);
+                    string targetId = ResolveTargetId(rawKey, ownerId, result.RawText);
 
                     // 如果解析不出TargetId（比如在SpecialTemplate用了this），则跳过或报错
                     if (string.IsNullOrEmpty(targetId))
@@ -152,7 +159,7 @@ namespace LogicEngine.Templates
         /// <summary>
         /// 处理 answer 中的键值逻辑 (移除 _1, _2 后缀，处理 this)
         /// </summary>
-        private static string ResolveTargetId(string rawKey, string ownerId)
+        private static string ResolveTargetId(string rawKey, string ownerId, string rawText)
         {
             // 移除后缀 "_数字"
             // Regex: 匹配末尾的 _\d+
@@ -164,7 +171,7 @@ namespace LogicEngine.Templates
                 if (string.IsNullOrEmpty(ownerId))
                 {
                     // 这里可以选择记录日志
-                    // Debug.LogWarning("Special Template cannot use 'this' in answers.");
+                    Debug.LogError($"检测到special template的答案中出现了this！这个模板的描述是：{rawText}");
                     return null; 
                 }
                 return ownerId;

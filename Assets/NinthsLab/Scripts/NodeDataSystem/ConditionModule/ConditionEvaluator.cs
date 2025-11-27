@@ -6,7 +6,9 @@ namespace LogicEngine
 {
     public static class ConditionEvaluator
     {
-        // 定义一个委托类型，用于查询状态
+        /// <summary>
+        /// 定义一个委托类型，用于在没有关卡数据的情况下查询状态
+        /// <summary>
         public delegate bool StatusChecker(string argumentName);
 
         /// <summary>

@@ -25,12 +25,12 @@ namespace LogicEngine
             CheckLogicAndDialogueConsistency(context);
 
             // --- 递归检查子模块 ---
-            context.ValidateChild("Basic", Basic);
-            context.ValidateChild("AI", AI);
-            context.ValidateChild("Logic", Logic);
+            context.ValidateChild("BasicModule", Basic);
+            context.ValidateChild("AIModule", AI);
+            context.ValidateChild("LogicModule", Logic);
             // Template 允许为空 (使用开关)
-            context.ValidateChild("Template", Template, allowNull: true); 
-            context.ValidateChild("Dialogue", Dialogue);
+            context.ValidateChild("TemplateModule", Template, allowNull: true);
+            context.ValidateChild("DialogueModule", Dialogue);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace LogicEngine.Nodes
 
         public void OnValidate(ValidationContext context)
         {
-            
+
         }
     }
 
@@ -105,18 +105,23 @@ namespace LogicEngine.Nodes
                 context.LogError($"互斥组名 '{MutexGroup}' 不应同时出现在 'extra_mutex_list' 中。");
             }
 
-            if(OverrideMutexTrigger != null)
+            if (OverrideMutexTrigger != null)
             {
-                if(!string.IsNullOrEmpty(MutexGroup) || ExtraMutexList != null)
+                if (!string.IsNullOrEmpty(MutexGroup) || ExtraMutexList != null)
                 {
                     context.LogWarning("检测到OverrideMutexTrigger跟MutexGroup或ExtraMutexList同时存在，它会*完全*覆盖后两者的设置。");
                 }
-            }            
+            }
             // 自动验证检查
             if (IsAutoVerified && (DependsOn == null || !DependsOn.HasValues))
             {
-                 context.LogError("设置为自动验证 (is_auto_verified: true) 的节点必须包含 'depends_on' 逻辑，否则无法判定何时验证。");
+                context.LogError("设置为自动验证 (is_auto_verified: true) 的节点必须包含 'depends_on' 逻辑，否则无法判定何时验证。");
             }
+        }
+
+        public bool GetDependOnResult()
+        {
+            return ConditionEvaluator.Evaluate(DependsOn.ToString());
         }
     }
 
@@ -133,7 +138,7 @@ namespace LogicEngine.Nodes
             {
                 context.LogWarning("存在歧义：同时检测到 'special_node_template' 和 'template' 数据。程序将优先使用 'special_node_template'。");
             }
-            
+
             if (Template is IValidatable validatableData)
             {
                 context.ValidateChild("TemplateData", validatableData);
@@ -154,6 +159,19 @@ namespace LogicEngine.Nodes
             if (OnProven == null || !OnProven.HasValues)
             {
                 context.LogError("缺少必要的 'on_proven' (论证成功) 对话配置。");
+            }
+            List<ValidationEntry> dialogueValidationList = new List<ValidationEntry>();
+            if (OnProven != null)
+            {
+                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnProven));
+            }
+            if (OnPending != null)
+            {
+                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnPending));
+            }
+            if (OnMutex != null)
+            {
+                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnMutex));
             }
         }
     }
