@@ -1,122 +1,160 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using LogicEngine.Templates;
+using LogicEngine.Validation;
 using LogicEngine.Nodes;
 
 namespace LogicEngine
 {
-    /// <summary>
-    /// 论点节点的主数据类，对应 json 中的 "test_node" 这一层级
-    /// </summary>
-    public class NodeData
+    // 1. 根节点实现接口
+    public class NodeData : IValidatable
     {
-        // 节点的唯一ID (json的Key)
         public string Id { get; set; }
-
-        // 基础信息：描述、实体关联
         public NodeBasicInfo Basic { get; set; }
-
-        // AI信息：Prompt、输入样例
         public NodeAIInfo AI { get; set; }
-
-        // 前置条件与逻辑：互斥、依赖、自动验证、错误标记
         public NodeLogicInfo Logic { get; set; }
-
-        // 模板：填空模板数据
         public NodeTemplateInfo Template { get; set; }
-
-        // 对话：各个状态下的对话配置
         public NodeDialogueInfo Dialogue { get; set; }
+
+        public void OnValidate(ValidationContext context)
+        {
+            // --- 自身属性检查 ---
+            if (string.IsNullOrEmpty(Id))
+                context.LogError("节点 ID (Id) 不能为空。");
+
+            // --- 跨模块逻辑检查 (Cross-Module Validation) ---
+            CheckLogicAndDialogueConsistency(context);
+
+            // --- 递归检查子模块 ---
+            context.ValidateChild("Basic", Basic);
+            context.ValidateChild("AI", AI);
+            context.ValidateChild("Logic", Logic);
+            // Template 允许为空 (使用开关)
+            context.ValidateChild("Template", Template, allowNull: true); 
+            context.ValidateChild("Dialogue", Dialogue);
+        }
+
+        /// <summary>
+        /// 专门处理 Logic 和 Dialogue 之间的关联性检查
+        /// </summary>
+        private void CheckLogicAndDialogueConsistency(ValidationContext context)
+        {
+            // 1. 判断是否有前置条件 (DependsOn)
+            // JToken 判定不为空且有内容
+            bool hasDependsOn = Logic != null && Logic.DependsOn != null && Logic.DependsOn.HasValues;
+
+            // 2. 判断是否有 Pending 对话 (OnPending)
+            bool hasPendingDialogue = Dialogue != null && Dialogue.OnPending != null && Dialogue.OnPending.HasValues;
+
+            // 3. 执行判定规则
+            if (!hasDependsOn && hasPendingDialogue)
+            {
+                // 没逻辑，却有等待对话 -> 永远不会触发
+                context.LogWarning("检测到配置了 'on_pending' 对话，但 'depends_on' 前置条件为空。该对话永远不会被触发。");
+            }
+            else if (hasDependsOn && !hasPendingDialogue)
+            {
+                // 有逻辑，却没等待对话 -> 玩家等待时没反馈
+                context.LogWarning("检测到配置了 'depends_on' 前置条件，但缺少 'on_pending' 对话。建议添加以给予玩家等待反馈。");
+            }
+        }
     }
 }
 
 namespace LogicEngine.Nodes
 {
-    /// <summary>
-    /// 1. 基础信息区块
-    /// 包含描述和用于搜索/索引的实体标签
-    /// </summary>
-    public class NodeBasicInfo
+    // 2. 基础信息自检
+    public class NodeBasicInfo : IValidatable
     {
-        // 对应 "description"
         public string Description { get; set; }
-        
-        // 对应 "is_wrong" (默认为 false)
         public bool IsWrong { get; set; } = false;
+
+        public void OnValidate(ValidationContext context)
+        {
+            if (string.IsNullOrWhiteSpace(Description))
+                context.LogError("必须填写描述 (description)。");
+        }
     }
 
-    /// <summary>
-    /// 2. AI信息区块
-    /// 包含传递给LLM的提示词和样例
-    /// </summary>
-    public class NodeAIInfo
+    // 3. AI 信息自检
+    public class NodeAIInfo : IValidatable
     {
-        // 对应 "prompt"
         public string Prompt { get; set; }
-        
-        // 对应 "entities"
-        // 如果json中不存在或为空，这里初始化为空列表
         public List<string> Entities { get; set; } = new List<string>();
-
-        // 对应 "extra_input_sample"
         public List<string> ExtraInputSamples { get; set; } = new List<string>();
+
+        public void OnValidate(ValidationContext context)
+        {
+            
+        }
     }
 
-    /// <summary>
-    /// 3. 前置条件区块 (Logic)
-    /// 包含互斥逻辑、依赖树(depends_on)以及论点自身的属性标记
-    /// </summary>
-    public class NodeLogicInfo
+    // 4. 逻辑层自检
+    public class NodeLogicInfo : IValidatable
     {
-        // 对应 "mutex_group"
         public string MutexGroup { get; set; }
-
-        // 对应 "extra_mutex_list"
-        public List<string> ExtraMutexList { get; set; } = new List<string>();
-
-        // 对应 "override_mutex_trigger"
-        // 这是一个条件模块，暂存为JToken，运行时解析
+        public List<string> ExtraMutexList { get; set; }
         public JToken OverrideMutexTrigger { get; set; }
-
-        // 对应 "depends_on"
-        // 这是一个复杂的嵌套逻辑树，按照要求仅存储JToken，不进行解析
         public JToken DependsOn { get; set; }
+        public bool IsAutoVerified { get; set; }
 
-        // 对应 "is_auto_verified" (默认为 false)
-        public bool IsAutoVerified { get; set; } = false;
+        public void OnValidate(ValidationContext context)
+        {
+            // 逻辑检查：互斥组不能包含自己
+            if (!string.IsNullOrEmpty(MutexGroup) && ExtraMutexList != null && ExtraMutexList.Contains(MutexGroup))
+            {
+                context.LogError($"互斥组名 '{MutexGroup}' 不应同时出现在 'extra_mutex_list' 中。");
+            }
+
+            if(OverrideMutexTrigger != null)
+            {
+                if(!string.IsNullOrEmpty(MutexGroup) || ExtraMutexList != null)
+                {
+                    context.LogWarning("检测到OverrideMutexTrigger跟MutexGroup或ExtraMutexList同时存在，它会*完全*覆盖后两者的设置。");
+                }
+            }            
+            // 自动验证检查
+            if (IsAutoVerified && (DependsOn == null || !DependsOn.HasValues))
+            {
+                 context.LogError("设置为自动验证 (is_auto_verified: true) 的节点必须包含 'depends_on' 逻辑，否则无法判定何时验证。");
+            }
+        }
     }
 
-    /// <summary>
-    /// 4. 模板区块
-    /// 处理填空题相关的逻辑
-    /// </summary>
-    public class NodeTemplateInfo
+    // 5. 模板层自检
+    public class NodeTemplateInfo : IValidatable
     {
-        // 对应 "special_node_template"
-        // 如果存在，通过ID引用外部模板
         public string SpecialTemplateId { get; set; }
+        public Templates.TemplateData Template { get; set; }
 
-        // 对应 "template"
-        // 这是一个被处理过的数据对象。
-        // 在读取时会调用 TemplateParser.Parse(json) 赋值给此属性
-        public TemplateData Template { get; set; }
+        public void OnValidate(ValidationContext context)
+        {
+            // 歧义检查
+            if (!string.IsNullOrEmpty(SpecialTemplateId) && Template != null)
+            {
+                context.LogWarning("存在歧义：同时检测到 'special_node_template' 和 'template' 数据。程序将优先使用 'special_node_template'。");
+            }
+            
+            if (Template is IValidatable validatableData)
+            {
+                context.ValidateChild("TemplateData", validatableData);
+            }
+        }
     }
 
-    /// <summary>
-    /// 5. 对话区块
-    /// 包含论点在不同状态下触发的对话配置
-    /// </summary>
-    public class NodeDialogueInfo
+    // 6. 对话层自检
+    public class NodeDialogueInfo : IValidatable
     {
-        // 对应 "dialogue" -> "on_proven"
-        // 内部包含 text_1, first_valid_1, call_choice_group_1 等复杂结构
-        // 存储为 JToken 以便交给通用的 DialogueParser 处理
         public JToken OnProven { get; set; }
-
-        // 对应 "dialogue" -> "on_pending"
         public JToken OnPending { get; set; }
-
-        // 对应 "dialogue" -> "on_mutex"
         public JToken OnMutex { get; set; }
+
+        public void OnValidate(ValidationContext context)
+        {
+            // 必须要有 Proven 对应的对话
+            if (OnProven == null || !OnProven.HasValues)
+            {
+                context.LogError("缺少必要的 'on_proven' (论证成功) 对话配置。");
+            }
+        }
     }
 }

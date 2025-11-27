@@ -1,6 +1,7 @@
 using UnityEngine;
 using Newtonsoft.Json.Linq;
 using LogicEngine; // 引用你的逻辑命名空间
+using LogicEngine.Validation;
 
 public class NodeParserTester : MonoBehaviour
 {
@@ -31,6 +32,18 @@ public class NodeParserTester : MonoBehaviour
 
                 // 3. 调用静态解析类
                 NodeData nodeData = NodeParser.Parse(nodeId, nodeContent);
+
+                // === 新增：自检调用 ===
+                var validationResult = nodeData.SelfCheck($"Node_{nodeId}");
+
+                if (!validationResult.IsValid)
+                {
+                    Debug.LogError($"<color=red>自检失败:</color>\n{validationResult.ToString()}");
+                }
+                else
+                {
+                    Debug.Log("<color=green>自检通过。</color>");
+                }
 
                 // 4. 输出解析结果到 Console
                 PrintNodeData(nodeData);
@@ -80,8 +93,8 @@ public class NodeParserTester : MonoBehaviour
         // 5. Dialogue Info
         sb.AppendLine($"<b>[Dialogue Info]</b>");
         sb.AppendLine($"  On Proven: {(data.Dialogue.OnProven != null ? "Check OK" : "Missing")}");
-        if(data.Dialogue.OnProven != null) sb.AppendLine($"    -> Content Sample: {data.Dialogue.OnProven.ToString(Newtonsoft.Json.Formatting.None)}");
-        
+        if (data.Dialogue.OnProven != null) sb.AppendLine($"    -> Content Sample: {data.Dialogue.OnProven.ToString(Newtonsoft.Json.Formatting.None)}");
+
         sb.AppendLine($"  On Pending: {(data.Dialogue.OnPending != null ? "Check OK" : "Missing")}");
         sb.AppendLine($"  On Mutex: {(data.Dialogue.OnMutex != null ? "Check OK" : "Missing")}");
 
