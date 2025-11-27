@@ -312,6 +312,64 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &268157652
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 268157653}
+  - component: {fileID: 268157654}
+  m_Layer: 0
+  m_Name: NodeDataParserTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &268157653
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268157652}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1230176546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &268157654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 268157652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a01304e788c6e344999b744b52367be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jsonInput: "{\n\"AnQiao_witnessed_crime\": {\r\n                \"description\":
+    \"\u5B89\u4E54\u5728\u73B0\u573A\u76EE\u51FB\u4E86\u6848\u4EF6\u7684\u53D1\u751F\",\r\n               
+    \"prompt\": \"\u5B89\u4E54\u7684\u53D1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u66F4\u50CF\u4ED6\u76EE\u51FB\u4E86\u6848\u4EF6\u7684\u53D1\u751F\u3002\",\r\n               
+    \"extra_input_sample\": [\r\n                    \"\u5B89\u4E54\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u66F4\u50CF\u4ED6\u5F53\u65F6\u5C31\u5728\u6848\u53D1\u73B0\u573A\"\r\n               
+    ],\r\n                \"is_wrong\": true,\r\n                \"depends_on\":
+    {},\r\n                \"entities\": [\r\n                    \"AnQiao\",\r\n                   
+    \"jogging\"\r\n                ],\r\n                \"template\": {\r\n                   
+    \"text\": \"{0}\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u4EFF\u4F5B\u4ED6\u5F53\u65F6\u5C31\u5728{1}\u4E00\u6837\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"AnQiao\",\r\n                            \"fifteenth_floor\"\r\n                       
+    ]\r\n                    }\r\n                },\r\n                \"dialogue\":
+    {\r\n                    \"on_proven\": {\r\n                        \"text_1\":
+    \"\u5B89\u4E54\u5B8C\u5168\u5426\u51B3\u4E86\u8FD9\u4E2A\u8BF4\u6CD5\u3002\u5B89\u4E54\u7684\u575A\u51B3\u53CD\u9A73\u4EE4\u4F60\u653E\u5F03\u4E86\u4ECE\u8FD9\u4E2A\u601D\u8DEF\u7EE7\u7EED\u8BA8\u8BBA\u3002\"\r\n                   
+    }\r\n                }\r\n            }\n}"
 --- !u!1 &333306514
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,15 +1018,10 @@ MonoBehaviour:
   _checkButton: {fileID: 993649942}
   _resultText: {fileID: 1460006630}
   _simulatedOwnerId: argument_001
-  _jsonContent: "{\r\n            \"text\": \"\u9057\u7559\u5728{0}\u7684{1}{2}{3}\",\r\n           
-    \"dropdown_blank_2\": [\r\n                \"\u5C5E\u4E8E\",\r\n               
-    \"\u4E0D\u5C5E\u4E8E\"\r\n            ],\r\n            \"answer\": {\r\n               
-    \"fifteenth_floor_bloodstain_falsified\": [\r\n                    \"fifteenth_floor\",\r\n                   
-    \"bloodstain\",\r\n                    \"\u4E0D\u5C5E\u4E8E\",\r\n                   
-    \"sabina\"\r\n                ],\r\n                \"fifteenth_floor_bloodstain_true\":
-    [\r\n                    \"fifteenth_floor\",\r\n                    \"bloodstain\",\r\n                   
-    \"\u5C5E\u4E8E\",\r\n                    \"sabina\"\r\n                ]\r\n           
-    }\r\n        }"
+  _jsonContent: "{\r\n                    \"text\": \"{0}\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u4EFF\u4F5B\u4ED6\u5F53\u65F6\u5C31\u5728{1}\u4E00\u6837\u3002\",\r\n                   
+    \"answer\": {\r\n                        \"this\": [\r\n                           
+    \"AnQiao\",\r\n                            \"fifteenth_floor\"\r\n                       
+    ]\r\n                    }\n}"
 --- !u!114 &772221753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1054,12 +1107,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 850854761}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.8107879, y: 0.70274824, z: -1451.729}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1230176546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &858498225
 GameObject:
@@ -1604,6 +1657,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1201656170}
   m_CullTransparentMesh: 1
+--- !u!1 &1230176545
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1230176546}
+  m_Layer: 0
+  m_Name: Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1230176546
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1230176545}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.8107879, y: -0.70274824, z: 1451.729}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1369141992}
+  - {fileID: 850854763}
+  - {fileID: 268157653}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301098746
 GameObject:
   m_ObjectHideFlags: 0
@@ -1736,12 +1823,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1369141990}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.8107879, y: 0.70274824, z: -1451.729}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1230176546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1382697079
 GameObject:
@@ -3012,7 +3099,6 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1692872845}
-  - {fileID: 1369141992}
-  - {fileID: 850854763}
   - {fileID: 473866376}
   - {fileID: 2029397420}
+  - {fileID: 1230176546}
