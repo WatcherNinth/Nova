@@ -31,7 +31,7 @@ namespace LogicEngine
                 Basic = ParseBasicInfo(json),
                 AI = ParseAIInfo(json),
                 Logic = ParseLogicInfo(json),
-                Template = ParseTemplateInfo(json),
+                Template = ParseTemplateInfo(json, nodeId),
                 Dialogue = ParseDialogueInfo(json)
             };
 
@@ -94,7 +94,7 @@ namespace LogicEngine
             };
         }
 
-        private static NodeTemplateInfo ParseTemplateInfo(JToken json)
+        private static NodeTemplateInfo ParseTemplateInfo(JToken json, string nodeId)
         {
             var info = new NodeTemplateInfo
             {
@@ -104,7 +104,7 @@ namespace LogicEngine
             var templateJson = json["template"];
             if (templateJson != null && templateJson.HasValues)
             {
-                info.Template = TemplateParser.Parse(templateJson);
+                info.Template = TemplateParser.Parse(templateJson, nodeId);
             }
             return info;
         }
