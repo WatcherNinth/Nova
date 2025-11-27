@@ -119,6 +119,60 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &850854761
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 850854763}
+  - component: {fileID: 850854762}
+  m_Layer: 0
+  m_Name: DialogueTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &850854762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 850854761}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6937d9ea62524ee4eafb38ed62f12cf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jsonInput: "\r\n    {\r\n        \"on_proven\": {\r\n            \"text_intro\":
+    \"[\u6D4B\u8BD5] \u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5\u6587\u672C\u5757\u3002\",\r\n           
+    \"first_valid_check\": {\r\n                \"triggered_text_vip\": {\r\n                   
+    \"limit\": { \"is_vip\": true },\r\n                    \"text\": \"\u5C0A\u8D35\u7684VIP\u7528\u6237\uFF0C\u4F60\u597D\u3002\"\r\n               
+    },\r\n                \"fallback_text\": \"\u666E\u901A\u7528\u6237\uFF0C\u4F60\u597D\u3002\"\r\n           
+    },\r\n            \"triggered_text_extra\": {\r\n                \"limit\": {
+    \"has_quest_item\": true },\r\n                \"text\": \"\u6211\u770B\u4F60\u9AA8\u9ABC\u60CA\u5947\uFF0C\u8FD9\u672C\u79D8\u7C4D\u5C31\u5356\u7ED9\u4F60\u4E86\u3002\"\r\n           
+    },\r\n            \"call_choice_group_1\": \"choice_start_001\",\r\n           
+    \"text_ignored\": \"\u8FD9\u53E5\u8BDD\u5E94\u8BE5\u88AB\u622A\u65AD\uFF0C\u4E0D\u4F1A\u51FA\u73B0\u5728\u7ED3\u679C\u91CC\u3002\"\r\n       
+    }\r\n    }"
+--- !u!4 &850854763
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 850854761}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1369141990
 GameObject:
   m_ObjectHideFlags: 0
@@ -130,7 +184,7 @@ GameObject:
   - component: {fileID: 1369141992}
   - component: {fileID: 1369141991}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: ConditionTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -314,3 +368,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 1692872845}
   - {fileID: 1369141992}
+  - {fileID: 850854763}
