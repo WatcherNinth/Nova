@@ -57,6 +57,29 @@ namespace LogicEngine
                 context.LogWarning("检测到配置了 'depends_on' 前置条件，但缺少 'on_pending' 对话。建议添加以给予玩家等待反馈。");
             }
         }
+
+        public JObject GetAIContent()
+        {
+            // 构建内容部分
+            var content = new JObject
+            {
+                // 从 Basic 获取描述
+                ["description"] = Basic?.Description,
+
+                // 从 AI 获取属性 (带空值保护)
+                ["prompt"] = AI?.Prompt,
+                ["entities"] = AI?.Entities != null ? JToken.FromObject(AI.Entities) : new JArray(),
+                ["extra_input_sample"] = AI?.ExtraInputSamples != null ? JToken.FromObject(AI.ExtraInputSamples) : new JArray()
+            };
+
+            // 构建根对象，以 Id 为 Key
+            var root = new JObject
+            {
+                [Id] = content
+            };
+
+            return root;
+        }
     }
 }
 
