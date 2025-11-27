@@ -110,9 +110,6 @@ namespace LogicEngine.UI
                 layout.padding = new RectOffset(20, 20, 20, 20);
                 layout.SpacingX = 5;
                 layout.SpacingY = 10;
-                // 强制子物体扩展高度以对齐
-                layout.ChildForceExpandHeight = false; 
-                layout.ChildForceExpandWidth = false;
             }
         }
 
