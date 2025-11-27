@@ -38,11 +38,11 @@ public class NodeParserTester : MonoBehaviour
 
                 if (!validationResult.IsValid)
                 {
-                    Debug.LogError($"<color=red>自检失败:</color>\n{validationResult.ToString()}");
+                    Debug.LogError($"<color=red>NodeParser自检失败:</color>\n{validationResult.ToString()}");
                 }
                 else
                 {
-                    Debug.Log("<color=green>自检通过。</color>");
+                    Debug.Log("<color=green>NodeParser自检通过。</color>");
                 }
 
                 // 4. 输出解析结果到 Console
