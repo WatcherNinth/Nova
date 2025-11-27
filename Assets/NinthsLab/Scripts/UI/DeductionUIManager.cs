@@ -80,6 +80,7 @@ public class DeductionUIManager : MonoBehaviour
     public void DeactivateDeductionMode()
     {
         isDeductionModeActive = false;
+        HideDeductionUI();
     }
 
     public void DiscoverDeduction(Interrorgation_Deduction deductionData)
@@ -103,4 +104,8 @@ public class DeductionUIManager : MonoBehaviour
         DeductionUIPanel.SetActive(false);
     }
 
+    public void Debug_GetAllDeduction()
+    {
+        DeductionManager.Instance.Debug_GetAllDeduction();
+    }
 }

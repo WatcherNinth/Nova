@@ -69,6 +69,15 @@ public class Interrorgation_Topic : Interrorgation_Deduction
         }
 
         public bool isValidProof(string proofID) => ProofDialogues.Exists(pair => pair.Proof.DeductionID == proofID);
+        public string GetProofDialogue(string proofID, bool IsAlreadyProved)
+        {
+            var pair = ProofDialogues.Find(pair => pair.Proof.DeductionID == proofID);
+            if (pair != null)
+            {
+                return IsAlreadyProved ? pair.AlreadyProvedDialogue : pair.PostProofDialogue;
+            }
+            return string.Empty;
+        }
         public bool IsProved => SubmittedProofCount >= RequiredProofCount;
 
     }

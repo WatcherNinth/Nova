@@ -1,329 +1,478 @@
 @<| label 'DemoLevel_Start_Dialogue' |>
-这里放对话
+羿：：我抢夺五彩石回到过去，此事可谓触了女娲逆鳞。
+这种事切不可再做第二次。
+
+羿：：眼下她已然对我起疑。
+我若是仍想要得她相助，就非得给出足够有力的理由不可。
+
+羿：：这个理由应该是……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Start_Dialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Finish_Dialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Finish_Dialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_TopicSuccessfulDialogue' |>
-这里放对话
+羿：：嫦娥就是你与伏羲的女儿。
+……看样子，您也心底有数了吧。
+岳母大人。
+
+女娲：：我不知道此事。这，我并非是有意……
+
+羿：：我明白。你与伏羲的事不可张扬。
+我也无意以此要挟什么。
+
+羿：：只是这话虽不适合在这提起，但嫦娥……
+
+女娲：：我明白……我明白……
+既然已知道这事，我当然不会抛下嫦娥不管。
+
+女娲：：你且给我片刻，之后再与我细说嫦娥的病情吧。
+--- 待办：：跳转到结局1
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_PreProofDialogue' |>
-这里放对话
+羿：：嫦娥乃是伏羲的生女。
+而伏羲素以不好女色闻名，他身边的女性，向来只有你一人。
+所以，嫦娥的生母……
+
+女娲：：你……你这是在说什么疯话！
+我与伏羲乃亲生兄妹，你竟敢如此污蔑我二人！
+
+羿：：我当然不会无凭无据就说这种话。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_DefaultProofFailedDialogue' |>
-这里放对话
+女娲：：信口开河，真是叫人无法忍受！
+羿，你最好想清楚你要说什么！
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_DefaultProofContinueDialogue_0' |>
-这里放对话
+羿：：我还有别的证据，可说明嫦娥的身世。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_2_PostProofDialogue' |>
-这里放对话
+羿：：娥身上有一块胎记。
+是与伏羲一模一样的，在后肩处的星型胎记。
+
+羿：：这事嫦娥自己也不知晓，我告诉她时她还不信呢。
+
+羿：：只是我方才想起，以前我同伏羲游泳时，在他身上见过相同的胎记。 
+当时我还不曾见过嫦娥，如今想来倒是觉得颇为巧合。
+
+女娲：：竟会如此巧合……不，这恐怕不是巧合……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_2_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_2_AlreadyProvedDialogue' |>
-这里放对话
+羿：：可那胎记……
+
+女娲：：这……这大概只是巧合……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_2_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_3_PostProofDialogue' |>
-这里放对话
+羿：：嫦娥不曾见过自己的双亲。
+她只知道她睁开眼的地方，是在大荒之中，日月山下。
+
+女娲：：日月山？怎么会是那个地方……
+莫非……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_3_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_3_AlreadyProvedDialogue' |>
-这里放对话
+女娲：：你是指嫦娥在日月山出生的事？
+我知道了……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_1_Phase_0_for_DemoLevel_Proof_3_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_TopicSuccessfulDialogue' |>
-这里放对话
+女娲：：就因为这种原因……就因为这种原因？！
+他怎能因此对伏羲动手！
+
+女娲：：天帝……我饶不了你！
+
+羿：：我回到过去，发现的阴谋便是这个——
+
+羿
+杀害伏羲的凶手，就是天帝。
+
+女娲：：……
+
+女娲：：好，我这就去找天帝对峙！
+若你所言非虚，那我今日必与天帝拼个你死我活。
+
+女娲：：我本为了天帝的秩序才忍着不动用五彩石……到那时也没这必要了！
+羿，我知道你是为了嫦娥而来。
+
+女娲：：到时候，这五彩石就随你使用！
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_PreProofDialogue' |>
-这里放对话
+羿：：我的确用五彩石回到了过去。
+没想到在过去，给我发现了一桩天帝隐藏已久的阴谋。
+
+羿：：伏羲之死，实为天帝谋划。
+
+女娲：：羿……你应当知道，
+此事可开不得玩笑吧？！
+
+羿：：我当然有证据。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofFailedDialogue' |>
-这里放对话
+女娲：：单凭这个就想指控天帝？
+你是在说笑吧？
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_0' |>
-这里放对话
+女娲：：天帝确实可疑。
+只是单凭这点，尚不足以做出断论
+
+羿：：我发现的可疑之事，还有更多。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_1' |>
-这里放对话
+女娲：：难道真是天帝动的手？
+可……羿，你还有什么线索吗？
+
+羿：：尚有一事未提。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_DefaultProofContinueDialogue_1') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_5_PostProofDialogue' |>
-这里放对话
+羿：：我回到过去时，原本只是为了找天帝讨个说法，想要替嫦娥寻个活命之道。
+
+羿：：没想到在天帝行宫内，我意外发现了鵕鸃。
+这怎么想也不对劲。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_5_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_5_AlreadyProvedDialogue' |>
-这里放对话
+羿：：还记得我先前所提的天帝行宫之事吗？
+
+女娲：：你先前所说的天帝行宫里的鵕鸃……的确有问题啊。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_5_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_6_PostProofDialogue' |>
-这里放对话
+羿：：在过去我见到了鵕鸃。它身上多有伤痕，泰半为八卦符文所致，显然是激战了一番。
+
+羿：：这时我才明白，我撞见的正是弑杀伏羲后归来的鵕鸃！
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_6_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_6_AlreadyProvedDialogue' |>
-这里放对话
+羿：：别忘了，八卦符文正是伏羲所创。
+
+女娲：：这事我比你更清楚。被八卦符文所伤的鵕鸃吗……
+天帝，难道你……
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_6_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_PostProofDialogue' |>
-这里放对话
+羿：：这天底下，唯有一只鵕鸃。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_AlreadyProvedDialogue' |>
-这里放对话
+羿：：这天底下，唯有一只鵕鸃。
+
+女娲：：这事我早就知道了。
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
+@<| label 'DemoLevel_Topic_4_Phase_1_PreProofDialogue' |>
+羿：：伏羲之死，天帝脱不了干系。
+这便是我在过去发现之事。
+
+女娲：：伏羲死后，我穷搜天下也找不到鵕鸃。
+它不过一匹野兽，又哪来这般能力？
+如你所言不虚，天帝便确与伏羲之死有关。
+
+
+女娲：：可伏羲与他无冤无仇，他又哪里来要害伏羲的道理？
+为了避免与他有隙，我和伏羲甚至刻意久居人界，已不知多久没见过他了啊！
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_PreProofDialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_1_DefaultProofFailedDialogue' |>
+女娲：：这仍说明不了什么。
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_DefaultProofFailedDialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_PostProofDialogue' |>
+羿：：但凡知晓五彩石效用，就没一人不觊觎它的。天帝亦不例外。
+只是要夺走五彩石，非得先除掉你。
+而要对你下手，伏羲定不会善罢甘休。
+
+羿：：所以在那之前，他得先铲除碍事的对象才行。
+
+女娲：：可恶……竟因这种理由，就将伏羲也卷了进去！
+
+羿：：不仅如此。天帝也同样有对伏羲动手的理由。
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_PostProofDialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_AlreadyProvedDialogue' |>
+羿：：天帝对五彩石可是垂涎三尺啊。
+
+女娲：：唉，这我又何尝不知……
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_AlreadyProvedDialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_PostProofDialogue' |>
+羿：：伏羲久居人界，位列三皇，在人间的声望反倒要远远胜过天帝了。
+
+羿：：他……想必是对此嫉妒极了。
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_PostProofDialogue') |>
+@<| is_end() |>
+
+@<| label 'DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_AlreadyProvedDialogue' |>
+羿：：别忘了，伏羲在人间的地位，可不比天帝差啊。
+
+女娲：：嫉妒……
+
+<| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_AlreadyProvedDialogue') |>
+@<| is_end() |>
+
+
 @<| label 'DemoLevel_Topic_8_TopicSuccessfulDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_PreProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_DefaultProofFailedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_DefaultProofContinueDialogue_0' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_PostProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_AlreadyProvedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_9_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_10_PostProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_10_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_10_AlreadyProvedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_8_Phase_0_for_DemoLevel_Proof_10_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_TopicSuccessfulDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_TopicSuccessfulDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_PreProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_PreProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_DefaultProofFailedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_DefaultProofFailedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_DefaultProofContinueDialogue_0' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_DefaultProofContinueDialogue_0') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_PostProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_AlreadyProvedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_12_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_PostProofDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_PostProofDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_AlreadyProvedDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Topic_11_Phase_0_for_DemoLevel_Proof_13_AlreadyProvedDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_2_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_2_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_2_to_DemoLevel_Topic_1_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_2_to_DemoLevel_Topic_1_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_3_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_3_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_3_to_DemoLevel_Topic_1_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_3_to_DemoLevel_Topic_1_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_5_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_5_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_5_to_DemoLevel_Topic_4_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_5_to_DemoLevel_Topic_4_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_6_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_6_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_6_to_DemoLevel_Topic_4_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_6_to_DemoLevel_Topic_4_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_7_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_7_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_7_to_DemoLevel_Topic_4_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_7_to_DemoLevel_Topic_4_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_9_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_9_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_9_to_DemoLevel_Topic_8_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_9_to_DemoLevel_Topic_8_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_10_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_10_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_10_to_DemoLevel_Topic_8_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_10_to_DemoLevel_Topic_8_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_12_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_12_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_12_to_DemoLevel_Topic_11_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_12_to_DemoLevel_Topic_11_PostTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_13_PreTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_13_PreTopicDialogue') |>
 @<| is_end() |>
 
 @<| label 'DemoLevel_Proof_13_to_DemoLevel_Topic_11_PostTopicDialogue' |>
-这里放对话
+***这里放对话***
 
 <| __Nova.deductionManager:DialogueFinished('DemoLevel_Proof_13_to_DemoLevel_Topic_11_PostTopicDialogue') |>
 @<| is_end() |>

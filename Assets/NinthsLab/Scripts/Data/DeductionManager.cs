@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Nova
 {
@@ -59,6 +60,8 @@ namespace Nova
         private GameState gameState;
         private GameViewInput gameViewInput;
         private GameViewController gameViewController;
+
+        private Queue<UnityAction> dialogueActionQueue = new Queue<UnityAction>();
 
         // 确保实例在场景切换时不会销毁
         private void Awake()
@@ -130,7 +133,7 @@ namespace Nova
             deductionUIManager = FindAnyObjectByType<DeductionUIManager>();
         }
         #region 推理流程
-        
+
         private List<Interrorgation_Deduction> provedDeductions = new List<Interrorgation_Deduction>();
         private Interrorgation_Topic currentTopic;
         public void SubmitDeduction(Interrorgation_Deduction deductionData)
@@ -152,6 +155,7 @@ namespace Nova
                     Debug.LogError($"{deductionData.DeductionID}：未知的推理类型");
                     break;
             }
+            executeQueue();
         }
         private void topicHandler(Interrorgation_Topic topic)
         {
@@ -171,21 +175,26 @@ namespace Nova
                 if (proofPhase.isValidProof(proof.DeductionID))
                 {
                     proofPhase.SubmittedProofCount++;
+                    dialogueActionQueue.Enqueue(() => callDialogue(proofPhase.GetProofDialogue(proof.DeductionID, false)));
                     if (proofPhase.IsProved)
                     {
                         currentTopic.CurrentProofPhaseIndex++;
                         if (currentTopic.IsProved)
                         {
-                            callDialogue(currentTopic.TopicSuccessfulDialogue);
+                            dialogueActionQueue.Enqueue(() =>
+                            {
+                                callDialogue(currentTopic.TopicSuccessfulDialogue);
+                                currentTopic = null;
+                            });
                         }
                         else
                         {
-                            callDialogue(currentTopic.getCurrentProofPhase().PreProofDialogue);
+                            dialogueActionQueue.Enqueue(() => callDialogue(currentTopic.getCurrentProofPhase().PreProofDialogue));
                         }
                     }
                     else
                     {
-                        callDialogue(proofPhase.GetContinueDialogue());
+                        dialogueActionQueue.Enqueue(() => callDialogue(proofPhase.GetContinueDialogue()));
                     }
                 }
                 else
@@ -193,14 +202,17 @@ namespace Nova
                     callDialogue(proofPhase.DefaultProofFailedDialogue);
                 }
             }
-            var provedDeduction = GetProvedDeduction(proof);
-            if (provedDeduction != null)
-            {
-                callDialogue(proof.GetPostTopicDialogue(provedDeduction.DeductionID));
-            }
             else
             {
-                callDialogue(proof.PreTopicDialogue);
+                var provedDeduction = GetProvedDeduction(proof);
+                if (provedDeduction != null)
+                {
+                    callDialogue(proof.GetPostTopicDialogue(provedDeduction.DeductionID));
+                }
+                else
+                {
+                    callDialogue(proof.PreTopicDialogue);
+                }
             }
         }
 
@@ -219,11 +231,20 @@ namespace Nova
             return provedDeductions.FindLast(x => x.DeductionID == deductionID);
         }
 
+        public override void EndLevel()
+        {
+            base.EndLevel();
+            Debug.Log("Level Ended");
+            // 在这里添加结束关卡的逻辑
+            deductionUIManager.DeactivateDeductionMode();
+        }
+
         #endregion
 
         #region 对话
         private void callDialogue(string label)
         {
+            Debug.Log("Dialogue called: " + label);
             hideDeductionUI();
             gameState.MoveToNextNode(label);
         }
@@ -231,12 +252,17 @@ namespace Nova
         public override void DialogueFinished(string nodeID = "")
         {
             Debug.Log("Dialgue Finished: " + (nodeID == "" ? "No node ID" : nodeID));
-            onDialogueFinishedCallback(nodeID); // 调用对话结束回调函数
+            onDialogueFinishedCallback(nodeID);
 
         }
 
         private void onDialogueFinishedCallback(string nodeID)
         {
+            if (dialogueActionQueue.Count > 0)
+            {
+                executeQueue();
+                return;
+            }
             showDeductionUI();
         }
 
@@ -260,6 +286,27 @@ namespace Nova
         }
 
         #endregion
+        #region 队列
+        private void executeQueue()
+        {
+            if (dialogueActionQueue.Count > 0)
+            {
+                var action = dialogueActionQueue.Dequeue();
+                action.Invoke();
+            }
+        }
+        #endregion
+        #region 测试
+        public void Debug_GetAllDeduction()
+        {
+            if (currentLevel == null) return;
+            foreach (var deduction in currentLevel.Deductions)
+            {
+                Debug.Log(deduction.DeductionText);
+                DiscoverDeduction(deduction.DeductionID); // 发现所有推论
+            }
 
+        }
+        #endregion
     }
 }

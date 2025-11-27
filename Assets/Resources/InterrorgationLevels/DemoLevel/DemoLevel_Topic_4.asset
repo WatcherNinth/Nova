@@ -18,7 +18,7 @@ MonoBehaviour:
   DiscoveredInStoryMode: 0
   TopicSuccessfulDialogue: DemoLevel_Topic_4_TopicSuccessfulDialogue
   ProofPhases:
-  - RequiredProofCount: 1
+  - RequiredProofCount: 3
     PreProofDialogue: DemoLevel_Topic_4_Phase_0_PreProofDialogue
     DefaultProofFailedDialogue: DemoLevel_Topic_4_Phase_0_DefaultProofFailedDialogue
     DefaultProofContinueDialogue:
@@ -37,4 +37,18 @@ MonoBehaviour:
     - Proof: {fileID: 11400000, guid: 19b3eebaabc62cb459ca904d00aa022f, type: 2}
       PostProofDialogue: DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_PostProofDialogue
       AlreadyProvedDialogue: DemoLevel_Topic_4_Phase_0_for_DemoLevel_Proof_7_AlreadyProvedDialogue
+      IsFalseProof: 0
+  - RequiredProofCount: 1
+    PreProofDialogue: DemoLevel_Topic_4_Phase1_PreProofDialogue
+    DefaultProofFailedDialogue: DemoLevel_Topic_4_Phase1_DefaultProofFailedDialogue
+    DefaultProofContinueDialogue: []
+    DisarrayedContinueDialogue: 0
+    ProofDialogues:
+    - Proof: {fileID: 11400000, guid: 32a8edbc27623284c98b935f361c22c3, type: 2}
+      PostProofDialogue: DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_PostProofDialogue
+      AlreadyProvedDialogue: DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_9_AlreadyProvedDialogue
+      IsFalseProof: 0
+    - Proof: {fileID: 11400000, guid: 88bb01e324ba8214db13ae9cdd3e52a1, type: 2}
+      PostProofDialogue: DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_PostProofDialogue
+      AlreadyProvedDialogue: DemoLevel_Topic_4_Phase_1_for_DemoLevel_Proof_10_AlreadyProvedDialogue
       IsFalseProof: 0
