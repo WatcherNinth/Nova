@@ -168,8 +168,9 @@ namespace LogicEngine.UI
         {
             // 本地化占位（测试时直接用原文本）
             string localizedText = LocaleHelper.GetText(content);
-            
+
             var textObj = Instantiate(_textPrefab, _container);
+            textObj.gameObject.SetActive(true);
             textObj.text = localizedText;
             textObj.name = $"Text_{Math.Abs(content.GetHashCode())}";
         }
@@ -181,6 +182,7 @@ namespace LogicEngine.UI
             {
                 // 创建 Dropdown
                 var dropdown = Instantiate(_dropdownPrefab, _container);
+                dropdown.gameObject.SetActive(true);
                 dropdown.name = $"Dropdown_{slotId}";
                 
                 var options = data.DropdownOptions[slotId];
@@ -200,6 +202,7 @@ namespace LogicEngine.UI
             {
                 // 创建普通 InputField
                 var inputField = Instantiate(_inputPrefab, _container);
+                inputField.gameObject.SetActive(true);
                 inputField.name = $"Input_{slotId}";
                 _inputControls[slotId] = inputField;
             }
