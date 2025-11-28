@@ -3,11 +3,12 @@ using System.IO;
 using LogicEngine.LevelGraph;
 using LogicEngine.Parser;
 using LogicEngine.Validation;
+using LogicEngine;
 
 namespace LogicEngine.Tests
 {
     [ExecuteInEditMode]
-    public class LevelTestManager : MonoBehaviour
+    public class LevelTestManager : MonoBehaviour, ILevelGraphProvider 
     {
         // ==========================================
         // 稳健的单例模式 (适配 Edit Mode)
@@ -31,10 +32,28 @@ namespace LogicEngine.Tests
             }
         }
 
+        // 实现获取方法
+        public LevelGraphData GetLevelGraph()
+        {
+            return CurrentLevelGraph;
+        }
+
+        // 设置高优先级，确保在测试时优先读取这里的数据
+        public int Priority => 100;
+
         private void OnEnable()
         {
             _instance = this;
+            // [修改4] 向 Context 注册自己
+            LevelGraphContext.Register(this);
         }
+        
+        private void OnDisable()
+        {
+            // [修改5] 向 Context 注销自己
+            LevelGraphContext.Unregister(this);
+        }
+
 
         // ==========================================
         // 配置

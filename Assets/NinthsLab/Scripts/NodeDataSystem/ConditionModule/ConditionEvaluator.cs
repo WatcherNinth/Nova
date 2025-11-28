@@ -23,23 +23,22 @@ namespace LogicEngine
             if (string.IsNullOrWhiteSpace(jsonContent))
             {
                 // 空规则通常视为合法的“无条件通过”，但也记录一条 Info
-                context.LogInfo("Condition JSON is empty (Allowed).");
+                context.LogInfo("检测到空的条件组（也算合法）。");
                 return;
             }
 
             // 1. 尝试获取当前的 ID 列表
             // 注意：LevelTestManager 可能是单例，在非 Play 模式或未初始化时可能为空
             List<string> validIds = null;
-            if (LevelTestManager.Instance != null &&
-                LevelTestManager.Instance.CurrentLevelGraph != null)
+            if (LevelGraphContext.CurrentGraph != null)
             {
                 // 修正：去掉了重复的 CurrentLevelGraph
-                validIds = LevelTestManager.Instance.CurrentLevelGraph.allIds;
+                validIds = LevelGraphContext.CurrentGraph.allIds;
             }
 
             if (validIds == null)
             {
-                context.LogWarning("LevelTestManager or LevelGraph is not initialized. Skipping ID validation.");
+                context.LogWarning("没有找到合法的LevelGraph，检查Manager是否存在。也可能是LevelGraphContext出了问题。");
                 // 即使没有 ID 列表，也可以继续验证 JSON 格式是否正确
             }
 
