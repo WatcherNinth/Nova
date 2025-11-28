@@ -152,7 +152,7 @@ namespace LogicEngine.Nodes
     public class NodeTemplateInfo : IValidatable
     {
         public string SpecialTemplateId { get; set; }
-        public Templates.TemplateData Template { get; set; }
+        public TemplateData Template { get; set; }
 
         public void OnValidate(ValidationContext context)
         {
