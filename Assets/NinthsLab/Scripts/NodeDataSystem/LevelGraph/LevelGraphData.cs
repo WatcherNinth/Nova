@@ -11,16 +11,147 @@ namespace LogicEngine.LevelGraph
         // ==========================================
         public Dictionary<string, NodeData> universalNodesData = new Dictionary<string, NodeData>();
         public Dictionary<string, PhaseData> phasesData = new Dictionary<string, PhaseData>();
-        
+
         public NodeChoiceGroupData nodeChoiceGroupData = new NodeChoiceGroupData();
         public NodeMutexGroupData nodeMutexGroupData = new NodeMutexGroupData();
         public EntityListData entityListData = new EntityListData();
+
+        public Dictionary<string, TemplateData> specialTemplateData = new Dictionary<string, TemplateData>();
+
+        // ========================================================================
+        // 运行数据和生成 Region
+        // ========================================================================
+        #region 运行数据和生成
+
+        /// <summary>
+        /// 用于记录节点归属信息的辅助结构
+        /// </summary>
+        public struct NodeLocationInfo
+        {
+            /// <summary>
+            /// 节点所属的 Phase ID。如果为 null 或 empty，则表示属于 Universal Nodes。
+            /// </summary>
+            public string OwnerPhaseId;
+
+            /// <summary>
+            /// 节点数据的引用
+            /// </summary>
+            public NodeData Node;
+
+            /// <summary>
+            /// 是否是全局节点
+            /// </summary>
+            public bool IsUniversal => string.IsNullOrEmpty(OwnerPhaseId);
+        }
 
         /// <summary>
         /// 包含 UniversalNodes, Phases, 以及 Phases 下所有子 Node 的 ID。
         /// </summary>
         public List<string> allIds = new List<string>();
 
+        /// <summary>
+        /// [生成数据] 节点寻址字典。
+        /// Key: NodeId
+        /// Value: 包含节点引用和归属 Phase 的信息
+        /// </summary>
+        public Dictionary<string, NodeLocationInfo> nodeLookup = new Dictionary<string, NodeLocationInfo>();
+
+        /// <summary>
+        /// [生成数据] 关卡内使用的所有 Template 列表。
+        /// </summary>
+        public List<TemplateData> allTemplates = new List<TemplateData>();
+
+        /// <summary>
+        /// 刷新节点查找字典 (Task 1)
+        /// 遍历 UniversalNodes 和 Phases，建立 ID 到节点位置的映射。
+        /// </summary>
+        public void RefreshNodeLookup()
+        {
+            nodeLookup.Clear();
+
+            // 1. 录入 Universal Nodes (OwnerPhaseId 为 null)
+            if (universalNodesData != null)
+            {
+                foreach (var kvp in universalNodesData)
+                {
+                    if (string.IsNullOrEmpty(kvp.Key)) continue;
+
+                    var info = new NodeLocationInfo
+                    {
+                        OwnerPhaseId = null, // 表示 Universal
+                        Node = kvp.Value
+                    };
+
+                    // 因为 OnValidate 已经保证了 ID 唯一性，这里可以直接赋值
+                    nodeLookup[kvp.Key] = info;
+                }
+            }
+
+            // 2. 录入 Phase Nodes
+            if (phasesData != null)
+            {
+                foreach (var phaseKvp in phasesData)
+                {
+                    string phaseId = phaseKvp.Key;
+                    PhaseData phase = phaseKvp.Value;
+
+                    if (phase == null || phase.Nodes == null) continue;
+
+                    foreach (var nodeKvp in phase.Nodes)
+                    {
+                        if (string.IsNullOrEmpty(nodeKvp.Key)) continue;
+
+                        var info = new NodeLocationInfo
+                        {
+                            OwnerPhaseId = phaseId,
+                            Node = nodeKvp.Value
+                        };
+
+                        nodeLookup[nodeKvp.Key] = info;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 刷新模板列表 (Task 2)
+        /// 依赖于 nodeLookup，遍历所有节点并提取 TemplateData。
+        /// </summary>
+        public void RefreshTemplateList()
+        {
+            allTemplates.Clear();
+
+            // 遍历刚刚生成的查找表，这样就不用再写两遍循环了
+            foreach (var info in nodeLookup.Values)
+            {
+                NodeData node = info.Node;
+                if (node == null) continue;
+
+                // 根据要求：通过 Template 类下面的 Template 属性获取
+                // 这里使用了空值传播符 (?.) 防止空引用报错
+                if (node.Template != null && node.Template.Template != null)
+                {
+                    allTemplates.Add(node.Template.Template);
+                }
+
+                foreach (var specTemplate in specialTemplateData)
+                {
+                    allTemplates.Add(specTemplate.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 供外部调用的初始化方法。
+        /// 解析完成后，建议手动调用此方法来填充 Runtime 数据。
+        /// </summary>
+        public void InitializeRuntimeData()
+        {
+            RefreshNodeLookup();
+            RefreshTemplateList();
+        }
+
+        #endregion
         // ==========================================
         // 数据验证逻辑
         // ==========================================

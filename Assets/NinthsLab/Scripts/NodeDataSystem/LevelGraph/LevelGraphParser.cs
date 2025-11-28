@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using LogicEngine.LevelGraph;
 using LogicEngine.Validation;
 using UnityEngine;
+using LogicEngine.Templates;
 
 namespace LogicEngine.Parser
 {
@@ -28,6 +29,7 @@ namespace LogicEngine.Parser
             levelGraph.nodeChoiceGroupData = ParseNodeChoiceGroup(root);
             levelGraph.nodeMutexGroupData = ParseNodeMutexGroup(root);
             levelGraph.entityListData = ParseEntityList(root);
+            levelGraph.specialTemplateData = ParseSpecialTemplate(root);
 
             // 3. [自动验证] 解析完成后立即跑一次自检
             // 使用 ValidationExtensions 中的 SelfCheck 扩展方法
@@ -177,6 +179,26 @@ namespace LogicEngine.Parser
             }
 
             return listData;
+        }
+
+        private static Dictionary<string, TemplateData> ParseSpecialTemplate (JObject root)
+        {
+            var result = new Dictionary<string, TemplateData>();
+
+            if (root.TryGetValue("special_node_template", out JToken nodesToken) && nodesToken is JObject templatesObj)
+            {
+                foreach (var prop in templatesObj.Properties())
+                {
+                    string templateId = prop.Name;
+                    JToken templateJson = prop.Value;
+
+                    // 调用外部存在的 NodeParser
+                    TemplateData templateData = TemplateParser.Parse(templateId, templateJson.ToString());
+                    result.Add(templateId, templateData);
+                }
+            }
+
+            return result;
         }
     }
 }
