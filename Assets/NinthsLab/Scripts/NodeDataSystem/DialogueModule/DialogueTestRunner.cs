@@ -1,5 +1,7 @@
 using UnityEngine;
 using LogicEngine; // 引用逻辑脚本的命名空间
+using UnityEngine.UIElements;
+
 
 #if UNITY_EDITOR
 using UnityEditor; // 仅在编辑器环境下引用，防止打包报错
@@ -54,8 +56,6 @@ namespace LogicEngine.Tests
 
             // 调用 LogicEngine.DialogueParser
             string resultJson = DialogueParser.ParseDialogue(jsonInput);
-
-            Debug.Log(DialogueParser.ValidateDialogue(jsonInput).ToString());
 
             float t1 = Time.realtimeSinceStartup;
 

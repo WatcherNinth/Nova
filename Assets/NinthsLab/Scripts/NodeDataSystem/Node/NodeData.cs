@@ -189,18 +189,24 @@ namespace LogicEngine.Nodes
             {
                 context.LogError("缺少必要的 'on_proven' (论证成功) 对话配置。");
             }
-            List<ValidationEntry> dialogueValidationList = new List<ValidationEntry>();
             if (OnProven != null)
             {
-                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnProven));
+                validateDialogueByKey(OnProven, "on_proven", context);
             }
             if (OnPending != null)
             {
-                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnPending));
+                validateDialogueByKey(OnPending, "on_pending", context);
             }
             if (OnMutex != null)
             {
-                dialogueValidationList.AddRange(DialogueParser.ValidateDialogue(OnMutex));
+                validateDialogueByKey(OnProven, "on_mutex", context);
+            }
+        }
+        private void validateDialogueByKey(JToken dialogue, string scope, ValidationContext context)
+        {
+            using (context.Scope(scope))
+            {
+                DialogueParser.ValidateDialogue(dialogue, context);
             }
         }
     }

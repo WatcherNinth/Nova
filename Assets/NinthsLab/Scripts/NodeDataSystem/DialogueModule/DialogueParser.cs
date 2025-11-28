@@ -5,6 +5,7 @@ using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using LogicEngine.Validation;
+using UnityEngine;
 
 namespace LogicEngine
 {
@@ -210,90 +211,140 @@ namespace LogicEngine
             }
             return null;
         }
-        public static List<ValidationEntry> ValidateDialogue(JToken dialogueContent)
+
+        
+         /// <summary>
+        /// 验证对话逻辑的合法性 (使用上下文系统)
+        /// </summary>
+        /// <param name="dialogueContent">对话内容的JToken</param>
+        /// <param name="context">当前的验证上下文</param>
+        public static void ValidateDialogue(JToken dialogueContent, ValidationContext context)
         {
-            List<ValidationEntry> logs = new List<ValidationEntry>();
             JObject root = dialogueContent as JObject;
 
             if (root == null)
             {
-                logs.Add(new ValidationEntry
-                {
-                    Severity = ValidationSeverity.Error,
-                    Message = "传入的对话节点不是有效的JSON对象 (JObject)。"
-                });
-                return logs;
+                context.LogError("对话节点无效：预期为 JSON Object，实际类型不符或为空。");
+                return;
             }
 
             bool hasGuaranteedOutput = false;
-            bool hasEncounteredChoice = false; // 新增：标记是否已经遇到过选项组
+            bool hasEncounteredChoice = false;
 
-            // 模拟从上往下的执行流
+            // 遍历 JSON 属性
             foreach (var property in root.Properties())
             {
                 string key = property.Name;
                 JToken value = property.Value;
 
-                // --- 新增功能：检查截断后的无效内容 ---
-                if (hasEncounteredChoice)
+                // 使用 Context 的 Scope 功能进入当前节点
+                using (context.Scope(key)) 
                 {
-                    // 如果已经在之前遇到了选项组，后续任何 文本、逻辑判断 或 另一个选项组 都是无效的
-                    if (key.StartsWith("text") ||
-                        key.StartsWith("first_valid") ||
-                        key.StartsWith("triggered_text") ||
-                        key.StartsWith("call_choice_group"))
+                    // --- 1. 检查截断后的无效内容 ---
+                    if (hasEncounteredChoice)
                     {
-                        logs.Add(new ValidationEntry
+                        if (IsLogicNode(key))
                         {
-                            Severity = ValidationSeverity.Warning,
-                            Message = $"检测到不可达的节点 '{key}'：该节点位于 'call_choice_group' 之后，运行时将被解析器忽略。"
-                        });
+                            context.LogWarning("检测到不可达的代码：该节点位于 'call_choice_group' 之后，运行时将被忽略。");
+                        }
+                        // 即使是无效节点，也继续循环以检测可能的格式错误（如内部limit写错），
+                        // 但不跳过Continue，而是继续往下走逻辑检查，只是不记录保底输出。
                     }
-                    // 既然已经是无效节点，就不再参与 hasGuaranteedOutput 的计算，直接处理下一个
-                    continue;
-                }
 
-                // --- 原有逻辑判定 ---
+                    // --- 2. 正常逻辑判定 ---
 
-                // 1. 检查是否是无条件文本
-                if (key.StartsWith("text"))
-                {
-                    hasGuaranteedOutput = true;
-                }
-                // 2. 检查是否是带 fallback 的 first_valid
-                else if (key.StartsWith("first_valid"))
-                {
-                    JObject fvObj = value as JObject;
-                    if (fvObj != null && fvObj.ContainsKey("fallback_text"))
+                    // 情况 A: 无条件文本
+                    if (key.StartsWith("text"))
                     {
-                        hasGuaranteedOutput = true;
+                        if (!hasEncounteredChoice) hasGuaranteedOutput = true;
+                    }
+                    // 情况 B: First Valid 复合结构
+                    else if (key.StartsWith("first_valid"))
+                    {
+                        JObject fvObj = value as JObject;
+                        if (fvObj == null)
+                        {
+                            context.LogError("first_valid 结构错误：必须是一个 Object。");
+                        }
+                        else
+                        {
+                            // 检查是否有 fallback (用于保底输出判定)
+                            if (!hasEncounteredChoice && fvObj.ContainsKey("fallback_text"))
+                            {
+                                hasGuaranteedOutput = true;
+                            }
+
+                            // 深度验证：遍历 first_valid 内部的 triggered_text 进行条件检查
+                            foreach (var subProp in fvObj.Properties())
+                            {
+                                if (subProp.Name.StartsWith("triggered_text"))
+                                {
+                                    using (context.Scope(subProp.Name))
+                                    {
+                                        ValidateNodeCondition(subProp.Value, context);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // 情况 C: 选项组（截断点）
+                    else if (key.StartsWith("call_choice_group"))
+                    {
+                        hasEncounteredChoice = true;
+                    }
+                    // 情况 D: Triggered Text
+                    else if (key.StartsWith("triggered_text"))
+                    {
+                        // 验证条件逻辑
+                        ValidateNodeCondition(value, context);
+                    }
+                    // 情况 E: 未知键值
+                    else
+                    {
+                        context.LogInfo("检测到未定义的键名前缀，将被解析器忽略。");
                     }
                 }
-                // 3. 检查是否遇到流程截断点 (选项组)
-                else if (key.StartsWith("call_choice_group"))
-                {
-                    // 遇到选项组，标记截断点。
-                    // 注意：这里不再 break，而是设置标志位，以便循环继续运行去抓后面的“漏网之鱼”
-                    hasEncounteredChoice = true;
-                }
-
-                // triggered_text 继续被视为非保底输出
             }
 
-            // 结算：如果没有找到保底输出
-            // 注意：如果有选项组但前面没文本（例如直接进选项），这在某些设计里是合法的（比如直接选路），
-            // 但如果你的设计要求进选项前必须有话说，可以在这里根据 hasEncounteredChoice 调整逻辑。
-            // 目前保持原逻辑：只要整个有效流里没文本就报警告。
+            // --- 3. 结算：如果没有找到保底输出 ---
             if (!hasGuaranteedOutput)
             {
-                logs.Add(new ValidationEntry
-                {
-                    Severity = ValidationSeverity.Warning,
-                    Message = "对话结构可能没有输出：没有检测到无条件的 'text' 或带有 'fallback_text' 的 'first_valid' 模块。"
-                });
+                context.LogWarning("对话结构风险：没有检测到必然触发的输出（无 'text' 或带 fallback 的 'first_valid'）。玩家可能会看到空白对话。");
             }
+        }
 
-            return logs;
+        /// <summary>
+        /// 提取节点中的 limit 并调用通用条件验证器
+        /// </summary>
+        private static void ValidateNodeCondition(JToken token, ValidationContext context)
+        {
+            JObject obj = token as JObject;
+            if (obj == null) return; // 格式错误在其他地方处理，或者忽略
+
+            if (obj.ContainsKey("limit"))
+            {
+                // 进入 limit 作用域，这样报错路径会显示为 ...triggered_text_1.limit
+                using (context.Scope("limit"))
+                {
+                    JToken limitToken = obj["limit"];
+                    // 序列化 limit 对象内容传递给外部验证器
+                    string limitJson = limitToken.ToString(Formatting.None);
+                    
+                    // 调用外部已实现的 ConditionEvaluator
+                    ConditionEvaluator.Validate(limitJson, context);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 辅助判断：key是否属于对话逻辑节点
+        /// </summary>
+        private static bool IsLogicNode(string key)
+        {
+            return key.StartsWith("text") ||
+                   key.StartsWith("first_valid") ||
+                   key.StartsWith("triggered_text") ||
+                   key.StartsWith("call_choice_group");
         }
     }
 }
