@@ -1,0 +1,1304 @@
+{
+    "universal_nodes": {
+        "falsified_graffti": {
+            "description": "十五楼墙壁上的涂鸦是事后伪造的",
+            "prompt": "在十五楼，即案发现场的墙壁上留有安乔签名的涂鸦，玩家认为这个涂鸦并非安乔所画，而是别人伪造的",
+            "depends_on": {},
+            "entities": [
+                "graffti",
+                "fifteenth_floor",
+                "falsify"
+            ],
+            "template": {
+                "text": "{0}的{1}，有可能是{2}的。",
+                "answer": {
+                    "this": [
+                        "fifteenth_floor",
+                        "graffti",
+                        "falsify"
+                    ]
+                }
+            },
+            "dialogue": {
+                "on_proven": {
+                    "text_1": "你证明了墙壁上的涂鸦是事后伪造的。",
+                    "triggered_text_1": {
+                        "limit": {
+                            "phase2": true
+                        },
+                        "text": "你提及了这或许也是犯人嫁祸工作的一环。"
+                    },
+                    "triggered_text_2": {
+                        "limit": {
+                            "phase2": false
+                        },
+                        "text": "你寻思这或许与安乔被嫁祸有关，但决定暂时先不提这茬以免话题走偏。"
+                    }
+                }
+            }
+        }
+    },
+    "phase1": {
+        "name": "萨宾娜的死因是什么",
+        "dialogue": {
+            "on_phase_start": {
+                "text": "这里填写阶段开始对话"
+            },
+            "on_phase_complete": {
+                "triggered_text_1": {
+                    "limit": {
+                        "phase2": true
+                    },
+                    "text": "你认为是时候给出安乔被嫁祸这一结论了。"
+                },
+                "triggered_text_2": {
+                    "limit": {
+                        "phase2": false
+                    },
+                    "text": "你认为现在是时候提一下涂鸦的事，来证明犯人是冲着安乔来的。"
+                }
+            }
+        },
+        "depends_on": {},
+        "nodes": {
+            "fifteenth_floor_bloodstain_falsified": {
+                "description": "十五楼的血迹是被伪造的",
+                "prompt": "在案发现场十五楼的大量血迹可能并不属于死者萨宾娜，或者不是斩首后血液喷溅导致的。",
+                "extra_input_sample": [
+                    "十五楼的血迹是被伪造的",
+                    "楼上的血不是斩首留下的"
+                ],
+                "depends_on": {},
+                "entities": [
+                    "fifteenth_floor",
+                    "bloodstain",
+                    "sabina"
+                ],
+                "special_node_template": "is_bloodstain_from_sabinna_template",
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_falling": true
+                            },
+                            "text": "安·李：\n让我们继续先前的假设。死者是从十五楼坠楼而死。\n以此为基点来看待十五楼的血迹。\n\n安乔：\n嗯……\n"
+                        },
+                        "text_1": "安·李：\n十五楼的血液是伪造的，不属于死者——这也是有充分可能的。\n\n安·李：\n因为十五楼与地面同时存在的两处血液，有一个致命的矛盾。\n\n安乔：\n矛盾？\n\n安·李：\n如果死者是在十五楼死于斩首，那么在十五楼喷溅完血液后，在地面就不应该还能流出那么多血。\n\n安·李：\n而如果死者是在十五楼死于坠楼，头颅是在那之后才被割下的——那么十五楼就不应该有血迹。\n\n安·李：\n不论如何，十五楼的血液都极有可能是伪装的，至少这点肯定错不了。\n\n安乔：\n确实……这么一想，是这个道理。\n我之前完全没有注意到这个问题。\n",
+                        "triggered_text_2": {
+                            "limit": {
+                                "too_much_bloodstain_in_total": true
+                            },
+                            "text": "安·李：\n这样一来，这两处血液相加，总量过多的原因也就十分明显了。\n\n安乔：\n对哦！\n其中一处是伪造的，那当然会有多出来的了！\n\n安·李：\n正是如此。\n"
+                        },
+                        "triggered_text_3": {
+                            "limit": {
+                                "falsified_footprints": false
+                            },
+                            "text": "安乔：\n可这么一来，地面的那些痕迹，又都是怎么一回事呢？\n\n安·李：\n关于这点，容我整理一下思路。\n"
+                        }
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_true": true,
+                                    "falsified_ground_bloodstain": true,
+                                    "sabina_death_reason_decapitated": true
+                                }
+                            },
+                            "text": "你摇摇头。\n死者肯定在十五楼发生了什么——你已经论证了这点。\n而且那必定是会导致有血迹残留下来的事。\n\n现在再说这种话只会降低自己的说服力，还是算了吧。\n"
+                        }
+                    }
+                }
+            },
+            "falsified_footprints": {
+                "description": "尸体附近地面上的足迹是伪造的",
+                "prompt": "死者尸体所在的地面上的足迹是被犯人伪造出来的",
+                "depends_on": {},
+                "entities": [
+                    "ground",
+                    "footprint",
+                    "falsify"
+                ],
+                "special_node_template": "ground_falsified_template",
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_falling": true
+                            },
+                            "text": "安·李：\n让我们继续先前的假设。死者是从十五楼坠楼而死。\n这么一看，地面足迹的问题就十分明显了。\n"
+                        },
+                        "text_1": "安·李：\n假如死者的头颅是在地面才被人取走的。\n\n安·李：\n而地面没有足迹。这可能吗？\n一个人在不留下足迹的情况下，割走另一个人的头？\n\n安·李：\n我不这么认为。\n\n安乔：\n但这么说的话……没有足迹的原因……\n\n安乔：\n不就只能是因为犯人掩盖了这一痕迹了吗？\n\n安·李：\n答对了。犯人掩盖了地面应有的足迹——尽管我们暂时还不清楚他的手法，但这起案件的未解之谜本身也不差这一个。\n暂且可以先将这个假设纳入考虑。\n\n安乔：\n唔……\n",
+                        "triggered_text_2": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_falsified": false
+                            },
+                            "text": "安乔：\n哎，等等，那十五楼的血液又是怎么回事呢？\n\n安乔：\n死者在地面被斩首，但十五楼又有那么多血迹……\n\n安乔：\n啊，好复杂……\n"
+                        }
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_true": true,
+                                    "falsified_ground_bloodstain": true,
+                                    "sabina_death_reason_decapitated": true
+                                }
+                            },
+                            "text": "你感觉不对。\n死者肯定在十五楼发生了什么——你已经论证了这点。\n但那和地面没有足迹并没有直接关联。\n\n讨论这个只会让话题重心偏移，你决定重新考虑一下。\n"
+                        }
+                    }
+                }
+            },
+            "sabina_death_reason_falling": {
+                "description": "萨宾娜的死因是坠楼",
+                "prompt": "与警察的结论不同，萨宾娜其实是先从十五楼坠下摔死，然后尸体才被斩首的。",
+                "mutex_group": "sabina_death_reason_mutex_group",
+                "depends_on": {
+                    "or": {
+                        "fifteenth_floor_bloodstain_falsified": true,
+                        "falsified_footprints": true
+                    }
+                },
+                "entities": [
+                    "sabina",
+                    "death_reason_fall"
+                ],
+                "special_node_template": "death_reason_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安·李：\n尸检结果指出，尸体上有大量坠落导致的伤势。\n再加上楼内的犯罪现场位于十五楼的高度，\n\n安·李：\n虽然还不知道死者的头颅为何不翼而飞，但光凭这两点，认为死者是从十五楼坠楼而死，也已经足够有力了。\n\n安乔点了点头。很显然，他也完全同意这是个可能性极高的假设。\n",
+                        "triggered_text_1": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_falsified": true
+                            },
+                            "text": "而我们已经知道，十五楼的血液是犯人伪造的。\n这点也与这一推论合得上——犯人正是想要误导大家认为死者死于在十五楼被斩首，才费这么大劲在十五楼伪造了血液。\n\n安乔：\n啊，的确，这么一来就说得通了。\n"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "falsified_footprints": true
+                            },
+                            "text": "与此同时，地面的问题也不能被忽视。\n\n安·李：\n犯人刻意不留下脚印，也是为了不让大家意识到“原来是有人在地面取走了尸体的头颅”这一事实。\n\n事实证明，你的证明十分成功。一环套一环，令安乔完全认同了这一假说。\n"
+                        }
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_decapitated": true
+                            },
+                            "text": "你意识到不对。\n你已经证明了死因是斩首。现在再提出这个观点只会显得自相矛盾。\n"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_true": true,
+                                    "falsified_ground_bloodstain": true
+                                }
+                            },
+                            "text": "死者死于坠楼……这一说法确乎有合理性。\n但你心中总感觉有一个疙瘩，这似乎与你之前所说的什么内容对不上。\n还是先不要提这事了。\n"
+                        }
+                    }
+                }
+            },
+            "fifteenth_floor_bloodstain_true": {
+                "description": "十五楼的血迹属于死者",
+                "prompt": "在案发现场十五楼的大量血迹属于死者萨宾娜。",
+                "extra_input_sample": [
+                    "十五楼的血迹是萨宾娜留下的",
+                    "十五楼的血迹不是伪造的"
+                ],
+                "depends_on": {},
+                "entities": [
+                    "fifteenth_floor",
+                    "bloodstain",
+                    "sabina"
+                ],
+                "special_node_template": "is_bloodstain_from_sabinna_template",
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_decapitated": true
+                            },
+                            "text": "你提出了以斩首死亡为前提条件。"
+                        },
+                        "text_1": "你证明了十五楼血液属于死者",
+                        "triggered_text_2": {
+                            "limit": {
+                                "sabina_death_reason_decapitated": false
+                            },
+                            "text": "安乔追问地面的问题。"
+                        }
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_falsified": true,
+                                    "falsified_footprints": true,
+                                    "sabina_death_reason_falling": true
+                                }
+                            },
+                            "text": "你自我否决了这一相互矛盾的说法。"
+                        }
+                    }
+                }
+            },
+            "falsified_ground_bloodstain": {
+                "description": "地面上的血迹是伪造的",
+                "prompt": "死者尸体身下浸透泥地的血迹是被犯人伪造出来的",
+                "depends_on": {},
+                "entities": [
+                    "ground",
+                    "bloodstain",
+                    "falsify"
+                ],
+                "special_node_template": "ground_falsified_template",
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_decapitated": true
+                            },
+                            "text": "你提出了以斩首死亡为前提条件。"
+                        },
+                        "text_1": "你证明了地面血液是伪造的。",
+                        "triggered_text_2": {
+                            "limit": {
+                                "too_much_bloodstain_in_total": true
+                            },
+                            "text": "你进一步证明了这就是血液过多的原因。"
+                        },
+                        "triggered_text_3": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_true": false
+                            },
+                            "text": "安乔追问十五楼血液的问题。"
+                        }
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_falsified": true,
+                                    "falsified_footprints": true,
+                                    "sabina_death_reason_falling": true
+                                }
+                            },
+                            "text": "你自我否决了这一相互矛盾的说法。"
+                        }
+                    }
+                }
+            },
+            "sabina_death_reason_decapitated": {
+                "description": "萨宾娜的死因是被斩首",
+                "prompt": "跟警察的结论类似，萨宾娜是在十五楼被斩首而死的。但是萨宾娜",
+                "depends_on": {
+                    "or": {
+                        "fifteenth_floor_bloodstain_true": true,
+                        "falsified_ground_bloodstain": true
+                    }
+                },
+                "entities": [
+                    "sabina",
+                    "decapitated"
+                ],
+                "special_node_template": "death_reason_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了萨宾娜死于在十五楼被斩首。",
+                        "triggered_text_1": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_true": true
+                            },
+                            "text": "你将十五楼血液属于死者与坠楼联系到了一起。"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "falsified_ground_bloodstain": true
+                            },
+                            "text": "你将地面血液是伪造的与坠楼联系到了一起。"
+                        },
+                        "triggered_text_3": {
+                            "limit": {
+                                "too_less_bloodstain_outside": true
+                            },
+                            "text": "【待办】外面血液过少，所以是斩首后一段时间才从楼上丢下去的"
+                        }
+                    },
+                    "on_pending": {
+                        "text_1": ""
+                    },
+                    "on_mutex": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "sabina_death_reason_falling": true
+                            },
+                            "text": "你自我否决了这一相互矛盾的说法。"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_falsified": true,
+                                    "falsified_footprints": true
+                                }
+                            },
+                            "text": "你总感觉这个说法和你已提出的某些东西合不上，没有将这个想法说出口。"
+                        }
+                    }
+                }
+            },
+            "too_less_bloodstain_outside": {
+                "description": "外墙和地面缺乏喷溅血迹",
+                "prompt": "案发现场大楼的外墙和地面留下的血迹过少而且非常集中。如果是一具正在喷溅血迹的尸体从十五楼推下，应该留下相当多且分布广的血迹",
+                "depends_on": {},
+                "entities": [
+                    "building_facade",
+                    "ground",
+                    "bloodstain"
+                ],
+                "template": {
+                    "text": "{0}和{1}缺乏{2}，所以萨宾娜不是被斩首后推下楼的。",
+                    "answer": {
+                        "this": [
+                            "building_facade",
+                            "ground",
+                            "bloodstain"
+                        ],
+                        "this_1": [
+                            "ground",
+                            "building_facade",
+                            "bloodstain"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了外墙和地面缺乏喷溅血迹。"
+                    }
+                }
+            },
+            "too_much_bloodstain_in_total": {
+                "description": "地面与十五楼的血液总量过多",
+                "prompt": "地面和十五楼留下的血迹加起来已经超过了一个人类可能拥有的血量",
+                "depends_on": {},
+                "entities": [
+                    "fifteenth_floor",
+                    "ground",
+                    "bloodstain"
+                ],
+                "template": {
+                    "text": "{0}和{1}留下的{2}加起来已经超过了正常人的阈值",
+                    "answer": {
+                        "this": [
+                            "fifteenth_floor",
+                            "ground",
+                            "bloodstain"
+                        ],
+                        "this_1": [
+                            "ground",
+                            "fifteenth_floor",
+                            "bloodstain"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_falsified": true,
+                                    "falsified_ground_bloodstain": true
+                                }
+                            },
+                            "text": "你证明犯人犯了一个致命错误——他忘记了这两处血迹的血液量相加会显得过多。"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "and": {
+                                    "fifteenth_floor_bloodstain_falsified": false,
+                                    "falsified_ground_bloodstain": false
+                                }
+                            },
+                            "text": "你证明了地面与十五楼的血液总量过多，并提及其中有一处血迹应该是假的。"
+                        }
+                    }
+                }
+            },
+            "possible_accomplice": {
+                "description": "犯人可能有帮凶",
+                "prompt": "犯人可能不是独自犯案的，有人协助他作案或掩盖/伪造证据",
+                "depends_on": {},
+                "entities": [
+                    "accomplice"
+                ],
+                "template": {
+                    "text": "犯人可能有{0}",
+                    "answer": {
+                        "this": [
+                            "accomplice"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安·李：\n犯人有可能有帮凶。\n考虑到这起案件里存在大量由单人作案会与证言互相矛盾的情况，如此假设应该是理所当然的。\n\n安乔：\n确实是这样啦。但总感觉这样的话很……这样一来，总感觉不论什么事都可以是帮凶干的了。\n\n安乔的假设在实践中当然可能成立，但作为假设，确实会显得稍显缺乏说服力。\n你决定后退一步。\n\n安·李：\n如你所说，滥用这个假设是不好的。\n“被观察到上了楼的人是犯人”，在这个前提下，我们再去思考什么是必须帮凶才能完成的行为。\n\n安·李：\n谨慎增加案件中的实体吧。\n",
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "falsified_footprints": true,
+                                    "falsified_ground_bloodstain": true,
+                                    "falsified_watch_time": true
+                                }
+                            },
+                            "text": "安·李：\n在这个前提下，\n就我们目前已知的情报来看，\n"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "falsified_footprints": true
+                            },
+                            "text": "安·李：\n地面消失的足迹……\n"
+                        },
+                        "triggered_text_3": {
+                            "limit": {
+                                "falsified_footprints": true
+                            },
+                            "text": "安·李：\n地面的伪造血液……\n"
+                        },
+                        "triggered_text_4": {
+                            "limit": {
+                                "falsified_footprints": true
+                            },
+                            "text": "安·李：\n明显被调整过的手表时间……\n"
+                        },
+                        "triggered_text_5": {
+                            "limit": {
+                                "or": {
+                                    "falsified_footprints": true,
+                                    "falsified_ground_bloodstain": true,
+                                    "falsified_watch_time": true
+                                }
+                            },
+                            "text": "安·李：\n很显然，\n这起案件中存在与犯人上楼后就没有下来这一证言矛盾的疑点。\n\n安·李：\n但如果将犯人有帮手这一点考虑进去的话，就能够具备可行性了。\n我认为至少在这方面，假设犯人使用了帮凶应该是相对合理的想法。\n\n你观察到安乔被说服的表情——很显然，这是个他无从反驳的可能性。\n"
+                        }
+                    }
+                }
+            },
+            "falsified_watch_time": {
+                "description": "手表上的时间有可能是伪造的",
+                "prompt": "在现场发现了死者被摔坏的手表，上面冻结的时间被认定为是死者从楼上坠落的时间。但手表上的时间很可能是犯人伪造的",
+                "depends_on": {},
+                "entities": [
+                    "watch",
+                    "time",
+                    "falsify"
+                ],
+                "template": {
+                    "text": "遗留在现场的{0}，上面的{1}有可能是{2}的。",
+                    "answer": {
+                        "this": [
+                            "watch",
+                            "time",
+                            "falsify"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了犯人有能力伪造手表时间。",
+                        "triggered_text_1": {
+                            "limit": {
+                                "possible_accomplice": true
+                            },
+                            "text": "你指出了这就是帮凶做的事。"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "time_mismatch": true
+                            },
+                            "text": "你指出了这就是时间不符的原因。"
+                        }
+                    }
+                }
+            },
+            "time_mismatch": {
+                "description": "手表时间与坠楼声不符",
+                "prompt": "在现场发现了死者被摔坏的手表，上面冻结的时间被认定为是死者从楼上坠落的时间。但手表上的时间很可能是犯人伪造的",
+                "depends_on": {},
+                "entities": [
+                    "watch",
+                    "time",
+                    "falsify"
+                ],
+                "template": {
+                    "text": "遗留在现场的{0}，上面的{1}有可能是{2}的。",
+                    "answer": {
+                        "this": [
+                            "watch",
+                            "time",
+                            "falsify"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了手表时间与坠楼声不符。",
+                        "triggered_text_1": {
+                            "limit": {
+                                "falsified_watch_time": true
+                            },
+                            "text": "你指出了这与犯人伪造手表时间之间的联系。"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "and": {
+                                    "falsified_watch_time": true,
+                                    "possible_accomplice": true
+                                }
+                            },
+                            "text": "你更进一步的指出了这就是犯人用帮凶要做的事。"
+                        }
+                    }
+                }
+            },
+            "suspicious_jogging": {
+                "description": "安乔的晨跑很可疑",
+                "prompt": "安乔说他是早上起来晨跑的时候路过案发地点知道的案件情报，但安乔根本没有晨跑的习惯",
+                "is_wrong": true,
+                "depends_on": {},
+                "entities": [
+                    "AnQiao",
+                    "jogging"
+                ],
+                "template": {
+                    "text": "{0}声称他去{1}了，但他根本没有这个习惯。",
+                    "answer": {
+                        "this": [
+                            "AnQiao",
+                            "jogging"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "这只取决于安乔的心证，安乔的坚决反驳令你放弃了从这个思路继续讨论。"
+                    }
+                }
+            },
+            "AnQiao_witnessed_crime": {
+                "description": "安乔在现场目击了案件的发生",
+                "prompt": "安乔的发言过于真实，更像他目击了案件的发生。",
+                "extra_input_sample": [
+                    "安乔的证言过于真实，更像他当时就在案发现场"
+                ],
+                "is_wrong": true,
+                "depends_on": {},
+                "entities": [
+                    "AnQiao",
+                    "jogging"
+                ],
+                "template": {
+                    "text": "{0}的证言过于真实，仿佛他当时就在{1}一样。",
+                    "answer": {
+                        "this": [
+                            "AnQiao",
+                            "fifteenth_floor"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安乔完全否决了这个说法。安乔的坚决反驳令你放弃了从这个思路继续讨论。"
+                    }
+                }
+            },
+            "sabina_is_alive": {
+                "description": "萨宾娜可能还活着",
+                "prompt": "现场的尸体没有头，难以确认身份，所以萨宾娜可能还活着",
+                "extra_input_sample": [
+                    "萨宾娜可能没死"
+                ],
+                "is_wrong": true,
+                "depends_on": {},
+                "entities": [
+                    "sabina",
+                    "alive"
+                ],
+                "template": {
+                    "text": "现场的尸体是无头尸体，难以确认身份。因此，{0}其实有可能还{1}。",
+                    "answer": {
+                        "this": [
+                            "sabina",
+                            "alive"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安·李：\n萨宾娜的尸体是无头尸，无法确认死者就是她本人。\n从这个角度出发，萨宾娜其实还活着，死者另有其人——这么想也不奇怪吧。\n\n安乔：\n……是这样啦。但那又怎么样呢？\n\n安乔：\n无论如何，有个人死了都是事实啊。\n而且如果不是萨宾娜的话，那流浪汉甚至没有目击到死者上下楼的情报，这也很奇怪吧。\n\n安·李：\n……的确。你说得有道理。\n\n安·李：\n暂且先将这个想法放下吧。\n"
+                    }
+                }
+            },
+            "police_abnormal_behaviour": {
+                "description": "警察的行为反常",
+                "prompt": "即使以黄昏城的警察为基准，本次案件中他们的调查也仍称得上行为反常。",
+                "is_wrong": true,
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安乔完全否决了这个说法，指出黄昏城的警察就那样。安乔根深蒂固的看法令你放弃了从这个思路继续讨论。"
+                    }
+                }
+            },
+            "sabina_died_elsewhere": {
+                "description": "萨宾娜是在其他地方死亡的",
+                "prompt": "萨宾娜很可能是在其他地方被杀，然后被运送到案发现场的",
+                "is_wrong": true,
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "fifteenth_floor_bloodstain_true": true,
+                                    "falsified_ground_bloodstain": true,
+                                    "sabina_death_reason_decapitated": true,
+                                    "fifteenth_floor_bloodstain_falsified": true,
+                                    "falsified_footprints": true,
+                                    "sabina_death_reason_falling": true
+                                }
+                            },
+                            "text": "不对，这个想法说不通。\n它和你已经证明的观点相违背，恐怕不是个适合提出的观点。\n"
+                        },
+                        "triggered_text_2": {
+                            "and": {
+                                "sabina_death_reason_decapitated": false,
+                                "sabina_death_reason_falling": false
+                            }
+                        },
+                        "text": "安·李：\n现场与死者的尸体存在诸多疑点。我有一个可以解释这些疑点的推论。\n\n安·李：\n那就是死者其实是在其他地方被杀的，她根本没有去过十五楼。\n\n安乔：\n可流浪汉的证言里明确说了，萨宾娜确实上过十五楼，而且就此失踪了啊？\n\n安乔：\n这和证言相矛盾了吧……\n\n安·李：\n啊……是我忽视了这点。\n\n虽然也不是没有可能做到这些。\n但你脑海里闪过的部分手法确实太夸张了，你目前没有证据来证明这些想法。\n\n还是暂且先放下这个推论吧，它恐怕无法说服安乔。\n"
+                    }
+                }
+            }
+        },
+        "completion_nodes": [
+            "sabina_death_reason_decapitated",
+            "sabina_death_reason_falling"
+        ]
+    },
+    "phase2": {
+        "name": "犯人做了什么让安乔成为了嫌疑人",
+        "dialogue": {
+            "on_phase_start": {
+                "text": "这里填写阶段开始对话"
+            },
+            "on_phase_complete": {
+                "triggered_text_1": {
+                    "limit": {
+                        "phase2": true
+                    },
+                    "text": "你认为是时候给出安乔被嫁祸这一结论了。"
+                },
+                "triggered_text_2": {
+                    "limit": {
+                        "phase2": false
+                    },
+                    "text": "你认为现在是时候关注案件本身，来为你的证明增强说服力了。"
+                }
+            }
+        },
+        "depends_on": {},
+        "nodes": {
+            "murderer_falsified_signature": {
+                "description": "犯人伪造了安乔的签名",
+                "prompt": "犯人在十五楼的涂鸦上伪造了安乔的签名，来让安乔成为本案的嫌疑人",
+                "mutex_group": "is_graffti_fake_mutex_group",
+                "depends_on": {},
+                "entities": [
+                    "AnQiao",
+                    "falsify",
+                    "signature"
+                ],
+                "template": {
+                    "text": "犯人在十五楼的涂鸦上，{0}了{1}的{2}",
+                    "answer": {
+                        "this": [
+                            "falsify",
+                            "AnQiao",
+                            "signature"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了犯人伪造了安乔的签名。",
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "falsified_graffti": true
+                                }
+                            },
+                            "text": "你进一步提及这确实就是犯人嫁祸工作的一环。"
+                        }
+                    },
+                    "on_mutex": {
+                        "text": "你自我否决了这一相互矛盾的说法。"
+                    }
+                }
+            },
+            "murderer_used_signature": {
+                "description": "犯人选择了有安乔签名的十五楼作为案发现场",
+                "prompt": "签名是安乔自己签的。犯人看到了有安乔签名涂鸦的十五楼，决定利用这一点让安乔成为嫌疑人。",
+                "mutex_group": "is_graffti_fake_mutex_group",
+                "depends_on": {},
+                "entities": [
+                    "fifteenth_floor",
+                    "AnQiao",
+                    "signature",
+                    "graffti"
+                ],
+                "template": {
+                    "text": "犯人会选择{0}作案并非巧合，而是因为这儿有{1}的{2}。",
+                    "answer": {
+                        "this": [
+                            "fifteenth_floor",
+                            "AnQiao",
+                            "signature"
+                        ],
+                        "this_1":[
+                            "fifteenth_floor",
+                            "AnQiao",
+                            "graffti"
+                        ]
+                    }
+                },
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了犯人选择了有安乔签名的十五楼作为案发现场。",
+                        "triggered_text_1": {
+                            "limit": {
+                                "or": {
+                                    "falsified_graffti": true
+                                }
+                            },
+                            "text": "你进一步提及这确实就是犯人嫁祸工作的一环。"
+                        }
+                    },
+                    "on_mutex": {
+                        "text": "你自我否决了这一相互矛盾的说法。"
+                    }
+                }
+            }
+        },
+        "completion_nodes": [
+            "murderer_falsified_signature",
+            "murderer_used_signature"
+        ]
+    },
+    "phase3": {
+        "name": "陷害安乔的人是？",
+        "dialogue": {
+            "on_phase_start": {
+                "text": "这里填写阶段开始对话"
+            },
+            "on_phase_complete": {
+                "text": "这里填写阶段结束对话"
+            }
+        },
+        "depends_on": {
+            "and": {
+                "phase1": true,
+                "phase2": true
+            }
+        },
+        "is_hidden": true,
+        "nodes": {
+            "murderer_did_it": {
+                "description": "这个人是未知身份的本案真凶",
+                "prompt": "陷害安乔的人是本案的真凶，但现在还不知道是谁",
+                "mutex_group": "who_is_framer_mutex_group",
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了这个人可能是犯人。"
+                    }
+                }
+            },
+            "accomplice_did_it": {
+                "description": "这个人是未知身份的本案的帮凶",
+                "prompt": "凶手有一个未知身份的帮凶，就是他试图陷害安乔的",
+                "mutex_group": "who_is_framer_mutex_group",
+                "depends_on": {
+                    "possible_accomplice": true
+                },
+                "entities": [
+                    "accomplice"
+                ],
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了这个人可能是帮凶。"
+                    }
+                }
+            },
+            "old_chen_did_it": {
+                "description": "这个人是老陈头",
+                "prompt": "是流浪汉的领袖，老陈头，陷害了安乔",
+                "mutex_group": "who_is_framer_mutex_group",
+                "depends_on": {},
+                "entities": [
+                    "old_chen"
+                ],
+                "special_node_template": "who_is_framer_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了这个人可能是老陈头。"
+                    }
+                }
+            },
+            "friend_did_it": {
+                "description": "这个人是你的朋友",
+                "prompt": "是安乔一起涂鸦的朋友们（一个或多个或整体）陷害了安乔",
+                "mutex_group": "who_is_framer_mutex_group",
+                "depends_on": {},
+                "entities": [
+                    "friend"
+                ],
+                "special_node_template": "who_is_framer_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你证明了这个人可能是安乔的朋友。"
+                    }
+                }
+            },
+            "I_did_it": {
+                "description": "这个人是我",
+                "prompt": "是我，安·李，陷害的安乔。",
+                "extra_input_sample": [
+                    "凶手就是我"
+                ],
+                "mutex_group": "who_is_framer_mutex_group",
+                "depends_on": {},
+                "entities": [
+                    "AnLee"
+                ],
+                "special_node_template": "who_is_framer_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "你说是你在陷害安乔，这简直太有说服力了。"
+                    }
+                }
+            },
+            "AnQiao_did_it": {
+                "description": "这个人是安乔",
+                "prompt": "是安乔自己陷害的自己",
+                "extra_input_sample": [
+                    "凶手就是你",
+                    "凶手就是安乔自己"
+                ],
+                "is_wrong": true,
+                "depends_on": {},
+                "entities": [
+                    "AnQiao"
+                ],
+                "special_node_template": "who_is_framer_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "这当然无法说服安乔了。"
+                    }
+                }
+            },
+            "mafia_did_it": {
+                "description": "这个人是黑帮分子",
+                "prompt": "是那些跟老陈头有联系的当地黑帮分子（一个或多个或整体）陷害了安乔",
+                "is_wrong": true,
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安乔反驳了这点，因为他认为不能指向特定的人没有说服力。"
+                    }
+                }
+            },
+            "homeless_did_it": {
+                "description": "这个人是流浪汉",
+                "prompt": "是住在案发现场楼下的那些流浪汉（一个或多个或整体）陷害了安乔",
+                "is_wrong": true,
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安乔反驳了这点，因为他认为不能指向特定的人没有说服力。"
+                    }
+                }
+            },
+            "police_did_it": {
+                "description": "这个人是警察",
+                "prompt": "是调查案件的警察（一个或多个或整体）陷害了安乔",
+                "is_wrong": true,
+                "depends_on": {},
+                "entities": [
+                    "police"
+                ],
+                "special_node_template": "who_is_framer_template",
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": "安乔反驳了这点，因为他认为不能指向特定的人没有说服力。"
+                    }
+                }
+            }
+        },
+        "completion_nodes": [
+            "murderer_did_it",
+            "accomplice_did_it",
+            "old_chen_did_it",
+            "friend_did_it",
+            "I_did_it"
+        ]
+    },
+    "phase4": {
+        "name": "决定安乔的行动",
+        "dialogue": {
+            "on_phase_start": {
+                "text": "这里填写阶段开始对话"
+            },
+            "on_phase_complete": {
+                "text": "这里填写阶段结束对话"
+            }
+        },
+        "depends_on": {
+            "phase3": true
+        },
+        "is_hidden": true,
+        "nodes": {
+            "active_investigation": {
+                "description": "积极参与调查",
+                "prompt": "鼓励安乔主动出击打探情报来帮自己摆脱嫌疑",
+                "mutex_group": "solution_mutex_group",
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": ""
+                    }
+                }
+            },
+            "pretend_nothing_happens": {
+                "description": "假装无事发生",
+                "prompt": "建议安乔装作对目前的情况一无所知",
+                "mutex_group": "solution_mutex_group",
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": ""
+                    }
+                }
+            },
+            "keep_away_from_cases": {
+                "description": "远离与案件相关的人物和地点",
+                "prompt": "建议安乔远离与案件相关的人或事",
+                "mutex_group": "solution_mutex_group",
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": ""
+                    }
+                }
+            },
+            "hidesuwa": {
+                "description": "找个地方藏起来",
+                "prompt": "建议安乔藏起来，尽量不要露面",
+                "mutex_group": "solution_mutex_group",
+                "depends_on": {},
+                "dialogue": {
+                    "on_proven": {
+                        "text_1": ""
+                    }
+                }
+            }
+        },
+        "completion_nodes": [
+            "active_investigation",
+            "pretend_nothing_happens",
+            "keep_away_from_cases",
+            "hidesuwa"
+        ]
+    },
+    "node_choice_group": {
+        "who_is_framer_choice_group": {
+            "murderer_did_it": {},
+            "accomplice_did_it": {},
+            "old_chen_did_it": {
+                "is_hidden": true
+            },
+            "friend_did_it": {
+                "is_hidden": true
+            },
+            "I_did_it": {
+                "is_hidden": true
+            },
+            "mafia_did_it": {
+                "is_hidden": true
+            },
+            "homeless_did_it": {
+                "is_hidden": true
+            },
+            "police_did_it": {
+                "is_hidden": true
+            }
+        },
+        "solution_choice_group": {
+            "active_investigation": {},
+            "pretend_nothing_happens": {},
+            "keep_away_from_cases": {},
+            "hidesuwa": {}
+        }
+    },
+    "nodes_mutex_group": {
+        "sabina_death_reason_mutex_group": {
+            "node_group_1": [
+                "sabina_death_reason_falling",
+                "fifteenth_floor_bloodstain_falsified",
+                "falsified_footprints"
+            ],
+            "node_group_2": [
+                "sabina_death_reason_decapitated",
+                "fifteenth_floor_bloodstain_true",
+                "falsified_ground_bloodstain"
+            ]
+        },
+        "is_graffti_fake_mutex_group": {
+            "nodes_1": "murderer_falsified_signature",
+            "nodes_2": "murderer_used_signature"
+        },
+        "who_is_framer_mutex_group": {
+            "nodes_1": "murderer_did_it",
+            "nodes_2": "accomplice_did_it",
+            "nodes_3": "old_chen_did_it",
+            "nodes_4": "friend_did_it",
+            "nodes_5": "I_did_it"
+        },
+        "solution_mutex_group": {
+            "nodes_1": "active_investigation",
+            "nodes_2": "pretend_nothing_happens",
+            "nodes_3": "keep_away_from_cases",
+            "nodes_4": "hidesuwa"
+        }
+    },
+    "special_node_template": {
+        "is_bloodstain_from_sabinna_template": {
+            "text": "遗留在{0}的{1}{2}{3}",
+            "dropdown_blank_2": [
+                "属于",
+                "不属于"
+            ],
+            "answer": {
+                "fifteenth_floor_bloodstain_falsified": [
+                    "fifteenth_floor",
+                    "bloodstain",
+                    "不属于",
+                    "sabina"
+                ],
+                "fifteenth_floor_bloodstain_true": [
+                    "fifteenth_floor",
+                    "bloodstain",
+                    "属于",
+                    "sabina"
+                ]
+            }
+        },
+        "ground_falsified_template": {
+            "text": "位于大楼外侧{0}上的{1}是有人{2}出来的",
+            "answer": {
+                "falsified_footprints": [
+                    "ground",
+                    "footprint",
+                    "falsify"
+                ],
+                "falsified_ground_bloodstain": [
+                    "ground",
+                    "bloodstain",
+                    "falsify"
+                ]
+            }
+        },
+        "death_reason_template": {
+            "text": "萨宾娜的死因是{0}",
+            "answer": {
+                "sabina_death_reason_falling": [
+                    "death_reason_fall"
+                ],
+                "sabina_death_reason_decapitated": [
+                    "decapitated"
+                ]
+            }
+        },
+        "who_is_framer_template": {
+            "text": "陷害安乔的人是{0}",
+            "answer": {
+                "accomplice_did_it": [
+                    "accomplice"
+                ],
+                "old_chen_did_it": [
+                    "old_chen"
+                ],
+                "friend_did_it": [
+                    "friend"
+                ],
+                "I_did_it": [
+                    "AnLee"
+                ]
+            }
+        }
+    },
+    "entity_list": {
+        "sabina": {
+            "name": "萨宾娜",
+            "prompt": "萨宾娜，是这起凶杀案的死者",
+            "alias": [
+                "死者"
+            ]
+        },
+        "death_reason_fall": {
+            "name": "坠楼",
+            "prompt": "一种死亡原因，指从高处跌落导致死亡"
+        },
+        "bloodstain": {
+            "name": "血迹",
+            "alias": [
+                "血液"
+            ]
+        },
+        "fifteenth_floor": {
+            "name": "十五楼",
+            "prompt": "警察认定萨宾娜被斩首的地方"
+        },
+        "ground": {
+            "name": "泥地",
+            "prompt": "萨宾娜尸体所在处，十五楼窗口正对着的一片泥地",
+            "alias": [
+                "地面"
+            ]
+        },
+        "footprint": {
+            "name": "脚印",
+            "prompt": "【重要】等菲特补充之后再写"
+        },
+        "falsify": {
+            "name": "伪造",
+            "alias": [
+                "假"
+            ]
+        },
+        "decapitated": {
+            "name": "斩首",
+            "prompt": "警察认定的萨宾娜的死因。"
+        },
+        "building_facade": {
+            "name": "大楼外墙",
+            "prompt": "案发现场所在大楼的外立面墙壁"
+        },
+        "splash": {
+            "name": "喷溅痕迹"
+        },
+        "accomplice": {
+            "name": "帮凶",
+            "alias": [
+                "同伙",
+                "协助者",
+                "从犯"
+            ]
+        },
+        "watch": {
+            "name": "手表",
+            "prompt": "萨宾娜戴着的手表，在坠落中被摔坏"
+        },
+        "time": {
+            "name": "时间"
+        },
+        "jogging": {
+            "name": "晨跑",
+            "prompt": "安乔声称是早上晨跑的时候路过的案发地点"
+        },
+        "AnQiao": {
+            "name": "安乔",
+            "prompt": "主角安·李的养子，当前正在谈话的对象",
+            "alias": [
+                "你"
+            ]
+        },
+        "police": {
+            "name": "警察"
+        },
+        "alive": {
+            "name": "活着"
+        },
+        "graffti": {
+            "name": "涂鸦",
+            "prompt": "留在十五楼案发现场的涂鸦，上面有安乔的签名。"
+        },
+        "signature": {
+            "name": "签名",
+            "prompt": "留在十五楼案发现场的涂鸦上留有的安乔的签名"
+        },
+        "AnLee": {
+            "name": "安·李",
+            "prompt": "这是你自己",
+            "alias": [
+                "我"
+            ]
+        },
+        "friend": {
+            "name": "朋友",
+            "prompt": "跟安乔一起在街上游荡的同龄朋友，不属于黑帮分子也不是流浪汉"
+        },
+        "old_chen": {
+            "name": "老陈头",
+            "prompt": "老陈头是案发现场大楼流浪汉的领袖，与黑帮有一些关系。"
+        }
+    },
+    "initial_clues": [
+        {
+            "name": "关于这起谋杀案",
+            "description": "今天凌晨，死者萨宾娜的尸体在东和街的废弃大楼被发现，据说是被人斩首后从高楼扔下。萨宾娜是认识的旧书店的老板娘。",
+            "dialogue_record": "萨宾娜·彼得诺夫娜·别林斯卡娅。\n你对这个名字感到有些熟悉，但又想不起是在什么地方见过。\n安·李：\n……\n安乔：\n怎么了？\n坐在你对面的安乔打量着信件。你想了想，将信件折叠起来，只将写有名字的部分指给他。\n安·李：\n【你有听过这个名字吗？】\n安乔：\n萨宾娜……\n安乔：\n哦，我想起来了。这不是那家旧书店的老板娘吗。\n安乔：\n就是隔壁路口的那家。找她有事？\n那你估计是找不着她了。\n安·李：\n【怎么回事？】\n安乔：\n她死了。你没听说吗？\n安乔：\n今天凌晨的事。被不知道什么人在东和街那边的废弃大楼给杀了。\n被人斩首后，将尸体从楼里直接扔了出去，头部还被带走了。"
+        },
+        {
+            "name": "安乔知道案件的途径",
+            "description": "安乔自称是今天早上晨跑的时候路过案发地点，从警察口中问到了案件的相关信息。但安乔没有晨跑的习惯。",
+            "dialogue_record": "安·李：\n【这些事你是怎么知道的？】\n安乔：\n啊……就……我今早上出去晨跑了啊，锻炼身体嘛。\n路上看见有警察的封锁线，就凑过去看了看热闹。\n安乔：\n刚才那些也是我那时候听别人说的，我也不清楚更多了。\n安乔：\n哎呀，跑完回来真是累死我了，我先去睡个回笼觉~\n安乔飞快溜回了自己的房间，关门时发出了“砰”的一声。\n你很清楚，这小子肯定又在扯些什么谎——他从来没有晨跑的习惯。\n但萨宾娜被人杀害的事情应该是真的，安乔没笨到会在这种轻易就能确认真伪的事情上说谎。\n你对他说谎的原因心里大概有数。不过眼下比起教育安乔，你还有更紧要的事情要做。"
+        },
+        {
+            "name": "警察对案发现场的态度",
+            "description": "案发现场没有任何封锁，现场内也有很多脚印，似乎他们对这起案件并不上心。",
+            "dialogue_record": "（转场，废弃大楼内部）\n东和街的废弃大楼。这个街区内诸多流浪汉的聚居点之一。\n你朝这群流浪汉的头子，一个被大家叫做“老陈头”的中年流浪汉点点头，递给他一支烟。\n老陈头：\n哟，稀罕人。\n您也会来看这热闹？\n安·李：\n【还不是因为安乔那臭小子。】\n安·李：\n【有地方能进去吗？】\n老陈头：\n没人看着呢。\n闲着也是闲着，我带您进去吧。\n老陈头做了个请的手势，你跟着他越过封锁线，走进了大楼。\n老陈头：\n嘿，你说有没有意思，这凶杀案现场都没个警察看着。\n也不知道这帮人是干什么吃的。\n你很清楚，对于一桩凶杀案而言这种处理简直可以称得上是渎职。\n但渎职对这种城市——尤其是负责这片贫民区的警察而言，是最常见的事情了。\n你不喜欢这种现象。但不得不承认，这现象令你可以堂而皇之地走进案发现场，省去了许多功夫。\n老陈头不知道你的想法，但他看上去也没指望一个哑巴能回应他多少，仍是喋喋不休。\n老陈头：\n就说这脚印，全都是警察留下的，可不是咱们踩的。\n那个词儿叫什么来着……保护……保护现场！"
+        },
+        {
+            "name": "十五楼现场的情况",
+            "description": "·十五楼的一间房间里有着大量血迹飞溅在无窗的空洞附近\n·楼外的墙壁和下面的土地如同往常一样是灰蒙蒙的\n·尸体处于无窗空洞的正下方，尸体已经被运走了\n·尸体下面的土地已经被血液浸透了",
+            "dialogue_record": "你笑了一下。\n跟随着楼道里被警察们踩出的纷乱脚印，你轻而易举的发现了案发现场的具体位置。\n——十五楼的一侧，无窗的空洞周围像是被人狠狠用两大桶红色颜料泼洒过一般，鲜血飞溅得到处都是。\n想注意不到都难。\n老陈头：\n就这儿了。警察说这是案发现场，我瞅着也像。\n老陈头一边说着，一边靠近窗户，探头的同时朝你招手。\n你跟着他的动作，伸出头向楼外看去，无论是大楼本身、还是周围的土地都如同以往，呈现出一副灰蒙蒙的景象。\n在你正下方的泥土地上，上边覆盖着白色的无头轮廓线，原本在此处的尸体早被警察运走了。\n老陈头：\n喏，那就是老板娘死后摔下去的地方。挺好一人，怎么就遇着这种事了呢……\n安·李：\n【你们有去下面看过吗？】\n老陈头：\n哪能啊，您是没瞅见，当时给人尿都吓出来了……\n安·李：\n……\n老陈头：\n……不过也确实有那么几个胆大的毛头小子过去看了几眼。\n但我们哪懂法医的事，是真看不出什么东西来。别说尸体了，那下边的土都被血给渗得变色了，你就想这踩上去得多难受吧。\n老陈头：\n咱虽然确实是不讲究，但也不能不讲究到这份儿上啊，我赶紧的就给他们几个叫回来了。\n况且也不能给警察添乱不是。\n尸体周围的土地看上去确实与旁边的不同，老陈头所言非虚。\n而你不用想也知道，现场早就已经被看热闹的路人与打着呵欠的警察们毁得一干二净。\n反而是这楼内，或许还能有别的线索。\n安乔那样子，明显是有什么东西在藏着掖着，应该在这儿能有所发现。\n你思忖着，转身往大楼内部走去。"
+        },
+        {
+            "name": "安乔的涂鸦",
+            "description": "我在大楼内部发现了一些涂鸦，其中有一个留下的签名是安乔的字迹。",
+            "dialogue_record": "老陈头：\n哎，您这是要去……？\n安·李：\n【四处看看。】\n老陈头：\n您别乱走。这地方光线差，脚底下又乱，容易跌着……哎您等等我！\n老陈头看上去就像是不想让你在这儿瞎转悠。你还是没搭理他，很快就找到了想要的线索。\n大楼内部的一面毛坯墙上，被不知道什么人给涂满了涂鸦，上面还大喇喇地留有几个签名。\n你眼尖，瞧出了其中一个签名的熟悉痕迹。\n那是安乔的字迹。\n老陈头：\n哎哟……\n安·李：\n【这是怎么回事？】\n老陈头：\n您问我，我问谁去啊。\n安·李：\n【这楼里的事情，你难道不知道？】\n老陈头：\n这话说得，我又不是这楼的主人。\n住是在这儿住，但其他人想要进出咱也管不着啊。\n老陈头：\n你家那小子是有来过这楼，但他在这楼里干了些什么，我是真不知道。\n安·李：\n（老陈头精明得很，这是摆明了不想和这儿的事扯上关系。）\n安·李：\n（安乔那小子突然吞吞吐吐的，应该是不想被我发现他跟那群狐朋狗友鬼混的痕迹。老陈头估计也有不想掺和进别人家事的想法。）\n安·李：\n（况且这次的地点还恰巧出了大事。）\n安·李：\n（安乔应该不是犯人，但这案子恐怕不简单，臭小子又已经牵扯了进去，得想个办法才行……况且他知道的肯定比告诉我的更多，最好还要能顺便撬开他的嘴。）\n安·李：\n（此外，或许去找警方相关人士问问也是个办法……）\n你思考着，走下了楼梯。"
+        },
+        {
+            "name": "安乔所知的案件情况",
+            "description": "·尸体周围的泥地上没有其他人靠近的足迹\n·死者摔坏的手表落在附近的地上，时间停留在1:05分。\n·尸检报告推定死者的死亡时间在零点四十分到一点三十分之间。尸体上除了斩首和大量失血之外还有多处坠落导致的严重损伤。\n·流浪汉看见死者在零点三十分时曾看见死者上楼，但此后没看见她下楼，除此以外没有其他人上楼。\n·一周内都没有看到有人在楼内长期生活的痕迹。\n·凌晨一点整有人听见重物坠地的声音，但不确定有没有其他声音。",
+            "dialogue_record": "安乔：\n我是从警察那儿打听到的消息啦。\n你不是不喜欢警察吗？\n安·李：\n……\n你觉得警察还不至于业余到会将这些情报告诉一个不知道哪来的小鬼头的地步……应该。\n这小子还在抵赖，估计还存有自己的签名没被发现的侥幸心理。\n但至少这可以作为一个突破口。\n安·李：\n总之把你知道的东西都告诉我。\n这事可不是开玩笑的，你应该也知道这个道理吧。\n安乔：\n……我知道了。\n被你抓到意识空间里，不交代什么今天就过不去的事实，足以令安乔放弃一部分的抵抗。\n安乔：\n警察调查时发现，尸体的周围是一片泥地，上面没有其他人靠近的足迹，摔坏的手表停留在一点零五分。\n他们依此推定萨宾娜是在一点零五分被杀害的。\n安乔：\n初步的尸检推定死亡时间是在零点四十分到一点三十分，尸体除了斩首及大量失血外还有多出因坠落导致的严重损伤，都与现场的情况对得上。\n安乔：\n以及，综合大楼里的流浪汉的证言后，得知零点三十分时曾看见死者上楼，但此后没看见她下楼，除此以外没有其他人上楼。\n安乔：\n也有排查过更早期间的上下楼记录，但至少一周时间内不存在上楼后就没有再下楼的人。楼内也没有发现长期生活的痕迹。\n安乔：\n凌晨一点时曾经有人听见重物坠地的声音，作证的流浪汉那时有膘过一眼他的破闹钟，可以保证这个时间点的准确。但他当时睡得迷迷糊糊的，不确定有没有其他声音。\n安乔：\n……就这些啦。"
+        },
+        {
+            "name": "废弃大楼流浪汉的情况",
+            "description": "废弃大楼是这个区里所有流浪汉的聚集地，居住在这栋楼五楼以下的低楼层。他们的领导是老陈头，与数个黑帮的成员都有联系，这里的流浪汉也会接黑帮的活做一些灰色领域的事情。\n因此，要瞒过他们上楼是不可能的事。",
+            "dialogue_record": "你粗略知道那栋废弃大楼的情况。\n那里是这个区内流浪汉的聚集地之一，在其中居住的流浪汉有几十上百人之多，从一楼到四五楼的低楼层都是他们的住所。\n这些流浪汉里大多都会接黑帮的活儿，做一些灰色领域的事，“老陈头”能成为这群流浪汉的头头，其中之一的原因就是他与数个黑帮的成员都有联系，可以做牵线搭桥的中介人。\n这些流浪汉里，昼伏夜出者不在少数。\n要瞒过他们，不被发现的上楼可以说是不可能的事。"
+        },
+        {
+            "name": "调查剧情",
+            "description": "这里可以查看关卡开始前安·李对现场的完整剧情。",
+            "dialogue_record": "（转场，废弃大楼内部）\n东和街的废弃大楼。这个街区内诸多流浪汉的聚居点之一。\n你朝这群流浪汉的头子，一个被大家叫做“老陈头”的中年流浪汉点点头，递给他一支烟。\n老陈头：\n哟，稀罕人。\n您也会来看这热闹？\n安·李：\n【还不是因为安乔那臭小子。】\n安·李：\n【有地方能进去吗？】\n老陈头：\n没人看着呢。\n闲着也是闲着，我带您进去吧。\n老陈头做了个请的手势，你跟着他越过封锁线，走进了大楼。\n老陈头：\n嘿，你说有没有意思，这凶杀案现场都没个警察看着。\n也不知道这帮人是干什么吃的。\n你很清楚，对于一桩凶杀案而言这种处理简直可以称得上是渎职。\n但渎职对这种城市——尤其是负责这片贫民区的警察而言，是最常见的事情了。\n你不喜欢这种现象。但不得不承认，这现象令你可以堂而皇之地走进案发现场，省去了许多功夫。\n老陈头不知道你的想法，但他看上去也没指望一个哑巴能回应他多少，仍是喋喋不休。\n老陈头：\n就说这脚印，全都是警察留下的，可不是咱们踩的。\n那个词儿叫什么来着……保护……保护现场！\n你笑了一下。\n跟随着楼道里被警察们踩出的纷乱脚印，你轻而易举的发现了案发现场的具体位置。\n——十五楼的一侧，无窗的空洞周围像是被人狠狠用两大桶红色颜料泼洒过一般，鲜血飞溅得到处都是。\n想注意不到都难。\n老陈头：\n就这儿了。警察说这是案发现场，我瞅着也像。\n老陈头一边说着，一边靠近窗户，探头的同时朝你招手。\n你跟着他的动作，伸出头向楼外看去，无论是大楼本身、还是周围的土地都如同以往，呈现出一副灰蒙蒙的景象。\n在你正下方的泥土地上，上边覆盖着白色的无头轮廓线，原本在此处的尸体早被警察运走了。\n老陈头：\n喏，那就是老板娘死后摔下去的地方。挺好一人，怎么就遇着这种事了呢……\n安·李：\n【你们有去下面看过吗？】\n老陈头：\n哪能啊，您是没瞅见，当时给人尿都吓出来了……\n安·李：\n……\n老陈头：\n……不过也确实有那么几个胆大的毛头小子过去看了几眼。\n但我们哪懂法医的事，是真看不出什么东西来。别说尸体了，那下边的土都被血给渗得变色了，你就想这踩上去得多难受吧。\n老陈头：\n咱虽然确实是不讲究，但也不能不讲究到这份儿上啊，我赶紧的就给他们几个叫回来了。\n况且也不能给警察添乱不是。\n尸体周围的土地看上去确实与旁边的不同，老陈头所言非虚。\n而你不用想也知道，现场早就已经被看热闹的路人与打着呵欠的警察们毁得一干二净。\n反而是这楼内，或许还能有别的线索。\n安乔那样子，明显是有什么东西在藏着掖着，应该在这儿能有所发现。\n你思忖着，转身往大楼内部走去。\n老陈头：\n哎，您这是要去……？\n安·李：\n【四处看看。】\n老陈头：\n您别乱走。这地方光线差，脚底下又乱，容易跌着……哎您等等我！\n老陈头看上去就像是不想让你在这儿瞎转悠。你还是没搭理他，很快就找到了想要的线索。\n大楼内部的一面毛坯墙上，被不知道什么人给涂满了涂鸦，上面还大喇喇地留有几个签名。\n你眼尖，瞧出了其中一个签名的熟悉痕迹。\n那是安乔的字迹。\n老陈头：\n哎哟……\n安·李：\n【这是怎么回事？】\n老陈头：\n您问我，我问谁去啊。\n安·李：\n【这楼里的事情，你难道不知道？】\n老陈头：\n这话说得，我又不是这楼的主人。\n住是在这儿住，但其他人想要进出咱也管不着啊。\n老陈头：\n你家那小子是有来过这楼，但他在这楼里干了些什么，我是真不知道。\n安·李：\n（老陈头精明得很，这是摆明了不想和这儿的事扯上关系。）\n安·李：\n（安乔那小子突然吞吞吐吐的，应该是不想被我发现他跟那群狐朋狗友鬼混的痕迹。老陈头估计也有不想掺和进别人家事的想法。）\n安·李：\n（况且这次的地点还恰巧出了大事。）\n安·李：\n（安乔应该不是犯人，但这案子恐怕不简单，臭小子又已经牵扯了进去，得想个办法才行……况且他知道的肯定比告诉我的更多，最好还要能顺便撬开他的嘴。）\n安·李：\n（此外，或许去找警方相关人士问问也是个办法……）\n你思考着，走下了楼梯。"
+        },
+        {
+            "name": "回家后剧情",
+            "description": "这里可以查看安·李回家后跟安乔对质到进入关卡前的全部剧情。",
+            "dialogue_record": "（转场，家中）\n在你打开家门的同时，从安乔的房门处传来了关门的响动。\n声音很轻，但还是瞒不过你的耳朵。\n这小子看来一直关注着你有没有回家，而且还在躲着你呢。\n安·李：\n（这下头疼了。）\n安乔看上去显然不是愿意和你好好交流的状态。\n虽然你也略懂一些让犯人开口的法子，但那都不太适合用在自己的养子身上。\n安·李：\n（唔……这个是……）\n你的视线扫到了餐桌上的包裹。\n出门时没有收拾，手枪依然就这么摆在餐桌上。\n你还记得这把枪的用途。\n安·李：\n（或许值得一试。）\n拿起手枪，你又将其拆开仔细检查了一遍，确认这就是一把普通的空枪——如果不考虑那听上去十分奇怪的特殊能力的话。\n就算用这把枪对着人“开枪”，也绝对不会有子弹射出来。\n确定了这一点后，你故意踏着脚步在安乔的房门前来回走动了几下，将大概率躲在门后听声音的臭小子吓回了床上。\n随后你轻轻扭开了他的房门——这可比安乔之前的动静要小多了。\n你对自己的教育产生了一丝挫败感。\n哪怕是这种偷鸡摸狗的技巧，他都学不对路。\n安·李：\n（臭小子，你还有得练呢。）\n面对闷头“呼呼大睡”的安乔，你扣下了扳机。\n（浅层空间场景切换）\n无事发生。\n你原本预期的，那种超自然的现象，并没有出现在你的眼中。\n安·李：\n……\n安·李：\n什么嘛，之前还搞得这么神神叨叨的。\n感想脱口而出。\n你甚至没有第一时间反应过来发生了什么，紧紧用右手捏住喉咙是这之后好几秒才做的事。\n安·李：\n我……说话了？\n你从数年前起就已经失去了发声的机能，在早已接受现状的当下，这突如其来的痊愈给了你的思维一记重拳。\n欢喜与苦涩的情感在你的内心里交织。\n安乔：\n你说话了？\n安乔惊讶的声音从你身后传来。\n你猛地回头，看见他靠在门框上，歪头看着你。\n你不可思议的将目光在床上与门前的两个安乔之间来回打转。\n疯狂运转的大脑，很快将答案交给了发愣的你。\n内心意识的空间、一瞬之间发生的事、外界无法察觉的交谈——这一切都与那封信上的说明相符。\n肉体发声机能的缺损，并不会影响到心中的话语。\n安·李：\n原来是这种设定啊。\n安乔：\n……你还好吗？\n安乔探头探脑地关注着你的动态，这令你回想起自己进入这个空间的原因。\n安·李：\n我有事情要问你。\n安·李：\n关于萨宾娜被杀的事件，我去现场看过了。\n你知道肯定不只有之前告诉我的那些吧？\n安乔：\n你在说什么啊？\n才、才没有这种事呢。我知道的可已经全都告诉你了。\n安·李：\n臭小子，你哪次扯谎骗到过我了。\n今天这事，你要是不撂点什么可别想走。\n这是由你打造出的意识空间，结束它的能力也在你手上。\n即使他想要瞒着你，但只要你不收手，安乔就只能老老实实地在这儿接受你的盘问。\n你不知道安乔对这一现状理解到了什么程度，只见他的嘴唇蠕动了几下。\n安乔：\n切……确实是不止那点啦……\n安乔：\n行吧行吧，你有什么想问的就赶紧问吧。\n安乔的回答听上去有些自暴自弃。但你知道，这小子的韧性可不止这么点。\n安·李：\n为什么不告诉我呢？\n安乔：\n……\n安乔：\n我是从警察那儿打听到的消息啦。\n你不是不喜欢警察吗？\n安·李：\n……\n你觉得警察还不至于业余到会将这些情报告诉一个不知道哪来的小鬼头的地步……应该。\n这小子还在抵赖，估计还存有自己的签名没被发现的侥幸心理。\n但至少这可以作为一个突破口。\n安·李：\n总之把你知道的东西都告诉我。\n这事可不是开玩笑的，你应该也知道这个道理吧。\n安乔：\n……我知道了。\n被你抓到意识空间里，不交代什么今天就过不去的事实，足以令安乔放弃一部分的抵抗。\n安乔：\n警察调查时发现，尸体的周围是一片泥地，上面没有其他人靠近的足迹，摔坏的手表停留在一点零五分。\n他们依此推定萨宾娜是在一点零五分被杀害的。\n安乔：\n初步的尸检推定死亡时间是在零点四十分到一点三十分，尸体除了斩首及大量失血外还有多出因坠落导致的严重损伤，都与现场的情况对得上。\n安乔：\n以及，综合大楼里的流浪汉的证言后，得知零点三十分时曾看见死者上楼，但此后没看见她下楼，除此以外没有其他人上楼。\n安乔：\n也有排查过更早期间的上下楼记录，但至少一周时间内不存在上楼后就没有再下楼的人。楼内也没有发现长期生活的痕迹。\n安乔：\n凌晨一点时曾经有人听见重物坠地的声音，作证的流浪汉那时有膘过一眼他的破闹钟，可以保证这个时间点的准确。但他当时睡得迷迷糊糊的，不确定有没有其他声音。\n安乔：\n……就这些啦。\n你粗略知道那栋废弃大楼的情况。\n那里是这个区内流浪汉的聚集地之一，在其中居住的流浪汉有几十上百人之多，从一楼到四五楼的低楼层都是他们的住所。\n这些流浪汉里大多都会接黑帮的活儿，做一些灰色领域的事，“老陈头”能成为这群流浪汉的头头，其中之一的原因就是他与数个黑帮的成员都有联系，可以做牵线搭桥的中介人。\n这些流浪汉里，昼伏夜出者不在少数。\n要瞒过他们，不被发现的上楼可以说是不可能的事。\n安·李：\n唔……\n从目前的线索来看，想要查清萨宾娜之死的线索恐怕还有所不足。\n但至少足以说明其中一个谜团。\n而且这起事件恐怕比你一开始预料的更复杂。\n你无论如何都要让安乔将一切都吐出来，让他明白事情的严重性才行。\n只不过安乔大概不会轻易就被说服，直接说教只会徒增反感。\n你需要迂回一下，从案件本身聊起或许很合适——他都主动去打听这些事了，肯定是对此抱有兴趣。\n安乔：\n没别的事的话，那……\n安·李：\n你还藏着什么事没告诉我吧。\n安乔：\n……！\n安乔：\n真的没有啦！\n安乔爆发出强烈的抵抗情绪。\n看来随便问问就想让他老实交代，果然是不可能的。\n你决定给他上点强度。\n右手打了个响指，你久违地露出了一丝笑容。\n（推理部分开始，场景切换）"
+        }
+    ]
+}
