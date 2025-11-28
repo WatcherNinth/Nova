@@ -137,7 +137,6 @@ namespace LogicEngine.LevelGraph
             }
             foreach (var specTemplate in specialTemplateData)
             {
-                Debug.Log(specTemplate.Key);
                 allTemplates.Add(specTemplate.Key, specTemplate.Value);
             }
         }
