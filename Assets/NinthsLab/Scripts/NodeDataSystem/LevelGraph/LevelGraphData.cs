@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq; // 用于 Count 统计
 using LogicEngine.Validation;
+using UnityEngine;
 
 namespace LogicEngine.LevelGraph
 {
@@ -59,7 +60,7 @@ namespace LogicEngine.LevelGraph
         /// <summary>
         /// [生成数据] 关卡内使用的所有 Template 列表。
         /// </summary>
-        public List<TemplateData> allTemplates = new List<TemplateData>();
+        public Dictionary<string, TemplateData> allTemplates = new Dictionary<string, TemplateData>();
 
         /// <summary>
         /// 刷新节点查找字典 (Task 1)
@@ -131,19 +132,18 @@ namespace LogicEngine.LevelGraph
                 // 这里使用了空值传播符 (?.) 防止空引用报错
                 if (node.Template != null && node.Template.Template != null)
                 {
-                    allTemplates.Add(node.Template.Template);
+                    allTemplates.Add($"nodeTemplate_{node.Id}", node.Template.Template);
                 }
-
-                foreach (var specTemplate in specialTemplateData)
-                {
-                    allTemplates.Add(specTemplate.Value);
-                }
+            }
+            foreach (var specTemplate in specialTemplateData)
+            {
+                Debug.Log(specTemplate.Key);
+                allTemplates.Add(specTemplate.Key, specTemplate.Value);
             }
         }
 
         /// <summary>
         /// 供外部调用的初始化方法。
-        /// 验证开始的时候会自动调用一次。
         /// </summary>
         public void InitializeRuntimeData()
         {
@@ -163,7 +163,6 @@ namespace LogicEngine.LevelGraph
 
             // 1. 执行 ID 收集与查重 (独立函数)
             CheckAndCollectIds(context);
-            InitializeRuntimeData();
 
             // 2. 递归验证 Universal Nodes
             if (universalNodesData != null)

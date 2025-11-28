@@ -172,6 +172,14 @@ namespace LogicEngine.Nodes
             {
                 context.ValidateChild("TemplateData", validatableData);
             }
+
+            if (!string.IsNullOrEmpty(SpecialTemplateId))
+            {
+                if (!LevelGraphContext.CurrentGraph.allTemplates.ContainsKey(SpecialTemplateId))
+                {
+                    context.LogError($"special_node_template: {SpecialTemplateId}模板未找到。请检查模板ID是否正确。");
+                }
+            }
         }
     }
 
