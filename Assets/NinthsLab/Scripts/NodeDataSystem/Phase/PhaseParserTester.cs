@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using LogicEngine.Parsers;
+using LogicEngine.Parser;
 
 namespace LogicEngine.Tests
 {

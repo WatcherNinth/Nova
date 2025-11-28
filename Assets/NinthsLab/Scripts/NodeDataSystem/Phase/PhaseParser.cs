@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using LogicEngine.Phase;
 
-namespace LogicEngine.Parsers
+namespace LogicEngine.Parser
 {
     /// <summary>
     /// 用于解析 PhaseData 的静态工具类

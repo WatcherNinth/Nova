@@ -2,6 +2,7 @@ using UnityEngine;
 using Newtonsoft.Json.Linq;
 using LogicEngine; // 引用你的逻辑命名空间
 using LogicEngine.Validation;
+using LogicEngine.Parser;
 
 namespace LogicEngine.Tests
 {

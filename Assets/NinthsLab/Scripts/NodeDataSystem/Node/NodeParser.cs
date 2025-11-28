@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using LogicEngine.Nodes;
 using LogicEngine.Templates; // 假设 TemplateData 在这里
 
-namespace LogicEngine
+namespace LogicEngine.Parser
 {
     public static class NodeParser
     {
