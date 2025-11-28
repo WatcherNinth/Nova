@@ -75,7 +75,7 @@ namespace LogicEngine.Tests
                 if (graph.universalNodesData != null)
                 {
                     Debug.Log($"[Universal Nodes] Count: {graph.universalNodesData.Count}");
-                    foreach(var kvp in graph.universalNodesData)
+                    foreach (var kvp in graph.universalNodesData)
                     {
                         Debug.Log($" - Node: {kvp.Key}");
                     }
@@ -96,11 +96,12 @@ namespace LogicEngine.Tests
                 if (graph.nodeChoiceGroupData != null && graph.nodeChoiceGroupData.Data != null)
                 {
                     Debug.Log($"[Choice Groups] Group Count: {graph.nodeChoiceGroupData.Data.Count}");
-                    if (graph.nodeChoiceGroupData.Data.TryGetValue("test_group", out var groupDict))
+                    if (graph.nodeChoiceGroupData.Data.TryGetValue("test_group", out var optionList))
                     {
-                        foreach (var item in groupDict)
+                        // 现在是 List 遍历
+                        foreach (var item in optionList)
                         {
-                            Debug.Log($" - Group [test_group] Option [{item.Key}]: OverrideText='{item.Value.TextOverride}', Hidden={item.Value.IsHidden}");
+                            Debug.Log($" - Group [test_group] Option -> TargetNode: '{item.TargetNodeId}' | OverrideText: '{item.TextOverride}'");
                         }
                     }
                 }

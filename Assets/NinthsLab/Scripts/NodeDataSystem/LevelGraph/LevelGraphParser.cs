@@ -84,21 +84,45 @@ namespace LogicEngine.Parser
         }
 
         // =========================================================
-        // 4.1 Node Choice Group 解析
+        // 4.1 Node Choice Group 解析 (重写版)
         // =========================================================
         private static NodeChoiceGroupData ParseNodeChoiceGroup(JObject root)
         {
             var groupData = new NodeChoiceGroupData();
 
-            if (root.TryGetValue("node_choice_group", out JToken token) && token is JObject groupObj)
+            // 获取根节点下的 node_choice_group 对象
+            if (root.TryGetValue("node_choice_group", out JToken mainToken) && mainToken is JObject mainObj)
             {
-                // 利用 Json.NET 的 ToObject 直接反序列化到字典结构
-                // 因为 NodeChoiceItem 的字段已经标记了 [JsonProperty]
-                var dict = groupObj.ToObject<Dictionary<string, Dictionary<string, NodeChoiceItem>>>();
-                
-                if (dict != null)
+                // 遍历每一个组 (例如 "test_group")
+                foreach (var groupProp in mainObj.Properties())
                 {
-                    groupData.Data = dict;
+                    string groupId = groupProp.Name;
+                    JToken groupContent = groupProp.Value;
+                    
+                    var itemList = new List<NodeChoiceItem>();
+
+                    // 遍历组内的每一个选项 (例如 "这里将要出现的选项对应的论点")
+                    if (groupContent is JObject groupContentObj)
+                    {
+                        foreach (var itemProp in groupContentObj.Properties())
+                        {
+                            string targetNodeId = itemProp.Name; // 这是 Key，即目标节点ID
+                            JToken itemJson = itemProp.Value;
+
+                            // 反序列化 Item 内容
+                            NodeChoiceItem item = itemJson.ToObject<NodeChoiceItem>();
+                            
+                            if (item != null)
+                            {
+                                // [核心] 将 Key 注入到 Item 的属性中
+                                item.TargetNodeId = targetNodeId;
+                                itemList.Add(item);
+                            }
+                        }
+                    }
+
+                    // 将生成的列表加入字典
+                    groupData.Data.Add(groupId, itemList);
                 }
             }
 
