@@ -107,7 +107,16 @@ namespace LogicEngine.Nodes
 
         public void OnValidate(ValidationContext context)
         {
-
+            using (context.Scope("Entities"))
+            {
+                foreach (var entity in Entities)
+                {
+                    if (!LevelGraphContext.CurrentGraph.entityListData.Data.ContainsKey(entity))
+                    {
+                        context.LogError($"{entity}不在当前LevelGraph的实体列表中。检查是否是拼写错误。");
+                    }
+                }
+            }
         }
     }
 
