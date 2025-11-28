@@ -64,7 +64,7 @@ namespace LogicEngine
             context.ValidateChild("DialogueModule", Dialogue);
             foreach (var node in Nodes)
             {
-                context.ValidateChild("Nodes", node.Value);
+                context.ValidateChild($"Nodes_{node.Key}", node.Value);
             }
         }
     }

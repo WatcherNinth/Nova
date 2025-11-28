@@ -21,7 +21,7 @@ namespace LogicEngine.Tests
                 // 如果为空，尝试在场景中寻找
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<LevelTestManager>();
+                    _instance = FindAnyObjectByType<LevelTestManager>();
                 }
                 return _instance;
             }
@@ -59,7 +59,7 @@ namespace LogicEngine.Tests
             // [关键修改] 强制刷新单例引用
             // 既然是通过 Inspector 按钮调用到这个实例的方法，说明 this 一定存在。
             // 强制赋值给 Instance，确保后续子模块访问 Instance 时绝对不为空。
-            _instance = this; 
+            _instance = this;
 
             // 1. 获取完整路径
             string fullPath = Path.Combine(Application.dataPath, relativePath);
@@ -103,7 +103,7 @@ namespace LogicEngine.Tests
                     // F. 输出结果
                     if (result.IsValid)
                     {
-                        Debug.Log($"[LevelTestManager] 文件 <color=green>{fileName}</color> 验证通过。");
+                        Debug.Log($"[LevelTestManager] 文件 <color=green>{fileName}</color> 验证通过。\n{result}");
                         successCount++;
                     }
                     else

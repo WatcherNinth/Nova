@@ -140,6 +140,9 @@ namespace LogicEngine.Nodes
             {
                 context.LogError("设置为自动验证 (is_auto_verified: true) 的节点必须包含 'depends_on' 逻辑，否则无法判定何时验证。");
             }
+
+            // 条件依赖检查
+            ConditionEvaluator.Validate(DependsOn.ToString(), context);
         }
 
         public bool GetDependOnResult()
