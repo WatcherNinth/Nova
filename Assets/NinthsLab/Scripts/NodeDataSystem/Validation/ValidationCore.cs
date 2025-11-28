@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System; // 引入 System 以支持 IDisposable
 
 namespace LogicEngine.Validation
 {
@@ -131,6 +132,57 @@ namespace LogicEngine.Validation
         {
             string currentPath = string.Join(".", _pathStack.Reverse());
             _result.AddEntry(severity, currentPath, message);
+        }
+
+        // === 手动作用域管理方法 (新增) ===
+
+        /// <summary>
+        /// 手动进入一个新的路径节点。
+        /// 注意：必须与 EndScope 成对调用，建议使用 using(Scope(...)) 替代。
+        /// </summary>
+        /// <param name="scopeName">路径节点名称</param>
+        public void BeginScope(string scopeName)
+        {
+            _pathStack.Push(scopeName);
+        }
+
+        /// <summary>
+        /// 手动退出当前路径节点。
+        /// </summary>
+        public void EndScope()
+        {
+            if (_pathStack.Count > 0)
+            {
+                _pathStack.Pop();
+            }
+        }
+
+        /// <summary>
+        /// 创建一个自动管理的路径作用域，配合 using 语句块使用。
+        /// 示例: using (context.Scope("SubStruct")) { ... }
+        /// </summary>
+        public IDisposable Scope(string scopeName)
+        {
+            BeginScope(scopeName);
+            return new ValidationScopeToken(this);
+        }
+
+        /// <summary>
+        /// 用于自动调用 EndScope 的结构体
+        /// </summary>
+        private readonly struct ValidationScopeToken : IDisposable
+        {
+            private readonly ValidationContext _context;
+
+            public ValidationScopeToken(ValidationContext context)
+            {
+                _context = context;
+            }
+
+            public void Dispose()
+            {
+                _context.EndScope();
+            }
         }
 
         // === 递归验证辅助方法 ===

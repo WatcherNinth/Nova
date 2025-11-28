@@ -142,7 +142,10 @@ namespace LogicEngine.Nodes
             }
 
             // 条件依赖检查
-            ConditionEvaluator.Validate(DependsOn.ToString(), context);
+            using (context.Scope("depend_on"))
+            {
+                ConditionEvaluator.Validate(DependsOn.ToString(), context);
+            }
         }
 
         public bool GetDependOnResult()
