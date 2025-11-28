@@ -66,6 +66,20 @@ namespace LogicEngine
             {
                 context.ValidateChild($"Nodes_{node.Key}", node.Value);
             }
+            using (context.Scope("completion_nodes"))
+            {
+                if (CompletionNodes == null || CompletionNodes.Count == 0)
+                {
+                    context.LogError("completion_nodes永远不应该为空");
+                }
+                foreach (var node in CompletionNodes)
+                {
+                    if (!LevelGraphContext.CurrentGraph.allIds.Contains(node))
+                    {
+                        context.LogError($"completion_nodes里发现了一个{node}，但LevelGraph里并不存在这个键值");
+                    }
+                }
+            }
         }
     }
 }
