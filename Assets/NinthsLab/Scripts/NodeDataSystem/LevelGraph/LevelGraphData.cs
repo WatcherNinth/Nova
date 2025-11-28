@@ -143,7 +143,7 @@ namespace LogicEngine.LevelGraph
 
         /// <summary>
         /// 供外部调用的初始化方法。
-        /// 解析完成后，建议手动调用此方法来填充 Runtime 数据。
+        /// 验证开始的时候会自动调用一次。
         /// </summary>
         public void InitializeRuntimeData()
         {
@@ -163,6 +163,7 @@ namespace LogicEngine.LevelGraph
 
             // 1. 执行 ID 收集与查重 (独立函数)
             CheckAndCollectIds(context);
+            InitializeRuntimeData();
 
             // 2. 递归验证 Universal Nodes
             if (universalNodesData != null)
