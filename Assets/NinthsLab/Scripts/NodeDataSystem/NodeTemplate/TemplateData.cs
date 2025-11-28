@@ -10,7 +10,7 @@ namespace LogicEngine.Templates
     public class AnswerData
     {
         /// <summary>
-        /// 答案指向的目标ID（论点ID或其他结果ID）
+        /// 答案指向的目标ID（论点ID，已通过parser完成this的转换，所以不需要知道属于者是谁也可以直接用）
         /// </summary>
         public string TargetId { get; private set; }
 
