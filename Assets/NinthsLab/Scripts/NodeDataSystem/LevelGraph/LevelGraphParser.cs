@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using LogicEngine.LevelGraph;
+using LogicEngine.Validation;
+using UnityEngine;
 
 namespace LogicEngine.Parser
 {
@@ -26,6 +28,14 @@ namespace LogicEngine.Parser
             levelGraph.nodeChoiceGroupData = ParseNodeChoiceGroup(root);
             levelGraph.nodeMutexGroupData = ParseNodeMutexGroup(root);
             levelGraph.entityListData = ParseEntityList(root);
+
+            // 3. [自动验证] 解析完成后立即跑一次自检
+            // 使用 ValidationExtensions 中的 SelfCheck 扩展方法
+            ValidationResult validationResult = levelGraph.SelfCheck("LevelGraphRoot");
+
+            // 4. 将验证结果输出到 Unity 控制台
+            // ToString() 已经包含了富文本颜色标签 (<color=red>等)
+            Debug.Log($"[LevelGraphParser] 解析完成，验证报告如下:\n{validationResult}");
 
             return levelGraph;
         }
