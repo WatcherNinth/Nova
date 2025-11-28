@@ -209,9 +209,8 @@ namespace LogicEngine.Parser
                 {
                     string templateId = prop.Name;
                     JToken templateJson = prop.Value;
-
                     // 调用外部存在的 NodeParser
-                    TemplateData templateData = TemplateParser.Parse(templateId, templateJson.ToString());
+                    TemplateData templateData = TemplateParser.Parse(templateJson);
                     result.Add(templateId, templateData);
                 }
             }

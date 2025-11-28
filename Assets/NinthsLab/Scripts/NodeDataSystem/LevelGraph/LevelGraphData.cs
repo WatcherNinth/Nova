@@ -188,6 +188,15 @@ namespace LogicEngine.LevelGraph
             context.ValidateChild("NodeMutexGroups", nodeMutexGroupData, false);
             context.ValidateChild("EntityList", entityListData, false);
 
+            using (context.Scope("SpecialTemplates"))
+            {
+                foreach (var item in specialTemplateData)
+                {
+                    Debug.Log(item.Value.RawText);
+                    context.ValidateChild($"{item.Key}", item.Value, false);
+                }
+            }
+
             // 5. 统计并输出总结信息
             var result = context.Result;
             int errorCount = result.Entries.Count(e => e.Severity == ValidationSeverity.Error);

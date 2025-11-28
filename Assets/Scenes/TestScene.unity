@@ -1391,10 +1391,11 @@ MonoBehaviour:
   _checkButton: {fileID: 993649942}
   _resultText: {fileID: 1460006630}
   _simulatedOwnerId: argument_001
-  _jsonContent: "{\r\n                    \"text\": \"{0}\u7684\u8BC1\u8A00\u8FC7\u4E8E\u771F\u5B9E\uFF0C\u4EFF\u4F5B\u4ED6\u5F53\u65F6\u5C31\u5728{1}\u4E00\u6837\u3002\",\r\n                   
-    \"answer\": {\r\n                        \"this\": [\r\n                           
-    \"AnQiao\",\r\n                            \"fifteenth_floor\"\r\n                       
-    ]\r\n                    }\n}"
+  _jsonContent: "{\r\n  \"text\": \"\u4F4D\u4E8E\u5927\u697C\u5916\u4FA7{0}\u4E0A\u7684{1}\u662F\u6709\u4EBA{2}\u51FA\u6765\u7684\",\r\n 
+    \"answer\": {\r\n    \"falsified_footprints\": [\r\n      \"ground\",\r\n     
+    \"footprint\",\r\n      \"falsify\"\r\n    ],\r\n    \"falsified_ground_bloodstain\":
+    [\r\n      \"ground\",\r\n      \"bloodstain\",\r\n      \"falsify\"\r\n    ]\r\n 
+    }\r\n}"
 --- !u!114 &772221753
 MonoBehaviour:
   m_ObjectHideFlags: 0

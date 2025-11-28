@@ -82,7 +82,32 @@ namespace LogicEngine
 
         public void OnValidate(ValidationContext context)
         {
+            var graph = LevelGraphContext.CurrentGraph;
+            foreach (var answer in Answers)
+            {
+                for (var i = 0; i < answer.RequiredInputs.Count; i++)
+                {
+                    if (DropdownOptions.ContainsKey(i))
+                    {
+                        if (!DropdownOptions[i].Contains(answer.RequiredInputs[i]))
+                        {
+                            context.LogError($"在{answer.TargetId}的答案中检测到无效的下拉选项值: {answer.RequiredInputs[i]}");
+                        }
+                    }
+                    else
+                    {
+                        if (!graph.entityListData.Data.ContainsKey(answer.RequiredInputs[i]))
+                        {
+                            context.LogError($"在{answer.TargetId}的答案中检测到无效的关键词ID: {answer.RequiredInputs[i]}");
+                        }
+                    }
+                }
 
+                if (!graph.nodeLookup.ContainsKey(answer.TargetId))
+                {
+                    context.LogError($"{answer.TargetId}指向的论点不存在!");
+                }
+            }
         }
     }
 }
