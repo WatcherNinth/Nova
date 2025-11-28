@@ -130,7 +130,7 @@ namespace LogicEngine.Parser
         }
 
         // =========================================================
-        // 4.2 Node Mutex Group 解析 (手动处理 String/List 混合类型)
+        // 4.2 Node Mutex Group 解析 (修正版)
         // =========================================================
         private static NodeMutexGroupData ParseNodeMutexGroup(JObject root)
         {
@@ -145,37 +145,39 @@ namespace LogicEngine.Parser
 
                     if (groupContent == null) continue;
 
-                    var innerDict = new Dictionary<string, NodeMutexItem>();
+                    var itemList = new List<NodeMutexItem>();
 
                     foreach (var itemProp in groupContent.Properties())
                     {
-                        string itemId = itemProp.Name;
+                        string itemKey = itemProp.Name; // 例如 "nodes_1"
                         JToken itemValue = itemProp.Value;
 
                         var mutexItem = new NodeMutexItem();
+                        mutexItem.KeyId = itemKey;
 
-                        // 判断值类型
                         if (itemValue.Type == JTokenType.String)
                         {
-                            // 如果是字符串，存入 Description
-                            mutexItem.Description = itemValue.ToString();
+                            // [修正] 字符串直接作为 NodeID
+                            mutexItem.SingleNodeId = itemValue.ToString();
+                            mutexItem.GroupNodeIds = null;
                         }
                         else if (itemValue.Type == JTokenType.Array)
                         {
-                            // 如果是数组，存入 RelatedNodeIds
-                            mutexItem.RelatedNodeIds = itemValue.ToObject<List<string>>();
+                            // [修正] 数组作为 ID 列表
+                            mutexItem.SingleNodeId = null;
+                            mutexItem.GroupNodeIds = itemValue.ToObject<List<string>>();
                         }
 
-                        innerDict.Add(itemId, mutexItem);
+                        itemList.Add(mutexItem);
                     }
 
-                    groupData.Data.Add(groupId, innerDict);
+                    groupData.Data.Add(groupId, itemList);
                 }
             }
 
             return groupData;
         }
-
+        
         // =========================================================
         // 4.3 Entity List 解析
         // =========================================================

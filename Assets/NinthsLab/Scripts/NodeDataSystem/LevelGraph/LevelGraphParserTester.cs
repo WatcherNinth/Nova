@@ -111,19 +111,19 @@ namespace LogicEngine.Tests
                 if (graph.nodeMutexGroupData != null && graph.nodeMutexGroupData.Data != null)
                 {
                     Debug.Log($"[Mutex Groups] Group Count: {graph.nodeMutexGroupData.Data.Count}");
-                    if (graph.nodeMutexGroupData.Data.TryGetValue("test_mutex_group", out var mutexDict))
+                    if (graph.nodeMutexGroupData.Data.TryGetValue("test_mutex_group", out var itemList))
                     {
-                        // 测试字符串类型
-                        if (mutexDict.TryGetValue("node_1", out var itemStr))
+                        foreach (var item in itemList)
                         {
-                            Debug.Log($" - Item [node_1] (String): {itemStr.Description}");
-                        }
-
-                        // 测试列表类型
-                        if (mutexDict.TryGetValue("node_group_1", out var itemList))
-                        {
-                            string listContent = itemList.RelatedNodeIds != null ? string.Join(", ", itemList.RelatedNodeIds) : "null";
-                            Debug.Log($" - Item [node_group_1] (List): IsGroup={itemList.IsGroupList}, Content=[{listContent}]");
+                            if (item.IsGroupList)
+                            {
+                                string subs = string.Join(", ", item.GroupNodeIds);
+                                Debug.Log($" - Mutex Group [{item.KeyId}]: SubNodes=[{subs}]");
+                            }
+                            else
+                            {
+                                Debug.Log($" - Mutex Item  [{item.KeyId}]: Desc='{item.SingleNodeId}'");
+                            }
                         }
                     }
                 }
