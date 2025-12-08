@@ -8,7 +8,7 @@ namespace AIEngine.Network
     public static class AIRequestBuilder
     {
         // 默认配置
-        private const string DEFAULT_MODEL = "qwen-turbo"; // 示例模型名
+        private const string DEFAULT_MODEL = "qwen3-max-2025-09-23"; // 示例模型名
         private const float DEFAULT_TEMPERATURE = 0.7f;
 
         /// <summary>
