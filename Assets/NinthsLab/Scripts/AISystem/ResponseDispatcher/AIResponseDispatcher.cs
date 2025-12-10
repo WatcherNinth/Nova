@@ -1,4 +1,5 @@
 using System;
+using AIEngine.Network;
 
 // 事件委托：定义事件的签名，接收AIResponseData对象
 public delegate void OnAIResponseReceived(AIResponseData responseData);

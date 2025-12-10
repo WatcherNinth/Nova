@@ -38,6 +38,17 @@ namespace AIEngine.Network
     }
 
     // ==========================================
+    // 3. 封装好的AI反馈类
+    // 通过AIResponseDispatcher统一分发，各模块只取自己所需
+    // ==========================================
+
+    [Serializable]
+    public class AIResponseData
+    {
+        public AIRefereeResult RefereeResult;
+    }
+
+    // ==========================================
     // 2. 内层：Refree (裁判) 业务逻辑结果
     // 这是 AI 在 Content 字符串里返回的 JSON
     // ==========================================
