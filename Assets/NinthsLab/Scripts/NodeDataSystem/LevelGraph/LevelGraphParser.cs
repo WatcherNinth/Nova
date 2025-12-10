@@ -34,6 +34,36 @@ namespace LogicEngine.Parser
             return levelGraph;
         }
 
+        public static LevelGraphData TryParseAndInit(string jsonText)
+        {
+            var currentLevelGraph = Parse(jsonText);
+            try
+            {
+                // D. [初始化运行数据] (生成 nodeLookup 等)
+                // 这一步必须在 SelfCheck 之前，否则子模块查不到数据
+                currentLevelGraph.InitializeRuntimeData();
+
+                // E. 执行权威验证 (Validate)
+                // 子模块现在可以通过 LevelTestManager.Instance.CurrentLevelGraph.nodeLookup 访问数据了
+                ValidationResult result = currentLevelGraph.SelfCheck();
+
+                // F. 输出结果
+                if (result.IsValid)
+                {
+                    Debug.Log($"[LevelGraphParser] json验证通过。\n{result}");
+                }
+                else
+                {
+                    Debug.LogError($"[LevelGraphParser] json验证失败！\n{result}");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[LevelGraphParser] 在进行TryParseAndInit时发生严重异常: {ex.Message}\n{ex.StackTrace}");
+            }
+            return currentLevelGraph;
+        }
+
         // =========================================================
         // 2. Universal Nodes 解析
         // =========================================================
@@ -63,7 +93,7 @@ namespace LogicEngine.Parser
         private static Dictionary<string, PhaseData> ParsePhases(JObject root)
         {
             var result = new Dictionary<string, PhaseData>();
-            
+
             // 正则表达式匹配以 phase 开头，后跟至少一个数字的键
             Regex phaseRegex = new Regex(@"^phase\d+$");
 
@@ -98,7 +128,7 @@ namespace LogicEngine.Parser
                 {
                     string groupId = groupProp.Name;
                     JToken groupContent = groupProp.Value;
-                    
+
                     var itemList = new List<NodeChoiceItem>();
 
                     // 遍历组内的每一个选项 (例如 "这里将要出现的选项对应的论点")
@@ -111,7 +141,7 @@ namespace LogicEngine.Parser
 
                             // 反序列化 Item 内容
                             NodeChoiceItem item = itemJson.ToObject<NodeChoiceItem>();
-                            
+
                             if (item != null)
                             {
                                 // [核心] 将 Key 注入到 Item 的属性中
@@ -177,7 +207,7 @@ namespace LogicEngine.Parser
 
             return groupData;
         }
-        
+
         // =========================================================
         // 4.3 Entity List 解析
         // =========================================================
@@ -199,7 +229,7 @@ namespace LogicEngine.Parser
             return listData;
         }
 
-        private static Dictionary<string, TemplateData> ParseSpecialTemplate (JObject root)
+        private static Dictionary<string, TemplateData> ParseSpecialTemplate(JObject root)
         {
             var result = new Dictionary<string, TemplateData>();
 
