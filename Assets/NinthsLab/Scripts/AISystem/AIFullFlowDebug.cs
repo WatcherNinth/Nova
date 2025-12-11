@@ -5,6 +5,7 @@ using LogicEngine.Tests; // 引用 LevelTestManager
 using AIEngine;          // 引用 Dispatcher
 using AIEngine.Logic;    // 引用 AIRefereeModel
 using AIEngine.Network;  // 引用 AIResponseData
+using Interrorgation.MidLayer;
 
 public class AIFullFlowDebug : MonoBehaviour
 {

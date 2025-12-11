@@ -2,6 +2,7 @@ using UnityEngine;
 using LogicEngine.LevelGraph;
 using AIEngine.Network;
 using AIEngine.Logic; // 引用 AIRefereeModel
+using Interrorgation.MidLayer;
 
 namespace AIEngine
 {
@@ -95,7 +96,7 @@ namespace AIEngine
 
             // --- 步骤 D: 最后把结果分发出去 ---
             // 触发 AIEventDispatcher.OnResponseReceived
-            AIEventDispatcher.Dispatch(finalData);
+            AIEventDispatcher.DispatchResponseData(finalData);
         }
 
         /// <summary>
@@ -104,7 +105,7 @@ namespace AIEngine
         private void DispatchErrorResult(string errorMsg)
         {
             var errorData = AIResponseData.CreateError(errorMsg);
-            AIEventDispatcher.Dispatch(errorData);
+            AIEventDispatcher.DispatchResponseData(errorData);
         }
     }
 }
