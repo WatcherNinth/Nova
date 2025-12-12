@@ -22,7 +22,7 @@ namespace Interrorgation.MidLayer
 
         public static event Action<List<EntityItem>> OnDiscoveredNewEntity;
 
-        public static void DispatchDiscoveredNewNodes(List<EntityItem> entityItems)
+        public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems)
         {
             OnDiscoveredNewEntity?.Invoke(entityItems);
         }
