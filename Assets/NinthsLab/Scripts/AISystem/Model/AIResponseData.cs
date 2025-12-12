@@ -13,6 +13,8 @@ namespace AIEngine.Network
         // 具体的裁判业务结果
         public AIRefereeResult RefereeResult;
 
+        public AIDiscoveryResult DiscoveryResult; 
+
         // 将来如果有 DiscoveryModel，可以在这里加:
         // public AIDiscoveryResult DiscoveryResult;
 
