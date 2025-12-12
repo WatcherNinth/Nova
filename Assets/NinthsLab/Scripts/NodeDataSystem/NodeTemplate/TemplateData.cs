@@ -35,13 +35,6 @@ namespace LogicEngine
     /// </summary>
     public class TemplateData : IValidatable
     {
-        public enum e_TemplateConditionType
-        {
-            Hide,
-            Discovered,
-            Used
-        }
-        public e_TemplateConditionType TemplateCondition;
         /// <summary>
         /// 原始文本（包含{0}等占位符）
         /// </summary>
