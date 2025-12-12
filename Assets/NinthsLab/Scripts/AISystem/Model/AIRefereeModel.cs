@@ -49,10 +49,10 @@ namespace AIEngine.Logic
                 // 3. [核心逻辑] 执行判定 (Filtering) -> 转存为 Clean Data
                 AIRefereeResult cleanResult = new AIRefereeResult();
                 
-                // 只转移 PartialMatch，不转移 Reasoning/UserOpinion
-                cleanResult.PartialMatch = rawResult.PartialMatch;
+                // [修改] 直接传递 List，如果没有则初始化为空列表，防止空引用
+                cleanResult.EntityList = rawResult.EntityList ?? new List<string>();
                 
-                // 筛选节点
+                // 筛选节点 (逻辑不变)
                 if (rawResult.NodeConfidence != null)
                 {
                     foreach (var kvp in rawResult.NodeConfidence)

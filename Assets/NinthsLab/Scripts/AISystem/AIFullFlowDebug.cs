@@ -122,14 +122,14 @@ public class AIFullFlowDebug : MonoBehaviour
             }
 
             // 打印关键词
-            if (result.PartialMatch != null && result.PartialMatch.Count > 0)
+            if (result.EntityList != null && result.EntityList.Count > 0)
             {
-                string matchStr = "";
-                foreach (var kvp in result.PartialMatch)
-                {
-                    matchStr += $"{kvp.Key}: [{string.Join(", ", kvp.Value)}]\n";
-                }
-                Debug.Log($"🗝️ <b>[Partial Match]</b>:\n{matchStr}");
+                string entitiesStr = string.Join(", ", result.EntityList);
+                Debug.Log($"🗝️ <b>[Entity List]</b>:\n<color=yellow>[{entitiesStr}]</color>");
+            }
+            else
+            {
+                Debug.Log("ℹ️ [Entity List] 为空");
             }
         }
         else

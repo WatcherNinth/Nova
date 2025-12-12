@@ -23,7 +23,7 @@ namespace AIEngine.Prompts
 {
   ""reasoning"": ""思考过程"",
   ""node_confidence"": { ""node_id"": 1.0, ""node_id_2"": 0.0 },
-  ""partial_match"": { ""key"": [""关键词1""] }
+  ""entity_list"": [ ""keyword_id_1"", ""keyword_id_2"" ]
 }
 ";
 
