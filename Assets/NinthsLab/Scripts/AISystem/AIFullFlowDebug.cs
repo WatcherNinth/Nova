@@ -96,38 +96,45 @@ public class AIFullFlowDebug : MonoBehaviour
     {
         Debug.Log("<color=green>=== 🎉 全链路跑通！收到最终结果 ===</color>");
 
-        // --- 步骤 5: 验证返回数据 ---
         if (response.HasError)
         {
-            Debug.LogError($"❌ [步骤 5: 结果异常] AI 处理报错: {response.ErrorMessage}");
+            Debug.LogError($"❌ [结果异常] {response.ErrorMessage}");
             return;
         }
 
-        Debug.Log("✅ [步骤 5: 数据验证] 成功解析 AIResponseData 对象：");
-        
-        // 打印详细字段
-        Debug.Log($"🧠 <b>[Reasoning (思考过程)]</b>:\n{response.Reasoning}");
-        
-        if (response.NodeConfidence != null && response.NodeConfidence.Count > 0)
+        // 检查是否有 Referee 结果
+        if (response.RefereeResult != null)
         {
-            string s = "";
-            foreach (var kvp in response.NodeConfidence) s += $"{kvp.Key}: {kvp.Value}\n";
-            Debug.Log($"📊 <b>[Node Confidence]</b>:\n{s}");
-        }
-        else
-        {
-            Debug.LogWarning("⚠️ [Node Confidence] 为空 (可能未命中任何节点)");
-        }
+            var result = response.RefereeResult;
 
-        if (response.PartialMatch != null && response.PartialMatch.Count > 0)
-        {
-            string s = "";
-            foreach (var kvp in response.PartialMatch) s += $"{kvp.Key}: [{string.Join(",", kvp.Value)}]\n";
-            Debug.Log($"🗝️ <b>[Partial Match]</b>:\n{s}");
+            Debug.Log($"✅ <b>[Referee Result]</b> 收到裁判结果：");
+            // Debug.Log($"🧠 <b>[Reasoning]</b>:\n{result.Reasoning}");
+
+            // 打印通过的节点列表
+            if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
+            {
+                string passedNodesStr = string.Join(", ", result.PassedNodeIds);
+                Debug.Log($"🎯 <b>[通过判定的节点 (Passed Nodes)]</b>:\n<color=cyan>{passedNodesStr}</color>");
+            }
+            else
+            {
+                Debug.Log("⚠️ <b>[Node]</b>: 没有节点通过判定阈值。");
+            }
+
+            // 打印关键词
+            if (result.PartialMatch != null && result.PartialMatch.Count > 0)
+            {
+                string matchStr = "";
+                foreach (var kvp in result.PartialMatch)
+                {
+                    matchStr += $"{kvp.Key}: [{string.Join(", ", kvp.Value)}]\n";
+                }
+                Debug.Log($"🗝️ <b>[Partial Match]</b>:\n{matchStr}");
+            }
         }
         else
         {
-            Debug.Log("ℹ️ [Partial Match] 为空");
+            Debug.LogWarning("AIResponseData 中不包含 RefereeResult (可能是其他类型的 AI 返回)");
         }
         
         Debug.Log("<color=yellow>=== 测试结束 ===</color>");

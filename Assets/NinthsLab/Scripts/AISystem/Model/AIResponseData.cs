@@ -5,24 +5,18 @@ using Newtonsoft.Json;
 namespace AIEngine.Network
 {
     // ==========================================
-    // 1. 最终给游戏逻辑使用的数据 (经过清洗)
+    // 顶层传输容器 (Envelope)
     // ==========================================
     [Serializable]
     public class AIResponseData
     {
-        [JsonProperty("reasoning")]
-        public string Reasoning;
+        // 具体的裁判业务结果
+        public AIRefereeResult RefereeResult;
 
-        [JsonProperty("node_confidence")]
-        public Dictionary<string, float> NodeConfidence;
-        
-        [JsonProperty("partial_match")]
-        public Dictionary<string, List<string>> PartialMatch;
-        
-        [JsonProperty("user_opinion")]
-        public string UserOpinion;
-        
-        // 如果出错，这里会有信息
+        // 将来如果有 DiscoveryModel，可以在这里加:
+        // public AIDiscoveryResult DiscoveryResult;
+
+        // 错误信息
         public bool HasError;
         public string ErrorMessage;
 
@@ -33,13 +27,11 @@ namespace AIEngine.Network
     }
 
     // ==========================================
-    // 2. 网络层原始数据结构 (OpenAI 协议标准)
-    // 仅在 AIRefereeModel 内部解析时使用
+    // OpenAI 协议外壳 (保持不变)
     // ==========================================
     [Serializable]
     public class OpenAIStandardResponse
     {
-        [JsonProperty("id")] public string Id;
         [JsonProperty("choices")] public List<OpenAIChoice> Choices;
     }
 

@@ -92,7 +92,7 @@ namespace AIEngine
                 return;
             }
 
-            Debug.Log($"<color=green>[AIManager] 流程完成！正在分发结果... (Reasoning: {finalData.Reasoning.Substring(0, Mathf.Min(20, finalData.Reasoning.Length))}...)</color>");
+            Debug.Log($"<color=green>[AIManager] 流程完成！正在分发结果...</color>");
 
             // --- 步骤 D: 最后把结果分发出去 ---
             // 触发 AIEventDispatcher.OnResponseReceived
