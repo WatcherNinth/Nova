@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using System.Linq;
 using AIEngine.Network;
 using LogicEngine.LevelGraph;
+using Interrorgation.MidLayer;
+using LogicEngine.Templates;
+using System.Diagnostics;
 
 namespace LogicEngine.LevelLogic
 {
@@ -34,7 +37,7 @@ namespace LogicEngine.LevelLogic
                 {
                     string nodeId = kvp.Key;
                     var nodeInfo = kvp.Value;
-                    
+
                     if (!string.IsNullOrEmpty(nodeId) && nodeInfo.Node != null)
                     {
                         // 将 ID 传入 RuntimeNodeData 保存
@@ -96,10 +99,147 @@ namespace LogicEngine.LevelLogic
         {
             return RunTimeTemplateDataMap.Values.Where(data => data.Status == status).ToList();
         }
-        
+
         public void ProcessAIResponse(AIResponseData responseData)
         {
-            // 处理AI响应数据
+            if (responseData == null || responseData.RefereeResult == null)
+            {
+                return;
+            }
+
+            // 提取 AIRefereeResult
+            var result = responseData.RefereeResult;
+
+            // 处理发现的节点
+            if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
+            {
+                discoverNodes(result.PassedNodeIds);
+            }
+
+            // 处理发现的实体
+            if (result.EntityList != null && result.EntityList.Count > 0)
+            {
+                discoverEntity(result.EntityList);
+            }
+
+            // 处理发现的模板
+            if (responseData.DiscoveryResult != null && responseData.DiscoveryResult.DiscoveredNodeIds.Count > 0)
+            {
+                discoverTemplate(responseData.DiscoveryResult.DiscoveredNodeIds);
+            }
+        }
+
+        void discoverNodes(List<string> nodeIds)
+        {
+            // 用于收集本次成功从 Hidden 变为 Discovered 的节点
+            List<RuntimeNodeData> newlyDiscoveredNodes = new List<RuntimeNodeData>();
+
+            foreach (var nodeId in nodeIds)
+            {
+                if (string.IsNullOrEmpty(nodeId)) continue;
+
+                if (RunTimeNodeDataMap.TryGetValue(nodeId, out RuntimeNodeData runtimeNode))
+                {
+                    // 逻辑：只有当状态为 Hidden 时才更新为 Discovered
+                    if (runtimeNode.Status == RunTimeNodeStatus.Hidden)
+                    {
+                        runtimeNode.Status = RunTimeNodeStatus.Discovered;
+                        newlyDiscoveredNodes.Add(runtimeNode);
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning($"[PlayerMindMapManager]尝试发现未知节点 ID: {nodeId}");
+                }
+            }
+
+            // 分发事件
+            if (newlyDiscoveredNodes.Count > 0)
+            {
+                var context = new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput);
+                GameEventDispatcher.DispatchDiscoveredNewNodes(newlyDiscoveredNodes, context);
+            }
+        }
+
+        void discoverEntity(List<string> entityIds)
+        {
+            // 用于收集本次成功从 Hidden 变为 Discovered 的实体
+            List<RuntimeEntityItemData> newlyDiscoveredEntities = new List<RuntimeEntityItemData>();
+
+            foreach (var entityId in entityIds)
+            {
+                if (string.IsNullOrEmpty(entityId)) continue;
+
+                if (RunTimeEntityItemDataMap.TryGetValue(entityId, out RuntimeEntityItemData runtimeEntity))
+                {
+                    // 逻辑：只有当状态为 Hidden 时才更新为 Discovered
+                    if (runtimeEntity.Status == RunTimeEntityItemStatus.Hidden)
+                    {
+                        runtimeEntity.Status = RunTimeEntityItemStatus.Discovered;
+                        newlyDiscoveredEntities.Add(runtimeEntity);
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning($"[PlayerMindMapManager]尝试发现未知实体 ID: {entityId}");
+                }
+            }
+
+            // 分发事件
+            if (newlyDiscoveredEntities.Count > 0)
+            {
+                GameEventDispatcher.DispatchDiscoveredNewEntityItems(newlyDiscoveredEntities);
+            }
+        }
+
+        void discoverTemplate(List<string> templateIds)
+        {
+            // 用于收集本次成功从 Hidden 变为 Discovered 的模板
+            List<RuntimeTemplateData> newlyDiscoveredTemplates = new List<RuntimeTemplateData>();
+
+            foreach (var templateId in templateIds)
+            {
+                if (string.IsNullOrEmpty(templateId)) continue;
+
+                if (RunTimeTemplateDataMap.TryGetValue(templateId, out RuntimeTemplateData runtimeTemplate))
+                {
+                    // 逻辑：只有当状态为 Hidden 时才更新为 Discovered
+                    if (runtimeTemplate.Status == RunTimeTemplateDataStatus.Hidden)
+                    {
+                        runtimeTemplate.Status = RunTimeTemplateDataStatus.Discovered;
+                        newlyDiscoveredTemplates.Add(runtimeTemplate);
+                    }
+                }
+                else
+                {
+                    UnityEngine.Debug.LogWarning($"[PlayerMindMapManager]尝试发现未知模板 ID: {templateId}");
+                }
+            }
+
+            // 分发事件
+            if (newlyDiscoveredTemplates.Count > 0)
+            {
+                GameEventDispatcher.DispatchDiscoveredNewTemplates(newlyDiscoveredTemplates);
+            }
+        }
+
+        public string ValidateTemplateAnswer(string templateId, List<string> playerAnswers)
+        {
+            if (!RunTimeTemplateDataMap.ContainsKey(templateId))
+            {
+                UnityEngine.Debug.LogWarning($"[PlayerMindMapManager]ValidateTemplateAnswer: 未知的模板 ID: {templateId}");
+                return null;
+            }
+            var templateData = RunTimeTemplateDataMap[templateId].r_TemplateData;
+
+            foreach (var answer in templateData.Answers)
+            {
+                if (answer.ValidateAnswer(playerAnswers))
+                {
+                    return answer.TargetId;
+                }
+            }
+            return null;
         }
     }
 

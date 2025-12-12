@@ -15,7 +15,7 @@ namespace LogicEngine.Templates
         public string TargetId { get; private set; }
 
         /// <summary>
-        /// 触发该结果所需的正确输入序列
+        /// 触发该结果所需的正确输入序列(或者玩家的输入序列)
         /// </summary>
         public List<string> RequiredInputs { get; private set; }
 
@@ -24,6 +24,28 @@ namespace LogicEngine.Templates
             TargetId = targetId;
             RequiredInputs = inputs;
         }
+
+        public bool ValidateAnswer(List<string> playerInputs)
+        {
+            // 边界条件检查
+            if (playerInputs == null || RequiredInputs == null)
+                return false;
+            // 如果所需的输入序列为空，则认为总是匹配（根据游戏设计需求可调整）
+            if (RequiredInputs.Count == 0)
+                return true;
+            // 精确匹配：玩家输入必须完全匹配所需的输入序列
+            if (playerInputs.Count != RequiredInputs.Count)
+                return false;
+            // 逐个比较每个输入项
+            for (int i = 0; i < RequiredInputs.Count; i++)
+            {
+                // 使用字符串比较，忽略大小写以提高用户体验
+                if (!string.Equals(RequiredInputs[i], playerInputs[i]))
+                    return false;
+            }
+            return true;
+        }
+
     }
 }
 

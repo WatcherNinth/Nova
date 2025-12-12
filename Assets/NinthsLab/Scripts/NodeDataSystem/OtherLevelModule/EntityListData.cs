@@ -7,7 +7,17 @@ namespace LogicEngine.LevelGraph
     public class EntityItem : IValidatable
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { 
+            get
+            {
+                // TODO：因为玩家可以手动输入实体名称，这里注意之后对接本地化。应该可以换成一个新的类？
+                return this.Name;
+            }
+            set
+            {
+                this.Name = value;
+            } 
+        }
 
         [JsonProperty("prompt")]
         public string Prompt { get; set; }

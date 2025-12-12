@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using LogicEngine;
-using LogicEngine.LevelGraph;
+using LogicEngine.LevelLogic;
 
 namespace Interrorgation.MidLayer
 {
@@ -13,24 +12,26 @@ namespace Interrorgation.MidLayer
             OnPlayerSubmitInput?.Invoke(input);
         }
 
-        public static event Action<List<NodeData>> OnDiscoveredNewNodes;
+        public static event Action<List<RuntimeNodeData>> OnDiscoveredNewNodes;
 
-        public static void DispatchDiscoveredNewNodes(List<NodeData> nodes)
+        public static void DispatchDiscoveredNewNodes(List<RuntimeNodeData> nodes)
         {
             OnDiscoveredNewNodes?.Invoke(nodes);
         }
 
-        public static event Action<List<EntityItem>> OnDiscoveredNewEntity;
+        public static event Action<List<RuntimeEntityItemData>> OnDiscoveredNewEntity;
 
-        public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems)
+        public static void DispatchDiscoveredNewEntityItems(List<RuntimeEntityItemData> entityItems)
         {
             OnDiscoveredNewEntity?.Invoke(entityItems);
         }
 
-        public static event Action<List<TemplateData>> OnDiscoveredNewTemplates;
-        public static void DispatchDiscoveredNewTemplates(List<TemplateData> templates)
+        public static event Action<List<RuntimeTemplateData>> OnDiscoveredNewTemplates;
+        public static void DispatchDiscoveredNewTemplates(List<RuntimeTemplateData> templates)
         {
             OnDiscoveredNewTemplates?.Invoke(templates);
         }
+
+
     }
 }
