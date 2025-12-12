@@ -2,6 +2,9 @@
 using UnityEngine;
 using LogicEngine.LevelGraph;
 using Interrorgation.MidLayer;
+using AIEngine.Network;
+using System.IO;
+using LogicEngine.Parser;
 
 namespace LogicEngine.LevelLogic
 {
@@ -32,7 +35,7 @@ namespace LogicEngine.LevelLogic
 
         #endregion
         #region ILevelGraphProvider实现
-        private LevelGraphData currentLevelGraph;
+
         public int Priority => 0;
 
         public LevelGraphData GetLevelGraph()
@@ -40,7 +43,10 @@ namespace LogicEngine.LevelLogic
             return currentLevelGraph;
         }
         #endregion
+        private LevelGraphData currentLevelGraph;
+        private string currentPhaseId;
 
+        private PlayerMindMapManager playerMindMapManager;
         private void OnEnable()
         {
             _instance = this;
@@ -48,6 +54,7 @@ namespace LogicEngine.LevelLogic
             LevelGraphContext.Register(this);
 
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
+            AIEventDispatcher.OnResponseReceived += HandleResponseReceived;
         }
 
         private void OnDisable()
@@ -56,16 +63,43 @@ namespace LogicEngine.LevelLogic
             LevelGraphContext.Unregister(this);
 
             GameEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
+            AIEventDispatcher.OnResponseReceived -= HandleResponseReceived;
         }
 
         private void Start()
         {
-
+            
         }
 
         private void HandlePlayerInput(string input)
         {
-            
+            AIEventDispatcher.DispatchPlayerInputString(currentLevelGraph, currentPhaseId, input);
         }
+
+        private void HandleResponseReceived(AIResponseData responseData)
+        {
+            playerMindMapManager.ProcessAIResponse(responseData);
+        }
+        #region 加载关卡
+        public static string GetLevelFilePath(string name)
+        {
+            string relativePath = "Resources/TestResources";
+            // 1. 获取完整路径
+            string fullPath = Path.Combine(Application.dataPath, relativePath, $"{name}.json");
+            if (!Directory.Exists(fullPath))
+            {
+                Debug.LogError($"[InterrorgationLevelManager] 找不到关卡文件路径: {fullPath}");
+                return null;
+            }
+            return fullPath;
+        }
+
+        public void LoadLevel(string name)
+        {
+            string levelJson = File.ReadAllText(GetLevelFilePath(name));
+            currentLevelGraph = LevelGraphParser.TryParseAndInit(levelJson);
+            playerMindMapManager = new PlayerMindMapManager(ref currentLevelGraph);
+        }
+        #endregion
     }
 }
