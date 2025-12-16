@@ -1518,6 +1518,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   refereeModelName: qwen3-max
+  discoveryModelName: qwen-plus
 --- !u!114 &820382170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1598,6 +1599,8 @@ GameObject:
   - component: {fileID: 854165709}
   - component: {fileID: 854165710}
   - component: {fileID: 854165711}
+  - component: {fileID: 854165713}
+  - component: {fileID: 854165712}
   m_Layer: 0
   m_Name: BackendLogicTest
   m_TagString: Untagged
@@ -1632,14 +1635,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4de9100c0cb8954b9845b6923fb0d25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelFileName: demo_v2
-  targetNodeId: fifteenth_floor_bloodstain_falsified
-  targetTemplateId: is_bloodstain_from_sabinna_template
-  inputAnswers:
-  - "\u5341\u4E94\u697C"
-  - "\u8840\u8FF9"
-  - "\u4E0D\u5C5E\u4E8E"
-  - "\u8428\u5BBE\u5A1C"
+  targetFileName: demo_v2.json
+  phaseId: phase1
+  playerInput: "\u6211\u89C9\u5F97\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u4F2A\u9020\u7684"
+  isWaitingResponse: 0
 --- !u!114 &854165711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1652,6 +1651,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd772292159aea042a9b0e54c0556102, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &854165712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854165708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35bb38c1abf73514188ecf1db0ee1cb4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetNodeIdToSubmit: fifteenth_floor_bloodstain_falsified
+  receivedDialogueLog: []
+--- !u!114 &854165713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854165708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 841274798657f0a4d89d66ed55e9c036, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  discoveredNodes: []
+  unlockedEntities: []
+  discoveredTemplates: []
+  activePhases: []
+  autoRefresh: 1
 --- !u!1 &858498225
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,34 +1,31 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection; // [必需] 用于反射注入
 using LogicEngine;
 using LogicEngine.LevelGraph;
+using LogicEngine.LevelLogic; // 引用 PlayerMindMapManager
 using LogicEngine.Parser;
-using LogicEngine.Tests; // 引用 LevelTestManager
-using AIEngine;          // 引用 Dispatcher
-using AIEngine.Network;  // 引用 AIResponseData
+using LogicEngine.Tests;
+using AIEngine;
+using AIEngine.Network;
 using Interrorgation.MidLayer;
 
 public class AIRealIntegrationTester : MonoBehaviour
 {
     [Header("1. 自动加载配置")]
-    [Tooltip("如果当前没有加载剧本，脚本会自动加载这个文件 (必须位于 LevelTestManager 配置的路径下)")]
+    [Tooltip("文件名 (必须位于 LevelTestManager 配置的路径下)")]
     public string targetFileName = "demo_v2.json";
 
     [Header("2. 测试环境")]
-    [Tooltip("模拟当前阶段 ID (必须存在于剧本中)")]
     public string phaseId = "phase1";
     
-    [Tooltip("模拟玩家输入")]
     [TextArea(3, 5)]
     public string playerInput = "十五楼的血迹是谁的？";
 
     [Header("3. 状态监控")]
     [SerializeField] private bool isWaitingResponse = false;
 
-    // =========================================================
-    // 生命周期
-    // =========================================================
     private void OnEnable()
     {
         AIEventDispatcher.OnResponseReceived += OnFinalResultReceived;
@@ -45,98 +42,105 @@ public class AIRealIntegrationTester : MonoBehaviour
     [ContextMenu("🚀 发送真实请求 (Real Request)")]
     public void SendRealRequest()
     {
-        // 1. 检查运行状态
         if (!Application.isPlaying)
         {
-            Debug.LogError("❌ [Test] 请先点击 Unity 的 Play 按钮运行游戏！网络请求依赖协程。");
+            Debug.LogError("❌ [Test] 请先点击 Play 运行游戏！");
             return;
         }
 
         if (isWaitingResponse)
         {
-            Debug.LogWarning("⚠️ [Test] 上一个请求还在处理中，请稍候...");
+            Debug.LogWarning("⚠️ [Test] 请等待上一个请求完成...");
             return;
         }
 
-        // 2. 获取或加载数据
-        LevelGraphData graphData = EnsureDataLoaded();
-        
-        if (graphData == null)
+        // --- 核心修改：确保游戏管理器已初始化 ---
+        if (!EnsureGameInitialized())
         {
-            // 错误信息在 EnsureDataLoaded 里打印了
-            return;
+            return; // 初始化失败，中止
         }
+
+        // 获取刚刚注入的数据
+        LevelGraphData graphData = LevelGraphContext.CurrentGraph;
 
         // 3. 触发事件
         Debug.Log($"<color=cyan>====== 🚀 [测试开始] 发送真实 AI 请求 ======</color>\n" +
-                  $"目标文件: {targetFileName}\n" +
-                  $"输入内容: {playerInput}\n" +
-                  $"当前阶段: {phaseId}\n" +
-                  $"剧本节点数: {graphData.nodeLookup.Count}");
+                  $"输入内容: {playerInput}");
 
         isWaitingResponse = true;
         
-        // 这将触发 AIManager -> AIRefereeModel -> AIClient -> HTTP Request
+        // 这将触发 AIManager -> HTTP -> ... -> InterrorgationLevelManager
         AIEventDispatcher.DispatchPlayerInputString(graphData, phaseId, playerInput);
     }
 
     // =========================================================
-    // 自动加载逻辑 (复用之前的逻辑)
+    // 初始化逻辑 (模拟 LoadLevel 的行为)
     // =========================================================
-    private LevelGraphData EnsureDataLoaded()
+    private bool EnsureGameInitialized()
     {
-        // A. 先尝试直接从 Context 获取
-        var current = LevelGraphContext.CurrentGraph;
-        if (current != null && current.nodeLookup != null && current.nodeLookup.Count > 0)
-        {
-            return current;
-        }
-
-        Debug.LogWarning("⚠️ [Test] 当前没有加载剧本数据，正在尝试自动加载...");
-
-        // B. 尝试通过 LevelTestManager 加载
-        var manager = LevelTestManager.Instance;
+        var manager = InterrorgationLevelManager.Instance;
         if (manager == null)
         {
-            Debug.LogError("❌ [Test] 场景中找不到 LevelTestManager！无法获取路径配置。");
-            return null;
+            Debug.LogError("❌ [Test] 场景中找不到 InterrorgationLevelManager！");
+            return false;
         }
 
-        // 拼接路径
-        string folderPath = Path.Combine(Application.dataPath, manager.relativePath);
+        // 1. 检查是否已经初始化过 (通过反射检查私有字段)
+        var type = typeof(InterrorgationLevelManager);
+        var mapField = type.GetField("playerMindMapManager", BindingFlags.NonPublic | BindingFlags.Instance);
+        var currentMap = mapField.GetValue(manager);
+
+        if (currentMap != null)
+        {
+            // 已经初始化过了，直接返回成功
+            return true;
+        }
+
+        Debug.LogWarning("⚠️ [Test] 检测到管理器未初始化，正在执行手动注入 (Bypass LoadLevel)...");
+
+        // 2. 加载数据 (这一步是为了获取 GraphData)
+        // 我们借用 LevelTestManager 的路径配置
+        var testManager = LevelTestManager.Instance;
+        string folderPath = Path.Combine(Application.dataPath, testManager.relativePath);
         string fullPath = Path.Combine(folderPath, targetFileName);
 
         if (!File.Exists(fullPath))
         {
             Debug.LogError($"❌ [Test] 找不到文件: {fullPath}");
-            return null;
+            return false;
         }
 
         try
         {
-            // 读取与解析
             string jsonText = File.ReadAllText(fullPath);
             LevelGraphData graphData = LevelGraphParser.Parse(jsonText);
-
-            if (graphData == null)
-            {
-                Debug.LogError("❌ [Test] JSON 解析失败。");
-                return null;
-            }
-
-            // 初始化运行时
             graphData.InitializeRuntimeData();
 
-            // 【关键】注入回 Manager，这样后续逻辑就能通过 Context 访问到了
-            manager.CurrentLevelGraph = graphData;
+            // 3. 创建 PlayerMindMapManager 实例
+            PlayerMindMapManager mindMap = new PlayerMindMapManager(ref graphData);
 
-            Debug.Log($"✅ [Test] 自动加载并注入成功: {targetFileName}");
-            return graphData;
+            // 4. 【反射注入】将数据强行塞给 Manager
+            // 注入 currentLevelGraph
+            var graphField = type.GetField("currentLevelGraph", BindingFlags.NonPublic | BindingFlags.Instance);
+            graphField.SetValue(manager, graphData);
+
+            // 注入 playerMindMapManager
+            mapField.SetValue(manager, mindMap);
+
+            // 注入 currentPhaseId (设置为 Inspector 里填的值)
+            var phaseField = type.GetField("currentPhaseId", BindingFlags.NonPublic | BindingFlags.Instance);
+            phaseField.SetValue(manager, phaseId);
+
+            // 5. 启动初始逻辑 (激活 Phase)
+            manager.StartGameLogic();
+
+            Debug.Log($"✅ [Test] 初始化成功！已注入数据并激活 {phaseId}");
+            return true;
         }
         catch (System.Exception ex)
         {
-            Debug.LogError($"❌ [Test] 加载异常: {ex.Message}");
-            return null;
+            Debug.LogError($"❌ [Test] 初始化异常: {ex}");
+            return false;
         }
     }
 
@@ -154,29 +158,19 @@ public class AIRealIntegrationTester : MonoBehaviour
             return;
         }
 
+        // 打印结果... (保持原样)
         if (response.RefereeResult != null)
         {
-            var result = response.RefereeResult;
+            var r = response.RefereeResult;
+            string nodes = (r.PassedNodeIds != null && r.PassedNodeIds.Count > 0) ? string.Join(", ", r.PassedNodeIds) : "无";
+            Debug.Log($"🎯 [Referee] 判定节点: {nodes}");
+        }
 
-            if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
-            {
-                string nodesStr = string.Join(", ", result.PassedNodeIds);
-                Debug.Log($"🎯 <b>[判定通过的节点]</b>: <color=yellow>{nodesStr}</color>");
-            }
-            else
-            {
-                Debug.Log("⚪ [节点] 无节点通过判定。");
-            }
-
-            if (result.EntityList != null && result.EntityList.Count > 0)
-            {
-                string entityStr = string.Join(", ", result.EntityList);
-                Debug.Log($"🗝️ <b>[提取到的实体 ID]</b>: <color=cyan>{entityStr}</color>");
-            }
-            else
-            {
-                Debug.Log("⚪ [实体] 无关键词提取。");
-            }
+        if (response.DiscoveryResult != null)
+        {
+            var d = response.DiscoveryResult;
+            string disc = (d.DiscoveredNodeIds != null && d.DiscoveredNodeIds.Count > 0) ? string.Join(", ", d.DiscoveredNodeIds) : "无";
+            Debug.Log($"💡 [Discovery] 发现线索: {disc}");
         }
     }
 }
