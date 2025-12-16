@@ -6,6 +6,8 @@ using AIEngine.Network;
 using System.IO;
 using LogicEngine.Parser;
 
+using System.Collections.Generic; // 引入 List
+
 namespace LogicEngine.LevelLogic
 {
     public class InterrorgationLevelManager : MonoBehaviour, ILevelGraphProvider
@@ -55,6 +57,9 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
             AIEventDispatcher.OnResponseReceived += HandleResponseReceived;
+
+            GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
+            GameEventDispatcher.OnPlayerSubmitTemplateAnswer += HandleTemplateSubmit; // [新增]
         }
 
         private void OnDisable()
@@ -64,6 +69,9 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
             AIEventDispatcher.OnResponseReceived -= HandleResponseReceived;
+
+            GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
+            GameEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandleTemplateSubmit; // [新增]
         }
 
         private void Start()
@@ -78,6 +86,11 @@ namespace LogicEngine.LevelLogic
 
         private void HandleResponseReceived(AIResponseData responseData)
         {
+            if (playerMindMapManager == null)
+            {
+                Debug.LogWarning("[InterrorgationLevelManager] 收到 AI 响应，但关卡尚未初始化 (playerMindMapManager is null)。忽略此次更新。");
+                return;
+            }
             playerMindMapManager.ProcessAIResponse(responseData);
         }
         #region 加载关卡
@@ -101,5 +114,51 @@ namespace LogicEngine.LevelLogic
             playerMindMapManager = new PlayerMindMapManager(ref currentLevelGraph);
         }
         #endregion
+
+        // [新增] 处理节点提交
+        private void HandleNodeSubmit(string nodeId)
+        {
+            if (playerMindMapManager != null)
+            {
+                bool success = playerMindMapManager.TryProveNode(nodeId);
+                // 可以在这里加 Log 输出结果
+            }
+        }
+
+        // [新增] 启动逻辑 (激活初始阶段)
+        public void StartGameLogic()
+        {
+            if (playerMindMapManager != null)
+            {
+                // 默认激活 phase1
+                playerMindMapManager.SetPhaseStatus("phase1", RuntimePhaseStatus.Active);
+                currentPhaseId = "phase1";
+            }
+        }       
+
+        private void HandleTemplateSubmit(string templateId, List<string> inputs)
+        {
+            if (playerMindMapManager != null)
+            {
+                // 1. 验证答案
+                string targetNodeId = playerMindMapManager.ValidateTemplateAnswer(templateId, inputs);
+                
+                if (!string.IsNullOrEmpty(targetNodeId))
+                {
+                    Debug.Log($"[LevelManager] 填空验证成功！目标节点: {targetNodeId}");
+                    // 2. 验证成功，尝试证明节点
+                    bool success = playerMindMapManager.TryProveNode(targetNodeId);
+                    if (!success)
+                    {
+                        Debug.LogWarning($"[LevelManager] 填空正确但无法证明节点 (可能前置条件未满足)。");
+                    }
+                }
+                else
+                {
+                    Debug.Log($"[LevelManager] 填空验证失败。");
+                    // 这里可以触发一个 UI 事件通知玩家“答案错误”
+                }
+            }
+        } 
     }
 }

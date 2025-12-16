@@ -1,6 +1,7 @@
 
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
+using System.Collections.Generic; 
 
 namespace Interrorgation.MidLayer
 {
@@ -34,11 +35,18 @@ namespace Interrorgation.MidLayer
         void OnEnable()
         {
             UIEventDispatcher.OnPlayerSubmitInput += HandlePlayerSubmitInput;
+            
+            // [新增] 监听后端输出
+            GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
+            GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
         }
 
         void OnDisable()
         {
             UIEventDispatcher.OnPlayerSubmitInput -= HandlePlayerSubmitInput;
+            
+            GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
+            GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
         }
 
         void Awake()
@@ -49,6 +57,22 @@ namespace Interrorgation.MidLayer
         void HandlePlayerSubmitInput(string input)
         {
             GameEventDispatcher.DispatchPlayerInputString(input);
+        }
+
+        void HandleDialogueGenerated(List<string> dialogues)
+        {
+            // 不再是假设，而是直接转发给 UI 总线
+            UIEventDispatcher.DispatchShowDialogues(dialogues);
+            
+            // Debug 日志可以保留，方便调试
+            // foreach(var line in dialogues) Debug.Log($"[Coordinator转发] 对话: {line}");
+        }
+
+        // [修改] 处理阶段解锁
+        void HandlePhaseUnlock(string completedName, List<(string id, string name)> nextPhases)
+        {
+            // 转发给 UI 总线
+            UIEventDispatcher.DispatchShowPhaseSelection(completedName, nextPhases);
         }
     }
 }

@@ -1,21 +1,18 @@
 using UnityEngine;
+using System.Collections.Generic;
 using LogicEngine.LevelGraph;
 using AIEngine.Network;
-using AIEngine.Logic; // 引用 AIRefereeModel
+using AIEngine.Logic;
 using Interrorgation.MidLayer;
 
 namespace AIEngine
 {
-    /// <summary>
-    /// AI 系统的核心调度管理器。
-    /// 职责：监听游戏输入 -> 调度业务模型构建请求 -> 调度网络层发送 -> 接收并解析 -> 分发结果
-    /// </summary>
     [RequireComponent(typeof(AIClient))]
     public class AIManager : MonoBehaviour
     {
         [Header("Configuration")]
-        [Tooltip("指定裁判逻辑使用的模型名称")]
         public string refereeModelName = "qwen-plus";
+        public string discoveryModelName = "qwen-plus";
 
         private AIClient _client;
 
@@ -24,14 +21,9 @@ namespace AIEngine
             _client = GetComponent<AIClient>();
         }
 
-        // =========================================================
-        // 1. 订阅与取消订阅事件
-        // =========================================================
         private void OnEnable()
         {
-            // 订阅：当玩家输入时，触发 HandlePlayerInput
             AIEventDispatcher.OnPlayerInputString += HandlePlayerInput;
-            Debug.Log("[AIManager] 已启动，正在监听玩家输入...");
         }
 
         private void OnDisable()
@@ -39,69 +31,113 @@ namespace AIEngine
             AIEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
         }
 
-        // =========================================================
-        // 2. 处理逻辑 (Core Orchestration)
-        // =========================================================
+        /// <summary>
+        /// 处理玩家输入：并行调度 Referee 和 Discovery 模型
+        /// </summary>
         private void HandlePlayerInput(LevelGraphData levelGraph, string currentPhaseId, string playerInput)
         {
-            Debug.Log($"<color=cyan>[AIManager] 收到事件：玩家输入 '{playerInput}' (当前阶段: {currentPhaseId})</color>");
+            Debug.Log($"<color=cyan>[AIManager] 收到输入: {playerInput} (Phase: {currentPhaseId})</color>");
 
-            // --- 步骤 A: 调用 Model 生成标准 Request ---
-            // 这里调用 AIRefereeModel 的静态方法，将游戏数据转换为 JSON 字符串
-            string requestPayload = AIRefereeModel.CreateRequestPayload(levelGraph, currentPhaseId, playerInput, refereeModelName);
-
-            if (string.IsNullOrEmpty(requestPayload))
-            {
-                Debug.LogError("[AIManager] Request 构建失败，流程终止。");
-                return;
-            }
-
-            // --- 步骤 B: 调用 AIClient 发送请求 ---
-            // Manager 不关心怎么发，只管把 JSON 丢给 Client
-            Debug.Log("[AIManager] 正在调用 AIClient 发送请求...");
+            // 准备最终的聚合结果容器
+            AIResponseData finalResponse = new AIResponseData();
             
-            _client.Post(requestPayload, 
-                // 成功回调
-                onSuccess: (rawResponse) => 
-                {
-                    HandleNetworkSuccess(rawResponse);
-                },
-                // 失败回调
-                onFailure: (code, error) => 
-                {
-                    Debug.LogError($"[AIManager] 网络请求失败。Code: {code}, Error: {error}");
-                    // 这里可以根据需要分发一个错误事件，或者直接分发带错误信息的 AIResponseData
-                    DispatchErrorResult($"网络错误 ({code}): {error}");
-                }
-            );
-        }
+            // 计数器：记录还有几个请求在飞
+            // 我们默认 Referee 肯定要跑，Discovery 可能跑也可能不跑
+            int pendingRequests = 0;
 
-        // =========================================================
-        // 3. 结果处理与分发
-        // =========================================================
-        private void HandleNetworkSuccess(string rawResponseJson)
-        {
-            // --- 步骤 C: 调用 Model 解析 Response ---
-            // 将晦涩的原始 JSON 交给 Referee Model，还原成业务数据对象
-            AIResponseData finalData = AIRefereeModel.ParseResponse(rawResponseJson);
-
-            if (finalData.HasError)
+            // =========================================================
+            // 1. 发起 Referee 请求 (裁判模型)
+            // =========================================================
+            string refereePayload = AIRefereeModel.CreateRequestPayload(levelGraph, currentPhaseId, playerInput, refereeModelName);
+            if (!string.IsNullOrEmpty(refereePayload))
             {
-                Debug.LogError($"[AIManager] 业务数据解析失败: {finalData.ErrorMessage}");
-                DispatchErrorResult(finalData.ErrorMessage);
-                return;
+                pendingRequests++;
+                _client.Post(refereePayload, 
+                    (raw) => {
+                        // 成功回调：解析并填入 RefereeResult
+                        var data = AIRefereeModel.ParseResponse(raw);
+                        if (!data.HasError) finalResponse.RefereeResult = data.RefereeResult;
+                        else Debug.LogError($"[Referee Error] {data.ErrorMessage}");
+                        
+                        CheckAllRequestsDone(ref pendingRequests, finalResponse);
+                    },
+                    (code, err) => {
+                        Debug.LogError($"[Referee Network Error] {err}");
+                        CheckAllRequestsDone(ref pendingRequests, finalResponse);
+                    }
+                );
             }
 
-            Debug.Log($"<color=green>[AIManager] 流程完成！正在分发结果...</color>");
+            // =========================================================
+            // 2. 发起 Discovery 请求 (发现者模型)
+            // =========================================================
+            // 注意：这里需要传入“已发现列表”和“手牌列表”以避免重复发现
+            // 目前由于 Event 签名限制，我们暂时传 null (表示全部重新扫描)
+            // 或者后续你可以扩展 AIEventDispatcher 来传递 Runtime 状态
+            string discoveryPayload = AIDiscoveryModel.CreateRequestPayload(
+                levelGraph, 
+                currentPhaseId, 
+                playerInput, 
+                null, // alreadyDiscoveredIds (暂空)
+                null, // currentHandCardIds (暂空)
+                discoveryModelName
+            );
 
-            // --- 步骤 D: 最后把结果分发出去 ---
-            // 触发 AIEventDispatcher.OnResponseReceived
-            AIEventDispatcher.DispatchResponseData(finalData);
+            if (!string.IsNullOrEmpty(discoveryPayload))
+            {
+                pendingRequests++;
+                Debug.Log("[AIManager] 检测到潜在的新线索，正在发起 Discovery 请求...");
+                
+                _client.Post(discoveryPayload,
+                    (raw) => {
+                        // 成功回调：解析并填入 DiscoveryResult
+                        var data = AIDiscoveryModel.ParseResponse(raw);
+                        if (!data.HasError) finalResponse.DiscoveryResult = data.DiscoveryResult;
+                        else Debug.LogError($"[Discovery Error] {data.ErrorMessage}");
+
+                        CheckAllRequestsDone(ref pendingRequests, finalResponse);
+                    },
+                    (code, err) => {
+                        Debug.LogError($"[Discovery Network Error] {err}");
+                        CheckAllRequestsDone(ref pendingRequests, finalResponse);
+                    }
+                );
+            }
+            else
+            {
+                Debug.Log("[AIManager] 当前阶段没有可供发现的隐藏线索，跳过 Discovery 请求。");
+            }
+
+            // 如果一开始就没有请求 (极罕见情况)，直接结束
+            if (pendingRequests == 0)
+            {
+                DispatchErrorResult("未能构建任何有效请求");
+            }
         }
 
         /// <summary>
-        /// 辅助方法：分发错误信息，防止流程卡死
+        /// 检查是否所有请求都已回调，如果是，分发最终结果
         /// </summary>
+        private void CheckAllRequestsDone(ref int pendingCount, AIResponseData finalData)
+        {
+            pendingCount--;
+            
+            if (pendingCount <= 0)
+            {
+                Debug.Log("<color=green>[AIManager] 所有 AI 请求已完成，正在合并分发结果...</color>");
+                
+                // 简单的错误检查：如果两个都空，可能是有问题
+                if (finalData.RefereeResult == null && finalData.DiscoveryResult == null)
+                {
+                    finalData.HasError = true;
+                    finalData.ErrorMessage = "所有模型请求均失败或无数据";
+                }
+
+                // 分发聚合后的数据
+                AIEventDispatcher.DispatchResponseData(finalData);
+            }
+        }
+
         private void DispatchErrorResult(string errorMsg)
         {
             var errorData = AIResponseData.CreateError(errorMsg);

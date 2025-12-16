@@ -52,6 +52,7 @@ namespace Interrorgation.MidLayer
             OnDiscoveredNewTemplates?.Invoke(templates);
         }
 
+        // [修改] UI -> Logic: 提交节点
         public static event Action<string> OnNodeOptionSubmitted;
         public static void DispatchNodeOptionSubmitted(string id)
         {
@@ -62,6 +63,35 @@ namespace Interrorgation.MidLayer
         public static void DispatchPlayerSubmitTemplateAnswer(string templateId, List<string> answers)
         {
             OnPlayerSubmitTemplateAnswer?.Invoke(templateId, answers);
+        }
+
+        // [新增] Logic -> UI: 节点状态变更 (包含 Submitted 或 Invalidated 标记变更)
+        public static event Action<RuntimeNodeData> OnNodeStatusChanged;
+        public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData)
+        {
+            OnNodeStatusChanged?.Invoke(nodeData);
+        }
+
+        // [新增] Logic -> UI: 阶段状态变更
+        public static event Action<string, RuntimePhaseStatus> OnPhaseStatusChanged;
+        public static void DispatchPhaseStatusChanged(string phaseId, RuntimePhaseStatus status)
+        {
+            OnPhaseStatusChanged?.Invoke(phaseId, status);
+        }
+        // [新增] Logic -> UI: 产生对话/剧情文本
+        // List<string> 是文本列表
+        public static event Action<List<string>> OnDialogueGenerated;
+        public static void DispatchDialogueGenerated(List<string> dialogues)
+        {
+            OnDialogueGenerated?.Invoke(dialogues);
+        }
+
+        // [新增] Logic -> UI: 解锁了可跳转的新阶段 (强制选择/并行选择)
+        // 参数: 刚刚完成的阶段名, 可跳转的阶段列表(ID, Name)
+        public static event Action<string, List<(string id, string name)>> OnPhaseUnlockEvents;
+        public static void DispatchPhaseUnlockEvents(string completedPhaseName, List<(string id, string name)> nextPhases)
+        {
+            OnPhaseUnlockEvents?.Invoke(completedPhaseName, nextPhases);
         }
     }
 }

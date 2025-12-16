@@ -1587,6 +1587,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1230176546}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &854165708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 854165709}
+  - component: {fileID: 854165710}
+  - component: {fileID: 854165711}
+  m_Layer: 0
+  m_Name: BackendLogicTest
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &854165709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854165708}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1230176546}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &854165710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854165708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4de9100c0cb8954b9845b6923fb0d25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelFileName: demo_v2
+  targetNodeId: fifteenth_floor_bloodstain_falsified
+  targetTemplateId: is_bloodstain_from_sabinna_template
+  inputAnswers:
+  - "\u5341\u4E94\u697C"
+  - "\u8840\u8FF9"
+  - "\u4E0D\u5C5E\u4E8E"
+  - "\u8428\u5BBE\u5A1C"
+--- !u!114 &854165711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 854165708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd772292159aea042a9b0e54c0556102, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &858498225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2838,6 +2903,7 @@ Transform:
   - {fileID: 1025400480}
   - {fileID: 1560413084}
   - {fileID: 820382165}
+  - {fileID: 854165709}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301098746

@@ -2,10 +2,12 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using Newtonsoft.Json;
-using LogicEngine.LevelGraph; // 引用节点数据
-using AIEngine.Network;       // 引用数据类
-using AIEngine.Prompts;       // 引用 AIPromptData
+using LogicEngine.LevelGraph;
+using AIEngine.Network;
+using AIEngine.Prompts;
+using LogicEngine.Nodes; // 引用 NodeAIInfo, NodeBasicInfo
 using LogicEngine;
+using Interrorgation.MidLayer;
 
 namespace AIEngine.Logic
 {
@@ -13,19 +15,12 @@ namespace AIEngine.Logic
     {
         private const string DEFAULT_MODEL = "qwen-plus";
 
-        // =========================================================
-        // 1. 构建请求 (Create Payload)
-        // =========================================================
-        
-        /// <summary>
-        /// 构建发现者模型的请求。需要传入当前已知的状态，以排除已发现的内容。
-        /// </summary>
         public static string CreateRequestPayload(
             LevelGraphData graphData, 
             string currentPhaseId, 
             string playerInput, 
-            HashSet<string> alreadyDiscoveredIds, // 存档中记录的已发现列表
-            HashSet<string> currentHandCardIds,   // 玩家当前手牌(选项)列表
+            HashSet<string> alreadyDiscoveredIds,
+            HashSet<string> currentHandCardIds,
             string overrideModelName = null)
         {
             // 1. 筛选候选节点 (Candidates)
@@ -37,30 +32,53 @@ namespace AIEngine.Logic
                 {
                     string nodeId = kvp.Key;
                     var info = kvp.Value;
-                    
-                    // A. 基础状态检查: 必须是 Locked 或 Pending (未证明)
-                    // (此处假设你能在 LogicEngine 获取节点状态，或者在此处简化逻辑，交给 AI 之后再在 Game 层过滤)
-                    // 但为了节省 Token，最好在这里就过滤掉属于 "非当前阶段" 的节点
-                    
-                    // B. 阶段检查: 必须属于当前激活阶段 或 全局节点
-                    if (!info.IsUniversal && info.OwnerPhaseId != currentPhaseId) continue;
+                    NodeData node = info.Node;
 
-                    // C. 重复检查: 如果已经发现过，或者是手牌里的，跳过
+                    // --- Debug: 追踪筛选过程 ---
+                    // if (nodeId == "fifteenth_floor_bloodstain_falsified") Debug.Log($"[Discovery] Checking {nodeId}...");
+
+                    // A. 阶段检查
+                    if (!info.IsUniversal && info.OwnerPhaseId != currentPhaseId) 
+                    {
+                        // Debug.Log($"[Discovery] {nodeId} 阶段不匹配 (Node:{info.OwnerPhaseId} vs Curr:{currentPhaseId})");
+                        continue;
+                    }
+
+                    // B. 重复检查 (状态过滤)
                     if (alreadyDiscoveredIds != null && alreadyDiscoveredIds.Contains(nodeId)) continue;
                     if (currentHandCardIds != null && currentHandCardIds.Contains(nodeId)) continue;
 
-                    // D. 获取描述
-                    // 只有有描述的节点才值得“被发现”
-                    string desc = ExtractDescription(info.Node);
+                    // C. 提取描述
+                    string desc = ExtractDescription(node);
+                    
+                    // D. 有效性检查
                     if (!string.IsNullOrEmpty(desc))
                     {
                         candidates.Add(nodeId, desc);
                     }
+                    else
+                    {
+                        // Debug.LogWarning($"[Discovery] 节点 {nodeId} 没有有效的 Prompt 或 Description，被跳过。");
+                    }
                 }
             }
 
-            // 如果没有候选者，直接返回 null，Manager 应该跳过这次请求
-            if (candidates.Count == 0) return null;
+            // --- 核心调试日志 ---
+            if (candidates.Count == 0) 
+            {
+                Debug.LogWarning($"[AIDiscoveryModel] 在阶段 '{currentPhaseId}' 没有找到任何可供发现的隐藏节点。Discovery 请求将被跳过。");
+                return null;
+            }
+            else
+            {
+                // 打印出前3个候选项，确保数据是对的
+                StringBuilder sb = new StringBuilder();
+                int count = 0;
+                foreach(var c in candidates) {
+                    if(count++ < 3) sb.Append($"{c.Key}, ");
+                }
+                Debug.Log($"[AIDiscoveryModel] 构建请求成功。共 {candidates.Count} 个候选节点: {sb}...");
+            }
 
             // 2. 构建 Prompt
             AIPromptData promptData = BuildDiscoveryPrompt(playerInput, candidates);
@@ -70,10 +88,6 @@ namespace AIEngine.Logic
             return AIRequestBuilder.ConstructPayload(promptData, modelName);
         }
 
-        // =========================================================
-        // 2. 解析结果 (Parse Response)
-        // =========================================================
-        
         public static AIResponseData ParseResponse(string rawResponseJson)
         {
             try
@@ -81,10 +95,12 @@ namespace AIEngine.Logic
                 // A. 解包 OpenAI 外壳
                 var standardResponse = JsonConvert.DeserializeObject<OpenAIStandardResponse>(rawResponseJson);
                 if (standardResponse == null || standardResponse.Choices == null || standardResponse.Choices.Count == 0)
-                    return AIResponseData.CreateError("API 返回空");
+                    return AIResponseData.CreateError("Discovery API 返回空");
 
                 string innerContent = CleanMarkdownJson(standardResponse.Choices[0].Message.Content);
-                Debug.Log($"[AIDiscoveryModel] Logic JSON: {innerContent}");
+                
+                // --- Debug: 看看 AI 到底回了什么 ---
+                Debug.Log($"<color=orange>[AIDiscoveryModel] AI Raw Output: {innerContent}</color>");
 
                 // B. 反序列化业务数据
                 var rawResult = JsonConvert.DeserializeObject<AIDiscoveryRawJson>(innerContent);
@@ -96,7 +112,7 @@ namespace AIEngine.Logic
 
                 // D. 返回
                 var responseData = new AIResponseData();
-                responseData.DiscoveryResult = result; // 赋值给 Discovery 字段
+                responseData.DiscoveryResult = result; 
                 responseData.HasError = false;
                 return responseData;
             }
@@ -112,42 +128,57 @@ namespace AIEngine.Logic
 
         private static AIPromptData BuildDiscoveryPrompt(string input, Dictionary<string, string> candidates)
         {
-            // 构造候选列表字符串
             StringBuilder sb = new StringBuilder();
             foreach (var kvp in candidates)
             {
+                // 格式: - node_id: 描述文本
                 sb.AppendLine($"- {kvp.Key}: {kvp.Value}");
             }
 
             string systemPrompt = @"
-你的任务是判断玩家的发言是否涉及、暗示或询问了以下列表中的某个话题。
-如果玩家的发言与某个话题相关（即使只是稍微沾边、或者是对该话题的提问），就认为玩家“发现”了这个话题。
+你的任务是判断用户的发言是否暗示、询问或涉及了以下列表中的某个话题（线索）。
+如果用户的发言与某个话题相关（即使只是模糊匹配、或者提到了话题中的关键物体），就认为用户“发现”了这个话题。
 
 **工作原则**：
-1. **语义相关性**：不需要完全匹配。例如，如果话题是“手表的时间是伪造的”，玩家问“手表有问题吗？”或“时间对不上”，都算作发现。
-2. **模糊匹配**：如果玩家提到了话题中的关键物体（如“血迹”、“涂鸦”），通常也算作发现。
-3. **宁滥勿缺**：如果拿不准，倾向于让玩家发现。
+1. **语义相关**：不需要字面完全匹配。例如话题是“伪造的手表时间”，用户问“时间有问题吗”，算发现。
+2. **关键词匹配**：如果用户提到了话题描述中的核心名词（如“血迹”、“涂鸦”），通常算发现。
+3. **宁滥勿缺**：如果拿不准，倾向于判定为发现。
 
-**严格指令 (输出格式):**
-请返回一个 JSON 对象，包含键 ""discovered_ids"" (列表)。
-示例: { ""discovered_ids"": [""node_id_1"", ""node_id_3""] }
+**输入数据**：
+- 候选话题列表：见下文。
+
+**输出格式 (Strict JSON)**：
+请返回一个 JSON 对象，包含键 ""discovered_ids"" (字符串数组)。
+如果没有发现任何话题，数组为空。
+
+示例: { ""discovered_ids"": [""node_a"", ""node_b""] }
 ";
             
-            var data = new AIPromptData();
-            data.SystemInstruction = systemPrompt.Trim();
-            // 上下文是候选列表
-            data.DynamicContext = $"**候选话题列表:**\n{sb.ToString()}";
-            data.UserInput = input;
-            
-            return data;
+            return new AIPromptData 
+            {
+                SystemInstruction = systemPrompt.Trim(),
+                DynamicContext = $"**候选话题列表:**\n{sb.ToString()}",
+                UserInput = input
+            };
         }
 
+        // [修复] 适配你的 NodeData 结构
         private static string ExtractDescription(NodeData node)
         {
             if (node == null) return null;
-            // 发现者模型通常看 Prompt 或 Description
-            if (node.AI != null && !string.IsNullOrEmpty(node.AI.Prompt)) return node.AI.Prompt;
-            if (node.Basic != null && !string.IsNullOrEmpty(node.Basic.Description)) return node.Basic.Description;
+
+            // 1. 优先取 AI 专用的 Prompt
+            if (node.AI != null && !string.IsNullOrEmpty(node.AI.Prompt)) 
+            {
+                return node.AI.Prompt;
+            }
+            
+            // 2. 其次取 Basic 里的 Description
+            if (node.Basic != null && !string.IsNullOrEmpty(node.Basic.Description)) 
+            {
+                return node.Basic.Description;
+            }
+
             return null;
         }
 
