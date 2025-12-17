@@ -1,176 +1,237 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection; // [必需] 用于反射注入
+using System.Reflection;
 using LogicEngine;
 using LogicEngine.LevelGraph;
-using LogicEngine.LevelLogic; // 引用 PlayerMindMapManager
+using LogicEngine.LevelLogic;
 using LogicEngine.Parser;
-using LogicEngine.Tests;
-using AIEngine;
-using AIEngine.Network;
 using Interrorgation.MidLayer;
+using AIEngine.Network;
 
 public class AIRealIntegrationTester : MonoBehaviour
 {
-    [Header("1. 自动加载配置")]
-    [Tooltip("文件名 (必须位于 LevelTestManager 配置的路径下)")]
+    [Header("1. 剧本配置")]
     public string targetFileName = "demo_v2.json";
-
-    [Header("2. 测试环境")]
-    public string phaseId = "phase1";
     
-    [TextArea(3, 5)]
+    [Header("2. 玩家交互")]
+    [TextArea(3, 10)]
     public string playerInput = "十五楼的血迹是谁的？";
 
-    [Header("3. 状态监控")]
-    [SerializeField] private bool isWaitingResponse = false;
+    [HideInInspector] public string lastAIReasoning = ""; 
+    [HideInInspector] public string statusLog = "";
+    [HideInInspector] public bool isWaitingResponse = false;
 
+    public List<(string id, string name)> pendingPhaseChoices = new List<(string id, string name)>();
+    // --- 事件监听 ---
     private void OnEnable()
     {
-        AIEventDispatcher.OnResponseReceived += OnFinalResultReceived;
+        AIEventDispatcher.OnResponseReceived += OnAIResponse;
+        GameEventDispatcher.OnDialogueGenerated += OnDialogue;
+        GameEventDispatcher.OnPhaseUnlockEvents += OnPhaseUnlock;
     }
 
     private void OnDisable()
     {
-        AIEventDispatcher.OnResponseReceived -= OnFinalResultReceived;
+        AIEventDispatcher.OnResponseReceived -= OnAIResponse;
+        GameEventDispatcher.OnDialogueGenerated -= OnDialogue;
+        GameEventDispatcher.OnPhaseUnlockEvents -= OnPhaseUnlock;
     }
 
     // =========================================================
-    // 测试入口
+    // 操作接口
     // =========================================================
-    [ContextMenu("🚀 发送真实请求 (Real Request)")]
-    public void SendRealRequest()
+
+    public void InitializeGame()
     {
-        if (!Application.isPlaying)
+        EnsureGameInitialized(true);
+    }
+
+    public void SendInputToAI()
+    {
+        if (!Application.isPlaying) { Log("❌ 必须在 Play 模式下运行！"); return; }
+        if (isWaitingResponse) { Log("⚠️ 正在等待上一次请求..."); return; }
+
+        if (!EnsureGameInitialized()) return;
+
+        var manager = InterrorgationLevelManager.Instance;
+        var graphData = GetPrivateField<LevelGraphData>(manager, "currentLevelGraph");
+        
+        // [修改] currentPhaseId 依然在 Manager 中有一份拷贝，可以获取
+        string phaseId = GetPrivateField<string>(manager, "currentPhaseId");
+
+        if (graphData == null || string.IsNullOrEmpty(phaseId))
         {
-            Debug.LogError("❌ [Test] 请先点击 Play 运行游戏！");
+            Log("❌ 数据异常：Graph 或 Phase 为空");
             return;
         }
-
-        if (isWaitingResponse)
-        {
-            Debug.LogWarning("⚠️ [Test] 请等待上一个请求完成...");
-            return;
-        }
-
-        // --- 核心修改：确保游戏管理器已初始化 ---
-        if (!EnsureGameInitialized())
-        {
-            return; // 初始化失败，中止
-        }
-
-        // 获取刚刚注入的数据
-        LevelGraphData graphData = LevelGraphContext.CurrentGraph;
-
-        // 3. 触发事件
-        Debug.Log($"<color=cyan>====== 🚀 [测试开始] 发送真实 AI 请求 ======</color>\n" +
-                  $"输入内容: {playerInput}");
 
         isWaitingResponse = true;
-        
-        // 这将触发 AIManager -> HTTP -> ... -> InterrorgationLevelManager
+        Log($"🚀 发送请求: {playerInput} (Phase: {phaseId})");
         AIEventDispatcher.DispatchPlayerInputString(graphData, phaseId, playerInput);
     }
 
-    // =========================================================
-    // 初始化逻辑 (模拟 LoadLevel 的行为)
-    // =========================================================
-    private bool EnsureGameInitialized()
+    public void SubmitNodeOption(string nodeId)
+    {
+        Log($"👉 [操作] 提交节点选项: {nodeId}");
+        GameEventDispatcher.DispatchNodeOptionSubmitted(nodeId);
+    }
+
+    public void SubmitTemplateAnswer(string templateId, string answerString)
+    {
+        List<string> answers = new List<string>(answerString.Split(new char[] { ',', '，' }, System.StringSplitOptions.RemoveEmptyEntries));
+        for(int i=0; i<answers.Count; i++) answers[i] = answers[i].Trim();
+
+        Log($"👉 [操作] 提交填空: {templateId} -> [{string.Join("|", answers)}]");
+        GameEventDispatcher.DispatchPlayerSubmitTemplateAnswer(templateId, answers);
+    }
+
+    public void SwitchPhase(string targetPhaseId)
     {
         var manager = InterrorgationLevelManager.Instance;
-        if (manager == null)
+        var phaseMgr = GetPhaseManager(manager);
+        
+        if (phaseMgr != null)
         {
-            Debug.LogError("❌ [Test] 场景中找不到 InterrorgationLevelManager！");
-            return false;
+            // 1. 获取当前 Phase
+            string currentPhaseId = GetPrivateField<string>(manager, "currentPhaseId");
+
+            // 2. 暂停当前
+            if (phaseMgr.RunTimePhaseStatusMap.TryGetValue(currentPhaseId, out var status))
+            {
+                if (status == RuntimePhaseStatus.Active)
+                {
+                    phaseMgr.SetPhaseStatus(currentPhaseId, RuntimePhaseStatus.Paused);
+                    Log($"⏸️ 暂停阶段: {currentPhaseId}");
+                }
+            }
+
+            // 3. 激活新阶段
+            phaseMgr.SetPhaseStatus(targetPhaseId, RuntimePhaseStatus.Active);
+            
+            // 4. 更新 Manager 记录
+            var field = typeof(InterrorgationLevelManager).GetField("currentPhaseId", BindingFlags.NonPublic | BindingFlags.Instance);
+            field.SetValue(manager, targetPhaseId);
+            
+            Log($"▶️ 激活阶段: {targetPhaseId}");
+
+            // [新增] 切换成功后，清空待选列表（让黄色的警告框消失）
+            pendingPhaseChoices.Clear();
         }
+    }
+    // =========================================================
+    // 数据获取接口 (供 Editor 使用)
+    // =========================================================
+    
+    public PlayerMindMapManager GetMindMapData()
+    {
+        if (InterrorgationLevelManager.Instance == null) return null;
+        return GetPrivateField<PlayerMindMapManager>(InterrorgationLevelManager.Instance, "playerMindMapManager");
+    }
 
-        // 1. 检查是否已经初始化过 (通过反射检查私有字段)
-        var type = typeof(InterrorgationLevelManager);
-        var mapField = type.GetField("playerMindMapManager", BindingFlags.NonPublic | BindingFlags.Instance);
-        var currentMap = mapField.GetValue(manager);
-
-        if (currentMap != null)
-        {
-            // 已经初始化过了，直接返回成功
-            return true;
-        }
-
-        Debug.LogWarning("⚠️ [Test] 检测到管理器未初始化，正在执行手动注入 (Bypass LoadLevel)...");
-
-        // 2. 加载数据 (这一步是为了获取 GraphData)
-        // 我们借用 LevelTestManager 的路径配置
-        var testManager = LevelTestManager.Instance;
-        string folderPath = Path.Combine(Application.dataPath, testManager.relativePath);
-        string fullPath = Path.Combine(folderPath, targetFileName);
-
-        if (!File.Exists(fullPath))
-        {
-            Debug.LogError($"❌ [Test] 找不到文件: {fullPath}");
-            return false;
-        }
-
-        try
-        {
-            string jsonText = File.ReadAllText(fullPath);
-            LevelGraphData graphData = LevelGraphParser.Parse(jsonText);
-            graphData.InitializeRuntimeData();
-
-            // 3. 创建 PlayerMindMapManager 实例
-            PlayerMindMapManager mindMap = new PlayerMindMapManager(ref graphData);
-
-            // 4. 【反射注入】将数据强行塞给 Manager
-            // 注入 currentLevelGraph
-            var graphField = type.GetField("currentLevelGraph", BindingFlags.NonPublic | BindingFlags.Instance);
-            graphField.SetValue(manager, graphData);
-
-            // 注入 playerMindMapManager
-            mapField.SetValue(manager, mindMap);
-
-            // 注入 currentPhaseId (设置为 Inspector 里填的值)
-            var phaseField = type.GetField("currentPhaseId", BindingFlags.NonPublic | BindingFlags.Instance);
-            phaseField.SetValue(manager, phaseId);
-
-            // 5. 启动初始逻辑 (激活 Phase)
-            manager.StartGameLogic();
-
-            Debug.Log($"✅ [Test] 初始化成功！已注入数据并激活 {phaseId}");
-            return true;
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogError($"❌ [Test] 初始化异常: {ex}");
-            return false;
-        }
+    // [新增] 获取 PhaseManager
+    public GamePhaseManager GetPhaseData()
+    {
+        if (InterrorgationLevelManager.Instance == null) return null;
+        return GetPrivateField<GamePhaseManager>(InterrorgationLevelManager.Instance, "gamePhaseManager");
     }
 
     // =========================================================
-    // 回调处理
+    // 内部逻辑
     // =========================================================
-    private void OnFinalResultReceived(AIResponseData response)
+
+    private void OnAIResponse(AIResponseData data)
     {
         isWaitingResponse = false;
-        Debug.Log("<color=green>====== ✅ [测试结束] 收到 AI 响应 ======</color>");
-
-        if (response.HasError)
+        if (data.HasError)
         {
-            Debug.LogError($"❌ [AI 报错]: {response.ErrorMessage}");
-            return;
+            Log($"❌ AI 错误: {data.ErrorMessage}");
         }
-
-        // 打印结果... (保持原样)
-        if (response.RefereeResult != null)
+        else
         {
-            var r = response.RefereeResult;
-            string nodes = (r.PassedNodeIds != null && r.PassedNodeIds.Count > 0) ? string.Join(", ", r.PassedNodeIds) : "无";
-            Debug.Log($"🎯 [Referee] 判定节点: {nodes}");
+            lastAIReasoning = "（思考过程已在 Console 日志中打印）";
+            Log("✅ AI 响应接收成功");
+            
+            if (data.RefereeResult != null && data.RefereeResult.PassedNodeIds.Count > 0)
+                Log($"   🎯 通过节点: {string.Join(", ", data.RefereeResult.PassedNodeIds)}");
+            
+            if (data.DiscoveryResult != null && data.DiscoveryResult.DiscoveredNodeIds.Count > 0)
+                Log($"   💡 发现线索: {string.Join(", ", data.DiscoveryResult.DiscoveredNodeIds)}");
         }
+    }
 
-        if (response.DiscoveryResult != null)
+    private void OnDialogue(List<string> lines)
+    {
+        foreach (var line in lines) Log($"🗣️ [剧情]: {line}");
+    }
+    
+    private void OnPhaseUnlock(string completedName, List<(string id, string name)> nextPhases)
+    {
+        Log($"🎉 阶段 [{completedName}] 完成！解锁了 {nextPhases.Count} 个新方向。");
+        
+        // [新增] 更新列表供 Editor 显示
+        pendingPhaseChoices.Clear();
+        if (nextPhases != null)
         {
-            var d = response.DiscoveryResult;
-            string disc = (d.DiscoveredNodeIds != null && d.DiscoveredNodeIds.Count > 0) ? string.Join(", ", d.DiscoveredNodeIds) : "无";
-            Debug.Log($"💡 [Discovery] 发现线索: {disc}");
+            pendingPhaseChoices.AddRange(nextPhases);
         }
+    }
+
+    private void Log(string msg)
+    {
+        statusLog = $"[{System.DateTime.Now:HH:mm:ss}] {msg}\n" + statusLog;
+        if (statusLog.Length > 2000) statusLog = statusLog.Substring(0, 2000);
+        Debug.Log(msg);
+    }
+
+    // [核心修改] 适配新的三 Manager 架构
+    private bool EnsureGameInitialized(bool forceReload = false)
+    {
+        var manager = InterrorgationLevelManager.Instance;
+        if (manager == null) return false;
+
+        var map = GetPrivateField<PlayerMindMapManager>(manager, "playerMindMapManager");
+        if (map != null && !forceReload) return true;
+
+        // 加载逻辑
+        string relativePath = LogicEngine.Tests.LevelTestManager.Instance.relativePath;
+        string path = Path.Combine(Application.dataPath, relativePath, targetFileName);
+        
+        if (!File.Exists(path)) { Log($"❌ 文件未找到: {path}"); return false; }
+
+        string json = File.ReadAllText(path);
+        var graph = LevelGraphParser.Parse(json);
+        graph.InitializeRuntimeData();
+
+        // [修改] 手动组装三个 Manager
+        var playerMap = new PlayerMindMapManager(graph);
+        var phaseMgr = new GamePhaseManager(playerMap);
+        var logicMgr = new NodeLogicManager(playerMap);
+        logicMgr.SetPhaseManager(phaseMgr);
+
+        // [修改] 反射注入所有字段
+        var t = typeof(InterrorgationLevelManager);
+        t.GetField("currentLevelGraph", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, graph);
+        t.GetField("playerMindMapManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, playerMap);
+        t.GetField("gamePhaseManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, phaseMgr); // 注入 Phase
+        t.GetField("nodeLogicManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, logicMgr); // 注入 Logic
+        
+        // 启动
+        manager.StartGameLogic(); 
+        Log("✅ 游戏初始化完成 (架构升级版)");
+        return true;
+    }
+
+    private T GetPrivateField<T>(object instance, string fieldName)
+    {
+        var f = instance.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Instance);
+        if (f == null) return default(T);
+        return (T)f.GetValue(instance);
+    }
+    
+    // [新增] 用于存储从反射获取 PhaseManager 的辅助方法
+    private GamePhaseManager GetPhaseManager(InterrorgationLevelManager manager)
+    {
+        return GetPrivateField<GamePhaseManager>(manager, "gamePhaseManager");
     }
 }

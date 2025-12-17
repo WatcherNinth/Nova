@@ -49,6 +49,8 @@ namespace LogicEngine.LevelLogic
         private string currentPhaseId;
 
         private PlayerMindMapManager playerMindMapManager;
+        private GamePhaseManager gamePhaseManager;
+        private NodeLogicManager nodeLogicManager;
         private void OnEnable()
         {
             _instance = this;
@@ -86,13 +88,10 @@ namespace LogicEngine.LevelLogic
 
         private void HandleResponseReceived(AIResponseData responseData)
         {
-            if (playerMindMapManager == null)
-            {
-                Debug.LogWarning("[InterrorgationLevelManager] 收到 AI 响应，但关卡尚未初始化 (playerMindMapManager is null)。忽略此次更新。");
-                return;
-            }
+            if (playerMindMapManager == null) return;
             playerMindMapManager.ProcessAIResponse(responseData);
         }
+
         #region 加载关卡
         public static string GetLevelFilePath(string name)
         {
@@ -109,56 +108,65 @@ namespace LogicEngine.LevelLogic
 
         public void LoadLevel(string name)
         {
-            string levelJson = File.ReadAllText(GetLevelFilePath(name));
-            currentLevelGraph = LevelGraphParser.TryParseAndInit(levelJson);
-            playerMindMapManager = new PlayerMindMapManager(ref currentLevelGraph);
+            string path = GetLevelFilePath(name);
+            if(path == null) return;
+
+            string levelJson = File.ReadAllText(path);
+            currentLevelGraph = LevelGraphParser.Parse(levelJson); // 注意 Parse 方法名
+            currentLevelGraph.InitializeRuntimeData();
+
+            // 1. 初始化 MindMap (数据)
+            playerMindMapManager = new PlayerMindMapManager(currentLevelGraph); // 移除了 ref
+
+            // 2. 初始化 Phase (阶段)
+            gamePhaseManager = new GamePhaseManager(playerMindMapManager);
+
+            // 3. 初始化 Logic (逻辑)
+            nodeLogicManager = new NodeLogicManager(playerMindMapManager);
+            
+            // 4. 注入依赖
+            nodeLogicManager.SetPhaseManager(gamePhaseManager);
         }
         #endregion
 
         // [新增] 处理节点提交
         private void HandleNodeSubmit(string nodeId)
         {
-            if (playerMindMapManager != null)
+            if (nodeLogicManager != null)
             {
-                bool success = playerMindMapManager.TryProveNode(nodeId);
-                // 可以在这里加 Log 输出结果
+                // 调用 LogicManager
+                bool success = nodeLogicManager.TryProveNode(nodeId);
+                if (success) Debug.Log($"[LevelManager] 节点 {nodeId} 证明成功。");
             }
         }
-
         // [新增] 启动逻辑 (激活初始阶段)
         public void StartGameLogic()
         {
-            if (playerMindMapManager != null)
+            if (gamePhaseManager != null)
             {
-                // 默认激活 phase1
-                playerMindMapManager.SetPhaseStatus("phase1", RuntimePhaseStatus.Active);
+                // [修改] 调用 PhaseManager
+                gamePhaseManager.SetPhaseStatus("phase1", RuntimePhaseStatus.Active);
                 currentPhaseId = "phase1";
             }
-        }       
+        } 
 
         private void HandleTemplateSubmit(string templateId, List<string> inputs)
         {
-            if (playerMindMapManager != null)
+            if (playerMindMapManager != null && nodeLogicManager != null)
             {
-                // 1. 验证答案
+                // 1. MindMap 验证
                 string targetNodeId = playerMindMapManager.ValidateTemplateAnswer(templateId, inputs);
                 
                 if (!string.IsNullOrEmpty(targetNodeId))
                 {
-                    Debug.Log($"[LevelManager] 填空验证成功！目标节点: {targetNodeId}");
-                    // 2. 验证成功，尝试证明节点
-                    bool success = playerMindMapManager.TryProveNode(targetNodeId);
-                    if (!success)
-                    {
-                        Debug.LogWarning($"[LevelManager] 填空正确但无法证明节点 (可能前置条件未满足)。");
-                    }
+                    // 2. Logic 证明
+                    nodeLogicManager.TryProveNode(targetNodeId);
                 }
                 else
                 {
                     Debug.Log($"[LevelManager] 填空验证失败。");
-                    // 这里可以触发一个 UI 事件通知玩家“答案错误”
                 }
             }
-        } 
+        }
     }
 }

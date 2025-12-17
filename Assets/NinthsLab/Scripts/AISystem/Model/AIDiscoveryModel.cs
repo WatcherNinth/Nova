@@ -15,12 +15,11 @@ namespace AIEngine.Logic
     {
         private const string DEFAULT_MODEL = "qwen-plus";
 
+        // [修改] 移除了 HashSet 参数
         public static string CreateRequestPayload(
             LevelGraphData graphData, 
             string currentPhaseId, 
             string playerInput, 
-            HashSet<string> alreadyDiscoveredIds,
-            HashSet<string> currentHandCardIds,
             string overrideModelName = null)
         {
             // 1. 筛选候选节点 (Candidates)
@@ -34,20 +33,11 @@ namespace AIEngine.Logic
                     var info = kvp.Value;
                     NodeData node = info.Node;
 
-                    // --- Debug: 追踪筛选过程 ---
-                    // if (nodeId == "fifteenth_floor_bloodstain_falsified") Debug.Log($"[Discovery] Checking {nodeId}...");
-
-                    // A. 阶段检查
+                    // A. 阶段检查 (保持不变)：必须属于当前激活阶段 或 全局节点
                     if (!info.IsUniversal && info.OwnerPhaseId != currentPhaseId) 
                     {
-                        // Debug.Log($"[Discovery] {nodeId} 阶段不匹配 (Node:{info.OwnerPhaseId} vs Curr:{currentPhaseId})");
                         continue;
                     }
-
-                    // B. 重复检查 (状态过滤)
-                    if (alreadyDiscoveredIds != null && alreadyDiscoveredIds.Contains(nodeId)) continue;
-                    if (currentHandCardIds != null && currentHandCardIds.Contains(nodeId)) continue;
-
                     // C. 提取描述
                     string desc = ExtractDescription(node);
                     
@@ -56,28 +46,13 @@ namespace AIEngine.Logic
                     {
                         candidates.Add(nodeId, desc);
                     }
-                    else
-                    {
-                        // Debug.LogWarning($"[Discovery] 节点 {nodeId} 没有有效的 Prompt 或 Description，被跳过。");
-                    }
                 }
             }
 
-            // --- 核心调试日志 ---
             if (candidates.Count == 0) 
             {
-                Debug.LogWarning($"[AIDiscoveryModel] 在阶段 '{currentPhaseId}' 没有找到任何可供发现的隐藏节点。Discovery 请求将被跳过。");
+                // Debug.LogWarning($"[AIDiscoveryModel] 在阶段 '{currentPhaseId}' 没有找到任何候选节点。");
                 return null;
-            }
-            else
-            {
-                // 打印出前3个候选项，确保数据是对的
-                StringBuilder sb = new StringBuilder();
-                int count = 0;
-                foreach(var c in candidates) {
-                    if(count++ < 3) sb.Append($"{c.Key}, ");
-                }
-                Debug.Log($"[AIDiscoveryModel] 构建请求成功。共 {candidates.Count} 个候选节点: {sb}...");
             }
 
             // 2. 构建 Prompt

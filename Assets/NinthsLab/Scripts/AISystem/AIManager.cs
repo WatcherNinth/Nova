@@ -68,18 +68,10 @@ namespace AIEngine
                 );
             }
 
-            // =========================================================
-            // 2. 发起 Discovery 请求 (发现者模型)
-            // =========================================================
-            // 注意：这里需要传入“已发现列表”和“手牌列表”以避免重复发现
-            // 目前由于 Event 签名限制，我们暂时传 null (表示全部重新扫描)
-            // 或者后续你可以扩展 AIEventDispatcher 来传递 Runtime 状态
             string discoveryPayload = AIDiscoveryModel.CreateRequestPayload(
                 levelGraph, 
                 currentPhaseId, 
                 playerInput, 
-                null, // alreadyDiscoveredIds (暂空)
-                null, // currentHandCardIds (暂空)
                 discoveryModelName
             );
 
