@@ -96,7 +96,6 @@ namespace LogicEngine.LevelLogic
             if (responseData.DiscoveryResult != null && responseData.DiscoveryResult.DiscoveredNodeIds.Count > 0)
             {
                 var ids = responseData.DiscoveryResult.DiscoveredNodeIds;
-                discoverNodes(ids); // 尝试作为节点发现
 
                 // 尝试作为模板发现
                 List<string> templatesToUnlock = new List<string>();
