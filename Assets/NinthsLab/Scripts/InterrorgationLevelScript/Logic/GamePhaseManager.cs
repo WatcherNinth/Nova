@@ -35,6 +35,8 @@ namespace LogicEngine.LevelLogic
             {
                 RunTimePhaseStatusMap[phaseId] = status;
                 GameEventDispatcher.DispatchPhaseStatusChanged(phaseId, status);
+                // 每次状态变动都刷新可用列表 (UI 侧边栏按钮用)
+                BroadcastAvailablePhases(); 
             }
         }
 
@@ -152,6 +154,104 @@ namespace LogicEngine.LevelLogic
             bool expected = true;
             try { expected = expectedValueToken.ToObject<bool>(); } catch { return false; }
             return isCompleted == expected;
+        }
+
+        // [新增] 核心切换逻辑
+        public bool SwitchToPhase(string targetPhaseId)
+        {
+            // 1. 校验目标是否存在
+            if (!_mindMapManager.levelGraph.phasesData.ContainsKey(targetPhaseId))
+            {
+                UnityEngine.Debug.LogError($"[PhaseManager] 试图切换到不存在的阶段: {targetPhaseId}");
+                return false;
+            }
+
+            // 2. 获取当前状态
+            var currentStatus = RunTimePhaseStatusMap.ContainsKey(targetPhaseId) 
+                ? RunTimePhaseStatusMap[targetPhaseId] 
+                : RuntimePhaseStatus.Locked;
+
+            // 如果已经是 Active，无需切换
+            if (currentStatus == RuntimePhaseStatus.Active) return false;
+
+            // 3. 校验权限 (必须是 Paused 或 已解锁)
+            // 简单的校验：如果是 Locked，必须检查依赖是否满足
+            if (currentStatus == RuntimePhaseStatus.Locked)
+            {
+                var unlockables = FindUnlockablePhases();
+                if (!unlockables.Any(p => p.id == targetPhaseId))
+                {
+                    UnityEngine.Debug.LogWarning($"[PhaseManager] 阶段 {targetPhaseId} 尚未解锁，无法切换。");
+                    return false;
+                }
+            }
+
+            // 4. [执行切换]
+            
+            // A. 暂停当前所有 Active 的阶段
+            var activePhases = RunTimePhaseStatusMap.Where(x => x.Value == RuntimePhaseStatus.Active).ToList();
+            foreach (var kvp in activePhases)
+            {
+                SetPhaseStatus(kvp.Key, RuntimePhaseStatus.Paused);
+            }
+
+            // B. 激活新阶段
+            SetPhaseStatus(targetPhaseId, RuntimePhaseStatus.Active);
+
+            // 5. [触发对话]
+            // 如果是从 Locked -> Active (首次进入)，播放开场白
+            if (currentStatus == RuntimePhaseStatus.Locked)
+            {
+                var phaseData = _mindMapManager.levelGraph.phasesData[targetPhaseId];
+                if (phaseData.Dialogue?.OnPhaseStart != null)
+                {
+                    var lines = DialogueRuntimeHelper.GenerateDialogueLines(phaseData.Dialogue.OnPhaseStart);
+                    GameEventDispatcher.DispatchDialogueGenerated(lines);
+                }
+            }
+            else
+            {
+                // 如果是从 Paused -> Active (切回)，可以给个简单提示
+                string phaseName = _mindMapManager.levelGraph.phasesData[targetPhaseId].Name;
+                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { $"[系统] 你回到了对“{phaseName}”的调查。" });
+            }
+            
+            // 6. 切换后，广播最新的可用列表 (因为状态变了)
+            BroadcastAvailablePhases();
+
+            return true;
+        }
+
+        // [新增] 获取所有可供玩家切换的目标
+        public List<(string id, string name, string status)> GetAvailableSwitchTargets()
+        {
+            var list = new List<(string id, string name, string status)>();
+
+            // A. 获取已解锁但未开始的 (Unlockable)
+            var unlockables = FindUnlockablePhases();
+            foreach (var p in unlockables)
+            {
+                list.Add((p.id, p.name, "New"));
+            }
+
+            // B. 获取暂停中的 (Paused)
+            foreach (var kvp in RunTimePhaseStatusMap)
+            {
+                if (kvp.Value == RuntimePhaseStatus.Paused)
+                {
+                    string name = _mindMapManager.levelGraph.phasesData[kvp.Key].Name;
+                    list.Add((kvp.Key, name, "Paused"));
+                }
+            }
+            
+            // 排序 (可选)
+            return list.OrderBy(x => x.id).ToList();
+        }
+
+        public void BroadcastAvailablePhases()
+        {
+            var list = GetAvailableSwitchTargets();
+            GameEventDispatcher.DispatchAvailablePhasesChanged(list);
         }
     }
 }

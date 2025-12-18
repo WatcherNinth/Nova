@@ -51,6 +51,7 @@ namespace LogicEngine.LevelLogic
         private PlayerMindMapManager playerMindMapManager;
         private GamePhaseManager gamePhaseManager;
         private NodeLogicManager nodeLogicManager;
+        private GameScopeManager gameScopeManager;
         private void OnEnable()
         {
             _instance = this;
@@ -62,6 +63,7 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
             GameEventDispatcher.OnPlayerSubmitTemplateAnswer += HandleTemplateSubmit; // [新增]
+            GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
         }
 
         private void OnDisable()
@@ -74,6 +76,7 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
             GameEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandleTemplateSubmit; // [新增]
+            GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
         }
 
         private void Start()
@@ -112,20 +115,25 @@ namespace LogicEngine.LevelLogic
             if(path == null) return;
 
             string levelJson = File.ReadAllText(path);
-            currentLevelGraph = LevelGraphParser.Parse(levelJson); // 注意 Parse 方法名
+            currentLevelGraph = LevelGraphParser.Parse(levelJson);
             currentLevelGraph.InitializeRuntimeData();
 
-            // 1. 初始化 MindMap (数据)
-            playerMindMapManager = new PlayerMindMapManager(currentLevelGraph); // 移除了 ref
+            // 1. 初始化 MindMap
+            playerMindMapManager = new PlayerMindMapManager(currentLevelGraph);
 
-            // 2. 初始化 Phase (阶段)
+            // 2. 初始化 Phase
             gamePhaseManager = new GamePhaseManager(playerMindMapManager);
 
-            // 3. 初始化 Logic (逻辑)
+            // 3. 初始化 Logic
             nodeLogicManager = new NodeLogicManager(playerMindMapManager);
             
-            // 4. 注入依赖
+            // 4. [新增] 初始化 Scope
+            gameScopeManager = new GameScopeManager(playerMindMapManager);
+
+            // 5. 注入依赖 (互相连接)
             nodeLogicManager.SetPhaseManager(gamePhaseManager);
+            nodeLogicManager.SetScopeManager(gameScopeManager); // Logic -> Scope
+            gameScopeManager.SetLogicManager(nodeLogicManager); // Scope -> Logic
         }
         #endregion
 
@@ -165,6 +173,23 @@ namespace LogicEngine.LevelLogic
                 else
                 {
                     Debug.Log($"[LevelManager] 填空验证失败。");
+                }
+            }
+        }
+
+        private void HandlePhaseSwitchRequest(string targetPhaseId)
+        {
+            if (gamePhaseManager != null)
+            {
+                bool success = gamePhaseManager.SwitchToPhase(targetPhaseId);
+                if (success)
+                {
+                    Debug.Log($"[LevelManager] 成功切换至阶段: {targetPhaseId}");
+                    currentPhaseId = targetPhaseId; // 同步本地记录
+                }
+                else
+                {
+                    Debug.LogWarning($"[LevelManager] 切换阶段失败: {targetPhaseId}");
                 }
             }
         }

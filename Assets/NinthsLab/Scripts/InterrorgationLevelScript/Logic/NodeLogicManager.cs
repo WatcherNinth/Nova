@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using LogicEngine.LevelGraph;
 using Interrorgation.MidLayer;
 using Newtonsoft.Json.Linq;
+using UnityEngine; // 用于 Debug.Log
 
 namespace LogicEngine.LevelLogic
 {
@@ -9,19 +10,23 @@ namespace LogicEngine.LevelLogic
     {
         private PlayerMindMapManager _mindMapManager;
         private GamePhaseManager _phaseManager;
+        private GameScopeManager _scopeManager;
 
         public NodeLogicManager(PlayerMindMapManager mindMapManager)
         {
             _mindMapManager = mindMapManager;
         }
 
-        // 需要在 PhaseManager 创建后注入
         public void SetPhaseManager(GamePhaseManager phaseManager)
         {
             _phaseManager = phaseManager;
         }
-
-        public bool TryProveNode(string nodeId)
+        
+        public void SetScopeManager(GameScopeManager scopeManager)
+        {
+            _scopeManager = scopeManager;
+        }
+        public bool TryProveNode(string nodeId, bool isAutoResolve = false)
         {
             if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return false;
 
@@ -31,26 +36,36 @@ namespace LogicEngine.LevelLogic
             // 检查依赖
             if (!CheckDependencies(runtimeNode.r_NodeData.Logic?.DependsOn))
             {
-                TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
+                // 只有玩家主动点击时，才触发“等待对话”和“Scope更新”
+                // 如果是自动结算过程中发现不满足，就静默失败
+                if (!isAutoResolve)
+                {
+                    TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
+                    
+                    // [修改] 调用 ScopeManager 处理深度逻辑
+                    _scopeManager?.UpdateScopeOnFail(nodeId);
+                }
                 return false;
             }
 
-            // 状态变更
+            // 成功逻辑
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
-
-            // 触发对话
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
-
-            // 后续逻辑
-            ProcessMutex(runtimeNode.r_NodeData.Logic);
-            ProcessAutoVerify();
             
-            // 通知阶段管理器检查完成情况
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
+            ProcessAutoVerify();
             _phaseManager?.CheckPhaseCompletion();
+
+            // [新增] 成功后，通知 ScopeManager 尝试结算整个链条
+            // 必须放在最后，否则递归可能出问题
+            if (!isAutoResolve) 
+            {
+                _scopeManager?.ResolveScopeChain(nodeId);
+            }
 
             return true;
         }
-
+        
         private void TriggerDialogue(JToken dialogueScript)
         {
             if (dialogueScript == null) return;
@@ -61,35 +76,73 @@ namespace LogicEngine.LevelLogic
             }
         }
 
-        public void ProcessMutex(LogicEngine.Nodes.NodeLogicInfo logicInfo)
+        // ========================================================================
+        // [核心修改] 使用 NodeMutexGroupData 进行查表式互斥处理
+        // ========================================================================
+        public void ProcessMutex(string sourceNodeId, LogicEngine.Nodes.NodeLogicInfo logicInfo)
         {
             if (logicInfo == null) return;
-            string mutexGroup = logicInfo.MutexGroup;
-            if (string.IsNullOrEmpty(mutexGroup)) return;
+            
+            string groupId = logicInfo.MutexGroup;
+            if (string.IsNullOrEmpty(groupId)) return;
 
-            foreach (var kvp in _mindMapManager.RunTimeNodeDataMap)
+            // 1. 从 LevelGraphData 中直接获取互斥配置表
+            // 这里不再遍历所有节点，而是直接查表，效率极高
+            var mutexData = _mindMapManager.levelGraph.nodeMutexGroupData;
+            var mutexItems = mutexData.GetMutexItems(groupId);
+
+            if (mutexItems == null)
             {
-                var targetNode = kvp.Value;
-                if (targetNode.Id == logicInfo.ToString()) continue; // 需修正：这里逻辑上应该是排除触发互斥的源节点
+                // 如果填了 MutexGroup 但没在 nodes_mutex_group 里定义，可能是配置错误
+                // 但也可能是简单的单向互斥，这里可以选择 LogWarning 或忽略
+                return; 
+            }
 
-                if (targetNode.r_NodeData.Logic != null && targetNode.r_NodeData.Logic.MutexGroup == mutexGroup)
+            // 2. 遍历该组定义的所有条目
+            foreach (var item in mutexItems)
+            {
+                // 情况 A: 单个节点互斥
+                if (!string.IsNullOrEmpty(item.SingleNodeId))
                 {
-                    InvalidateNode(targetNode.Id);
+                    // 只要不是自己，就作废
+                    if (item.SingleNodeId != sourceNodeId)
+                    {
+                        InvalidateNode(item.SingleNodeId);
+                    }
+                }
+
+                // 情况 B: 节点组互斥 (列表)
+                if (item.GroupNodeIds != null)
+                {
+                    foreach (var targetId in item.GroupNodeIds)
+                    {
+                        // 只要不是自己，就作废
+                        if (targetId != sourceNodeId)
+                        {
+                            InvalidateNode(targetId);
+                        }
+                    }
                 }
             }
         }
 
         private void InvalidateNode(string nodeId)
         {
+            // 尝试获取目标节点 (必须是已加载到 MindMap 的节点)
             if (_mindMapManager.TryGetNode(nodeId, out var node))
             {
-                if (node.Status != RunTimeNodeStatus.Submitted)
+                // 只有非 Submitted 的节点才会被作废
+                // 已提交的节点通常是“赢家”，不能被作废
+                if (node.Status != RunTimeNodeStatus.Submitted && !node.IsInvalidated)
                 {
                     node.IsInvalidated = true;
+                    Debug.Log($"[NodeLogic] 互斥生效：节点 {nodeId} 已被作废。");
                     GameEventDispatcher.DispatchNodeStatusChanged(node);
                 }
             }
         }
+
+        // ========================================================================
 
         private void ProcessAutoVerify()
         {
@@ -106,7 +159,10 @@ namespace LogicEngine.LevelLogic
                         if (CheckDependencies(node.r_NodeData.Logic.DependsOn))
                         {
                             _mindMapManager.SetNodeStatus(node.Id, RunTimeNodeStatus.Submitted);
-                            ProcessMutex(node.r_NodeData.Logic);
+                            
+                            // [修改] 传入 ID
+                            ProcessMutex(node.Id, node.r_NodeData.Logic);
+                            
                             hasChanged = true;
                         }
                     }
@@ -114,7 +170,7 @@ namespace LogicEngine.LevelLogic
             }
         }
 
-        // --- Dependency Parsing ---
+        // --- Dependency Parsing (保持不变) ---
 
         private bool CheckDependencies(JToken dependsOn)
         {

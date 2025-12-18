@@ -93,5 +93,19 @@ namespace Interrorgation.MidLayer
         {
             OnPhaseUnlockEvents?.Invoke(completedPhaseName, nextPhases);
         }
+
+        public static event Action<string> OnPlayerRequestPhaseSwitch;
+        public static void DispatchPlayerRequestPhaseSwitch(string phaseId)
+        {
+            OnPlayerRequestPhaseSwitch?.Invoke(phaseId);
+        }
+        
+        // [新增] Logic -> UI: 发送当前可用的切换列表 (用于 UI 显示侧边栏按钮或弹窗)
+        // 这通常在状态变更时自动触发，或者 UI 主动查询
+        public static event Action<List<(string id, string name, string status)>> OnAvailablePhasesChanged;
+        public static void DispatchAvailablePhasesChanged(List<(string, string, string)> phases)
+        {
+            OnAvailablePhasesChanged?.Invoke(phases);
+        }
     }
 }

@@ -207,7 +207,11 @@ public class AIRealIntegrationTester : MonoBehaviour
         var playerMap = new PlayerMindMapManager(graph);
         var phaseMgr = new GamePhaseManager(playerMap);
         var logicMgr = new NodeLogicManager(playerMap);
+        var scopeMgr = new GameScopeManager(playerMap); // New
+
         logicMgr.SetPhaseManager(phaseMgr);
+        logicMgr.SetScopeManager(scopeMgr); // New
+        scopeMgr.SetLogicManager(logicMgr); // New
 
         // [修改] 反射注入所有字段
         var t = typeof(InterrorgationLevelManager);
@@ -215,6 +219,7 @@ public class AIRealIntegrationTester : MonoBehaviour
         t.GetField("playerMindMapManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, playerMap);
         t.GetField("gamePhaseManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, phaseMgr); // 注入 Phase
         t.GetField("nodeLogicManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, logicMgr); // 注入 Logic
+        t.GetField("gameScopeManager", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(manager, scopeMgr);
         
         // 启动
         manager.StartGameLogic(); 
