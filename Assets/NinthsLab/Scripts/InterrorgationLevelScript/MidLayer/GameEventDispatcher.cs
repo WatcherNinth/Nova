@@ -107,5 +107,11 @@ namespace Interrorgation.MidLayer
         {
             OnAvailablePhasesChanged?.Invoke(phases);
         }
+
+        public static event Action<List<string>> OnScopeStackChanged;
+        public static void DispatchScopeStackChanged(List<string> scopeStack)
+        {
+            OnScopeStackChanged?.Invoke(scopeStack);
+        }
     }
 }

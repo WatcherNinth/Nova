@@ -51,5 +51,11 @@ namespace Interrorgation.MidLayer
         {
             OnShowPhaseSelection?.Invoke(completedPhase, nextPhases);
         }
+
+        public static event Action<string, List<string>> OnPlayerSubmitTemplateAnswer;
+        public static void DispatchPlayerSubmitTemplateAnswer(string templateId, List<string> answers)
+        {
+            OnPlayerSubmitTemplateAnswer?.Invoke(templateId, answers);
+        }
     }
 }
