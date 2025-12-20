@@ -110,7 +110,13 @@ public class AIRealIntegrationTesterEditor : Editor
             }
             else if (status == RuntimePhaseStatus.Completed)
             {
-                EditorGUILayout.LabelField($"✅ {phaseId} (已完成)", EditorStyles.miniLabel);
+                EditorGUILayout.LabelField($"✅ {phaseId} (已完成)");
+                
+                // [新增] 允许切换到已完成的阶段（用于测试并行路径）
+                if (GUILayout.Button("重新进入 (Reenter)", GUILayout.Width(120)))
+                {
+                    tester.SwitchPhase(phaseId);
+                }
             }
             
             EditorGUILayout.EndHorizontal();
@@ -132,6 +138,34 @@ public class AIRealIntegrationTesterEditor : Editor
                 }
                 GUI.backgroundColor = Color.white;
             }
+        }
+
+        // [新增] 快速切换面板：显示所有可切换的阶段
+        EditorGUILayout.Space(5);
+        EditorGUILayout.LabelField("⚡ 快速切换 (所有可用目标):", EditorStyles.boldLabel);
+        var switchTargets = phaseMgr.GetAvailableSwitchTargets();
+        if (switchTargets.Count > 0)
+        {
+            EditorGUILayout.BeginHorizontal("helpbox");
+            foreach (var target in switchTargets)
+            {
+                string statusIcon = target.status switch
+                {
+                    "New" => "✨",
+                    "Paused" => "⏸️",
+                    _ => "❓"
+                };
+                
+                if (GUILayout.Button($"{statusIcon} {target.id}", GUILayout.Width(150)))
+                {
+                    tester.SwitchPhase(target.id);
+                }
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("无可切换的目标（所有阶段都已解锁或进行中）", MessageType.Info);
         }
         
         EditorGUILayout.EndVertical();

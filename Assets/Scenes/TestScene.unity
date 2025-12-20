@@ -409,7 +409,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 291, y: -49}
+  m_AnchoredPosition: {x: 931, y: -39.925003}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &333306516
@@ -1369,7 +1369,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.38, y: -0.000015259}
+  m_AnchoredPosition: {x: -757, y: 433}
   m_SizeDelta: {x: 850.24, y: 340.29}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &772221752
@@ -1390,7 +1390,7 @@ MonoBehaviour:
   _container: {fileID: 1382697080}
   _checkButton: {fileID: 993649942}
   _resultText: {fileID: 1460006630}
-  _listenToGameEvents: 1
+  _simulatedOwnerId: argument_001
   _jsonContent: "{\r\n  \"text\": \"\u4F4D\u4E8E\u5927\u697C\u5916\u4FA7{0}\u4E0A\u7684{1}\u662F\u6709\u4EBA{2}\u51FA\u6765\u7684\",\r\n 
     \"answer\": {\r\n    \"falsified_footprints\": [\r\n      \"ground\",\r\n     
     \"footprint\",\r\n      \"falsify\"\r\n    ],\r\n    \"falsified_ground_bloodstain\":
@@ -1497,6 +1497,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8f5a5d0ec33b0447b352e26fac109d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetFileName: demo_v2.json
+  currentPhaseId: phase1
+  playerInput: "\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u8C01\u7684\uFF1F"
+  modelName: qwen3-235b-a22b-instruct-2507
+  mustContainString: fifteenth_floor
+  mustNotContainString: murderer_did_it
+  _aiClient: {fileID: 0}
+  _cachedJsonPayload: 
 --- !u!114 &820382169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1628,11 +1636,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetFileName: demo_v2.json
+  phaseId: phase1
   playerInput: "\u6211\u89C9\u5F97\u5341\u4E94\u697C\u7684\u8840\u8FF9\u662F\u4F2A\u9020\u7684"
   isWaitingResponse: 0
-  lastAIReasoning: 
-  statusLog: 
-  currentScopeStack: []
 --- !u!114 &854165711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1671,8 +1677,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 841274798657f0a4d89d66ed55e9c036, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  discoveredNodesDesc: []
+  discoveredNodes: []
   unlockedEntities: []
+  discoveredTemplates: []
   activePhases: []
   autoRefresh: 1
 --- !u!1 &858498225
@@ -2927,7 +2934,6 @@ Transform:
   - {fileID: 1560413084}
   - {fileID: 820382165}
   - {fileID: 854165709}
-  - {fileID: 2137467044}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1301098746
@@ -3102,7 +3108,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000072122, y: 35.095}
+  m_AnchoredPosition: {x: -0.46, y: 33.82}
   m_SizeDelta: {x: 794.11, y: 220.25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1382697081
@@ -3343,7 +3349,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 512, y: -39.925003}
+  m_AnchoredPosition: {x: 1032.2, y: -39.925003}
   m_SizeDelta: {x: 29.97, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1535032018
@@ -4198,7 +4204,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 708, y: -49}
+  m_AnchoredPosition: {x: 1145.1, y: -39.925003}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1992514168
@@ -4428,54 +4434,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &2137467043
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2137467044}
-  - component: {fileID: 2137467045}
-  m_Layer: 0
-  m_Name: FrontendTest
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2137467044
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2137467043}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1230176546}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2137467045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2137467043}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b69defa73b804d745845b9f1bd1ab33b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  autoPlay: 0
-  triggerKey: 32
-  currentScenario: 0
-  isPlaying: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
