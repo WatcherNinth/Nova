@@ -80,6 +80,7 @@ namespace Interrorgation.MidLayer
         }
         // [新增] Logic -> UI: 产生对话/剧情文本
         // List<string> 是文本列表
+        // 注：进入dialoguesystem时，将从List<string>中一行一行提取文本
         public static event Action<List<string>> OnDialogueGenerated;
         public static void DispatchDialogueGenerated(List<string> dialogues)
         {

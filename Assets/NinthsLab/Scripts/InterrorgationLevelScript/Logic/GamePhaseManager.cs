@@ -67,7 +67,7 @@ namespace LogicEngine.LevelLogic
                     // 触发对话
                     if (phaseData.Dialogue?.OnPhaseComplete != null)
                     {
-                        var lines = DialogueRuntimeHelper.GenerateDialogueLines(phaseData.Dialogue.OnPhaseComplete);
+                        var lines = DialogueParser.GetRuntimeDialogueList(phaseData.Dialogue.OnPhaseComplete);
                         GameEventDispatcher.DispatchDialogueGenerated(lines);
                     }
 
@@ -205,7 +205,7 @@ namespace LogicEngine.LevelLogic
                 var phaseData = _mindMapManager.levelGraph.phasesData[targetPhaseId];
                 if (phaseData.Dialogue?.OnPhaseStart != null)
                 {
-                    var lines = DialogueRuntimeHelper.GenerateDialogueLines(phaseData.Dialogue.OnPhaseStart);
+                    var lines = DialogueParser.GetRuntimeDialogueList(phaseData.Dialogue.OnPhaseStart);
                     GameEventDispatcher.DispatchDialogueGenerated(lines);
                 }
             }

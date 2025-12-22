@@ -69,7 +69,7 @@ namespace LogicEngine.LevelLogic
         private void TriggerDialogue(JToken dialogueScript)
         {
             if (dialogueScript == null) return;
-            var lines = DialogueRuntimeHelper.GenerateDialogueLines(dialogueScript);
+            var lines = DialogueParser.GetRuntimeDialogueList(dialogueScript);
             if (lines != null && lines.Count > 0)
             {
                 GameEventDispatcher.DispatchDialogueGenerated(lines);

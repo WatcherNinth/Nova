@@ -335,6 +335,52 @@ namespace LogicEngine
                 }
             }
         }
+        
+        /// <summary>
+        /// 运行时对话生成器：调用内部 Parser 执行逻辑，并将结果转为 UI 可用的列表。
+        /// <para>支持 NovaScript 语法：文本中的 &lt;| show(...) |&gt; 等指令会原样保留传给前端。</para>
+        /// </summary>
+        public static List<string> GetRuntimeDialogueList(JToken dialogueJsonToken)
+        {
+            List<string> lines = new List<string>();
+            if (dialogueJsonToken == null) return lines;
+
+            // 1. 将 JToken 转为 string，喂给 ParseDialogue
+            // ParseDialogue 会执行 limit 检查和文本合并，但不会处理 Nova 的具体指令（如 show/hide），
+            // 而是将其作为文本内容的一部分保留
+            string jsonInput = dialogueJsonToken.ToString();
+            string parsedJson = ParseDialogue(jsonInput);
+
+            // 2. 将返回的 JSON 字符串转回对象，提取内容
+            JObject resultObj;
+            try
+            {
+                resultObj = JObject.Parse(parsedJson);
+            }
+            catch
+            {
+                // 解析失败容错
+                return lines;
+            }
+
+            // 3. 转换为 List<string> 给 UI
+            foreach (var prop in resultObj.Properties())
+            {
+                if (prop.Name.StartsWith("text"))
+                {
+                    // 直接添加文本内容
+                    // 前端解析器(NovaScriptParser)后续会处理其中的 @<|...|> 和 <|...|>
+                    lines.Add(prop.Value.ToString());
+                }
+                else if (prop.Name.StartsWith("call_choice_group"))
+                {
+                    // 特殊指令前缀，UI层解析
+                    lines.Add($"[EVENT:CallChoiceGroup:{prop.Value}]");
+                }
+            }
+
+            return lines;
+        }
 
         /// <summary>
         /// 辅助判断：key是否属于对话逻辑节点
