@@ -39,6 +39,8 @@ namespace Interrorgation.MidLayer
             // [新增] 监听后端输出
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
+
+            GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
         }
 
         void OnDisable()
@@ -47,6 +49,8 @@ namespace Interrorgation.MidLayer
             
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
+
+            GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
         }
 
         void Awake()
@@ -61,11 +65,17 @@ namespace Interrorgation.MidLayer
 
         void HandleDialogueGenerated(List<string> dialogues)
         {
-            // 不再是假设，而是直接转发给 UI 总线
-            UIEventDispatcher.DispatchShowDialogues(dialogues);
+            Debug.Log($"[Coordinator] 收到 {dialogues.Count} 行对话，转发给 DialogueSystem。");
             
-            // Debug 日志可以保留，方便调试
-            // foreach(var line in dialogues) Debug.Log($"[Coordinator转发] 对话: {line}");
+            // 【关键】将数据推入对话系统
+            if (dialogueManager != null)
+            {
+                dialogueManager.PushNewBatch(dialogues);
+            }
+            else
+            {
+                Debug.LogError("Coordinator 未绑定 DialogueRuntimeManager！");
+            }
         }
 
         // [修改] 处理阶段解锁
