@@ -2,6 +2,7 @@
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
 using System.Collections.Generic; 
+using DialogueSystem;
 
 namespace Interrorgation.MidLayer
 {
@@ -32,6 +33,9 @@ namespace Interrorgation.MidLayer
 
         #endregion
 
+        [Header("References")]
+        [SerializeField] private DialogueRuntimeManager dialogueManager;
+
         void OnEnable()
         {
             UIEventDispatcher.OnPlayerSubmitInput += HandlePlayerSubmitInput;
@@ -39,8 +43,6 @@ namespace Interrorgation.MidLayer
             // [新增] 监听后端输出
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
-
-            GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
         }
 
         void OnDisable()
@@ -49,8 +51,6 @@ namespace Interrorgation.MidLayer
             
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
-
-            GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
         }
 
         void Awake()
