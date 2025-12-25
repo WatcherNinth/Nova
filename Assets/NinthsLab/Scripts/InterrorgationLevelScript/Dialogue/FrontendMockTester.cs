@@ -35,13 +35,27 @@ namespace FrontendEngine.Tests
         [Header("控制")]
         public bool autoPlayOnStart = false;
 
+        [Header("头像测试")]
+        [Tooltip("设置谁是主角 (对应 StandardDialogueUI 的 ProtagonistId)")]
+        public string testProtagonistId = "AnLee";
+
+        [Tooltip("场景中的 UI 控制器 (需要拖拽赋值)")]
+        public FrontendEngine.StandardDialogueUI dialogueUI;
+
         private void Start()
         {
+            // [新增] 在开始时将测试的主角ID注入到 UI 中
+            if (dialogueUI != null)
+            {
+                dialogueUI.protagonistId = testProtagonistId;
+            }
+
             if (autoPlayOnStart)
             {
                 RunSimulation();
             }
         }
+
 
         [ContextMenu("▶ 运行模拟 (Push Script)")]
         public void RunSimulation()

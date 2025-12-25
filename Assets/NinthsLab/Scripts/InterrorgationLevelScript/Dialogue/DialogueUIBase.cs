@@ -1,88 +1,98 @@
+using System.Collections;
 using UnityEngine;
 using TMPro;
-using System.Collections;
 using DialogueSystem;
 
 namespace FrontendEngine
 {
     public abstract class DialogueUIBase : MonoBehaviour
     {
-        [Header("Base References")]
+        [Header("Components")]
         [SerializeField] protected TMP_Text nameText;
         [SerializeField] protected TMP_Text bodyText;
+        
+        [Header("Settings")]
         [SerializeField] protected float typeSpeed = 0.05f;
 
         protected bool isTyping = false;
-        protected string currentFullText = "";
+        protected string fullTargetText = "";
 
-        // --- 1. 统一的生命周期 ---
+        // =========================================================
+        // [修复点 1] 定义虚方法 Awake
+        // MonoBehaviour 的 Awake 默认不是 virtual 的，
+        // 如果子类想用 override Awake()，父类必须显式定义它。
+        // =========================================================
+        protected virtual void Awake()
+        {
+            // 父类可能不需要在 Awake 做事，但必须留着这个坑给子类跳
+        }
+
         protected virtual void OnEnable()
         {
-            DialogueEventDispatcher.OnShowDialogue += HandleShowDialogue;
+            DialogueEventDispatcher.OnShowDialogue += OnShowDialogue;
         }
 
         protected virtual void OnDisable()
         {
-            DialogueEventDispatcher.OnShowDialogue -= HandleShowDialogue;
+            DialogueEventDispatcher.OnShowDialogue -= OnShowDialogue;
         }
 
-        // --- 2. 核心逻辑 (不要在子类重写这个，除非特殊情况) ---
-        private void HandleShowDialogue(DialogueEntry entry)
+        // 核心流程
+        private void OnShowDialogue(DialogueEntry entry)
         {
-            currentFullText = entry.Content;
+            fullTargetText = entry.Content;
             
-            // 调用子类的视觉设置（比如换皮肤、变颜色）
-            OnBeforeShowDialogue(entry);
+            // 调用子类的钩子
+            OnBeforeDisplay(entry);
 
-            // 设置名字
-            if(nameText) nameText.text = entry.DisplayName;
-            
-            // 开始打字
-            if(bodyText) 
+            if (nameText) nameText.text = entry.DisplayName;
+            if (bodyText)
             {
                 StopAllCoroutines();
-                StartCoroutine(TypewriterRoutine(currentFullText));
+                StartCoroutine(TypewriterRoutine(fullTargetText));
             }
         }
 
-        // --- 3. 抽象方法 (子类必须实现或重写的视觉逻辑) ---
-        
-        // 子类可以在这里播放弹窗动画、切换背景板等
-        protected virtual void OnBeforeShowDialogue(DialogueEntry entry) {}
-
-        // 子类可以重写打字机结束后的表现（比如显示一个小箭头）
-        protected virtual void OnTypingComplete() {}
-
-        // --- 4. 点击处理 (供 UI 按钮调用) ---
         public void OnClickContainer()
         {
             if (isTyping)
             {
-                // 瞬间显示全
                 StopAllCoroutines();
-                bodyText.text = currentFullText;
+                bodyText.text = fullTargetText;
                 isTyping = false;
                 OnTypingComplete();
             }
             else
             {
-                // 请求下一句
                 DialogueEventDispatcher.DispatchRequestNext();
             }
         }
 
-        // 打字机协程 (基类处理)
         private IEnumerator TypewriterRoutine(string text)
         {
             isTyping = true;
             bodyText.text = "";
-            foreach (char letter in text.ToCharArray())
+            foreach (char c in text)
             {
-                bodyText.text += letter;
+                bodyText.text += c;
                 yield return new WaitForSeconds(typeSpeed);
             }
             isTyping = false;
             OnTypingComplete();
         }
+
+        // =========================================================
+        // [修复点 2] 确保定义了这些虚方法，且签名与子类一致
+        // =========================================================
+        
+        /// <summary>
+        /// 在显示文本之前触发（用于设置颜色、头像、隐藏箭头等）
+        /// </summary>
+        protected virtual void OnBeforeDisplay(DialogueEntry entry) {}
+
+        /// <summary>
+        /// 打字机效果播放完毕后触发（用于显示箭头）
+        /// </summary>
+        protected virtual void OnTypingComplete() {}
     }
 }
