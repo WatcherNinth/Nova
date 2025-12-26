@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using DialogueSystem;
 
 namespace FrontendEngine
@@ -8,23 +9,21 @@ namespace FrontendEngine
     public class DialogueLogPanel : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private GameObject panelRoot; // 面板本身的根节点 (用于开关)
-        [SerializeField] private Transform contentContainer; // ScrollView 的 Content
-        [SerializeField] private LogItemUI itemPrefab; // 单条日志的预制体
+        [SerializeField] private GameObject panelRoot;
         [SerializeField] private ScrollRect scrollRect;
+        [SerializeField] private TMP_Text fullLogText; 
 
         [Header("Buttons")]
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button openButton; // 场景中一直显示的“Log”按钮
+        [SerializeField] private Button openButton;
 
-        // 对象池 (简单的优化，避免重复 Instantiate)
-        private List<LogItemUI> _spawnedItems = new List<LogItemUI>();
+        [Header("Formatting")]
+        [Tooltip("条目之间的间距 (换行符数量)")]
+        [SerializeField] private int spacingLines = 2;
 
         private void Start()
         {
-            // 初始化状态
             panelRoot.SetActive(false);
-
             if (closeButton) closeButton.onClick.AddListener(Hide);
             if (openButton) openButton.onClick.AddListener(Show);
         }
@@ -33,10 +32,8 @@ namespace FrontendEngine
         {
             RefreshUI();
             panelRoot.SetActive(true);
-            
-            // 自动滚动到底部
-            // 需要等待一帧让 UI 布局刷新，否则滚动位置可能不对
-            StartCoroutine(ScrollToBottom());
+            Canvas.ForceUpdateCanvases();
+            scrollRect.verticalNormalizedPosition = 0f;
         }
 
         public void Hide()
@@ -46,44 +43,34 @@ namespace FrontendEngine
 
         private void RefreshUI()
         {
-            // 1. 获取数据
             if (DialogueLogManager.Instance == null) return;
             var logs = DialogueLogManager.Instance.GetLogs();
 
-            int index = 0;
-            
-            // 2. 遍历数据并显示
+            StringBuilder sb = new StringBuilder();
+
             foreach (var entry in logs)
             {
-                LogItemUI item;
-
-                // 简单的对象池逻辑：如果池子里有就复用，没有就生成
-                if (index < _spawnedItems.Count)
+                if (!string.IsNullOrEmpty(entry.DisplayName))
                 {
-                    item = _spawnedItems[index];
-                    item.gameObject.SetActive(true);
+                    sb.Append($"{entry.DisplayName}\n");
                 }
-                else
-                {
-                    item = Instantiate(itemPrefab, contentContainer);
-                    _spawnedItems.Add(item);
-                }
+                sb.Append(entry.Content);
 
-                item.Setup(entry);
-                index++;
+                for (int i = 0; i < spacingLines; i++)
+                {
+                    sb.Append("\n");
+                }
             }
 
-            // 3. 隐藏多余的池对象
-            for (int i = index; i < _spawnedItems.Count; i++)
+            // 1. 更新 UI 文本
+            fullLogText.text = sb.ToString();
+
+            // 2. [核心修复] 通知 SelectionHandler 文本变了，清空它的旧缓存
+            var handler = fullLogText.GetComponent<FrontendEngine.UI.RichTextSelectionHandler>();
+            if (handler != null)
             {
-                _spawnedItems[i].gameObject.SetActive(false);
+                handler.ResetCache();
             }
-        }
-
-        private System.Collections.IEnumerator ScrollToBottom()
-        {
-            yield return new WaitForEndOfFrame();
-            if(scrollRect) scrollRect.verticalNormalizedPosition = 0f;
         }
     }
 }
