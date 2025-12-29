@@ -29,30 +29,40 @@ namespace FrontendEngine.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            Debug.Log($"<color=yellow>[Selection] OnPointerDown 触发 at {eventData.position}</color>");
+            // 1. 无论点哪里，只要按下鼠标，就先隐藏之前的菜单
+            if (SelectionMenuController.Instance != null)
+            {
+                SelectionMenuController.Instance.Hide();
+            }
 
-            // 1. 获取点击索引
+            // 2. 获取点击位置的字符索引
             int index = GetCharacterIndexAtPosition(eventData.position);
-            
-            Debug.Log($"[Selection] 点击检测结果 Index: {index}");
 
             if (index != -1)
             {
-                // 初始化原始文本
+                // Debug.Log($"[Selection] 按下索引: {index}");
+
+                // 3. 缓存或还原原始文本
+                // 如果 _originalText 为空，或者当前 UI 文本里没有 <mark> 标签（说明是干净的）
                 if (string.IsNullOrEmpty(_originalText) || !_textComponent.text.Contains(MARK_PREFIX))
                 {
                     _originalText = _textComponent.text;
-                    Debug.Log($"[Selection] 缓存原始文本 (长度: {_originalText.Length})");
                 }
                 else
                 {
-                    // 还原脏数据
+                    // 如果 UI 文本里已经有 <mark>（说明上一次的选中状态还在），
+                    // 我们必须先把它还原成纯文本，防止 <mark> 标签嵌套导致乱码
                     _textComponent.text = _originalText;
-                    Debug.Log("[Selection] 还原脏文本");
                 }
 
+                // 4. 初始化选区起止点
                 _startIndex = index;
                 _currentIndex = index;
+            }
+            else
+            {
+                // 5. 如果点到了文字的空白处（行间距或边缘），清除之前的选中状态
+                ClearSelection();
             }
         }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -8,6 +9,9 @@ namespace DialogueSystem
     {
         private static readonly Regex LazyBlockRegex = new Regex(@"^<\|\s*(.+)\s*\|>$");
         private static readonly Regex EagerBlockRegex = new Regex(@"^@<\|\s*(.+)\s*\|>$");
+        
+        // 匹配 funcName(args...) 
+        // 这里的 (.*) 会捕获括号内的所有内容，包括嵌套的括号
         private static readonly Regex CommandFuncRegex = new Regex(@"^(\w+)\s*\((.*)\)$");
 
         public static DialogueBatch ParseBatch(List<string> rawInputList)
@@ -15,33 +19,23 @@ namespace DialogueSystem
             var batch = new DialogueBatch();
             DialogueEntry currentEntry = null;
 
-            // =========================================================
-            // 1. [新增] 预处理：扁平化 (Flatten)
-            // 后端可能会发来包含 \n 的长字符串，我们需要先把它炸开成逐行的 List
-            // =========================================================
+            // 1. 预处理：扁平化
             List<string> processedLines = new List<string>();
-            
             if (rawInputList != null)
             {
                 foreach (var rawBlock in rawInputList)
                 {
                     if (string.IsNullOrEmpty(rawBlock))
                     {
-                        processedLines.Add(""); // 显式的空行保留
+                        processedLines.Add(""); 
                         continue;
                     }
-
-                    // 按换行符切割 (兼容 Windows \r\n 和 Unix \n)
                     string[] subLines = rawBlock.Split(new[] { "\r\n", "\r", "\n" }, System.StringSplitOptions.None);
-                    
                     processedLines.AddRange(subLines);
                 }
             }
 
-            // =========================================================
-            // 2. 逐行解析 (逻辑保持不变，但遍历源变成了 processedLines)
-            // =========================================================
-
+            // 2. 逐行解析
             DialogueEntry GetOrCreateEntry()
             {
                 if (currentEntry == null) currentEntry = new DialogueEntry();
@@ -60,19 +54,18 @@ namespace DialogueSystem
                 }
             }
 
-            foreach (var line in processedLines) // <--- 改为遍历预处理后的列表
+            foreach (var line in processedLines)
             {
                 string trimmed = line.Trim();
 
-                // --- 空行处理 (切换回合的核心) ---
+                // 空行处理
                 if (string.IsNullOrEmpty(trimmed))
                 {
-                    // 遇到空行（包括 \n\n 切割出来的空字符串），提交当前对话，这就实现了切分
                     CommitCurrentEntry();
                     continue;
                 }
 
-                // --- 提前执行块 ---
+                // 提前执行块
                 Match eagerMatch = EagerBlockRegex.Match(trimmed);
                 if (eagerMatch.Success)
                 {
@@ -81,7 +74,7 @@ namespace DialogueSystem
                     continue;
                 }
 
-                // --- 延迟代码块 ---
+                // 延迟代码块
                 Match cmdMatch = LazyBlockRegex.Match(trimmed);
                 if (cmdMatch.Success)
                 {
@@ -90,16 +83,10 @@ namespace DialogueSystem
                     continue;
                 }
 
-                // --- 文本行处理 ---
+                // 文本行处理
                 var entry = GetOrCreateEntry();
+                if (!string.IsNullOrEmpty(entry.Content)) entry.Content += "\n";
 
-                // 如果同一条 Entry 有多行文本，手动补回换行符
-                if (!string.IsNullOrEmpty(entry.Content))
-                {
-                    entry.Content += "\n";
-                }
-
-                // 检查 :: 分隔符
                 int sepIndex = trimmed.IndexOf("::");
                 if (sepIndex < 0) sepIndex = trimmed.IndexOf("：：");
 
@@ -116,46 +103,94 @@ namespace DialogueSystem
                     }
                     else
                     {
-                        // 如果之前已经是同一个人说话(多行合并)，保留原名；否则覆盖
                         if (string.IsNullOrEmpty(entry.DisplayName))
                         {
                             entry.DisplayName = namePart;
                             entry.CharacterId = namePart; 
                         }
                     }
-                    
                     entry.Content += textPart;
                 }
                 else
                 {
-                    // 纯文本行 (追加到上一行，或者旁白)
                     entry.Content += trimmed;
                 }
             }
 
-            CommitCurrentEntry(); // 提交最后一条
-
+            CommitCurrentEntry();
             return batch;
         }
 
-        // ... (ParseCommand 方法保持不变) ...
+        // =========================================================
+        // [核心修改] 指令解析逻辑
+        // =========================================================
         private static ScriptCommand ParseCommand(string cmdStr)
         {
             Match match = CommandFuncRegex.Match(cmdStr);
             if (match.Success)
             {
                 string funcName = match.Groups[1].Value;
-                string argsRaw = match.Groups[2].Value;
-                string[] args = argsRaw.Split(new char[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < args.Length; i++) args[i] = args[i].Trim().Trim('\'', '"');
+                string argsRaw = match.Groups[2].Value; // 例如: AnQiao, Smile, {0,0,0}
+                
+                // 1. 使用智能分割，支持嵌套结构
+                List<string> argList = SplitArgs(argsRaw);
+                string[] args = new string[argList.Count];
+
+                // 2. 清理参数
+                for (int i = 0; i < argList.Count; i++)
+                {
+                    // 只去除首尾空格，不再去除引号
+                    // 输入:  AnQiao  -> 输出: AnQiao
+                    // 输入: {0,0,0}  -> 输出: {0,0,0}
+                    args[i] = argList[i].Trim();
+                }
 
                 CommandType type = CommandType.Unknown;
-                if (funcName == "show") type = CommandType.Show;
-                else if (funcName == "hide") type = CommandType.Hide;
+                string lowerFunc = funcName.ToLower();
+                if (lowerFunc == "show") type = CommandType.Show;
+                else if (lowerFunc == "hide") type = CommandType.Hide;
 
                 return new ScriptCommand(type, args);
             }
+            
+            // 简单的容错处理：如果正则没匹配上（可能有多余空格等），视为空指令
             return new ScriptCommand(CommandType.Unknown);
+        }
+
+        /// <summary>
+        /// 智能参数分割器
+        /// 能够正确处理大括号 {} 和小括号 () 的嵌套，避免被逗号错误切分
+        /// </summary>
+        private static List<string> SplitArgs(string rawArgs)
+        {
+            List<string> list = new List<string>();
+            StringBuilder currentArg = new StringBuilder();
+            int depth = 0; // 嵌套深度
+
+            foreach (char c in rawArgs)
+            {
+                if (c == '{' || c == '(') depth++;
+                if (c == '}' || c == ')') depth--;
+
+                // 只有当深度为0时，逗号才作为参数分隔符
+                if (c == ',' && depth == 0)
+                {
+                    list.Add(currentArg.ToString());
+                    currentArg.Clear();
+                }
+                else
+                {
+                    currentArg.Append(c);
+                }
+            }
+
+            // 添加最后一个参数
+            if (currentArg.Length > 0)
+            {
+                list.Add(currentArg.ToString());
+            }
+
+            return list;
         }
     }
 }
