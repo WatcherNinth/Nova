@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ac91db446f64e15459713b3ee92868cb
+guid: ac214e393409698449b0954f643bdd9b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2837034488087880891
-    second: "QQ\u622A\u56FE20250622154450_0"
+      213: -6267149708184109106
+    second: chkly17jpsi2t81pfpv07vjpk54gh5z_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: "QQ\u622A\u56FE20250622154450_0"
+      name: chkly17jpsi2t81pfpv07vjpk54gh5z_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 697
-        height: 952
+        x: 74
+        y: 11
+        width: 625
+        height: 993
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bb4a20ee5db2f5720800000000000000
-      internalID: 2837034488087880891
+      spriteID: ecf3e719b8c9609a0800000000000000
+      internalID: -6267149708184109106
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      "QQ\u622A\u56FE20250622154450_0": 2837034488087880891
+      chkly17jpsi2t81pfpv07vjpk54gh5z_0: -6267149708184109106
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
