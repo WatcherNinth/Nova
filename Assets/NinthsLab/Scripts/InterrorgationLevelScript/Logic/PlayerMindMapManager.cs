@@ -248,6 +248,9 @@ namespace LogicEngine.LevelLogic
 
     public class RuntimeTemplateData
     {
+        /// <summary>
+        /// template的id，跟alltemplate的字典id对应。对于节点专属template，使用$"nodeTemplate_{node.Id}"
+        /// </summary>
         public readonly string Id;
         public readonly TemplateData r_TemplateData;
         public RunTimeTemplateDataStatus Status;
