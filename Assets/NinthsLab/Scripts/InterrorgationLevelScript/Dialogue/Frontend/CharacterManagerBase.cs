@@ -8,8 +8,14 @@ namespace FrontendEngine
 {
     public abstract class CharacterManagerBase : MonoBehaviour
     {
+        // [新增] 静态实例，方便 UI 等其他层读取配置
+        public static CharacterManagerBase Instance { get; private set; }
+
         [Header("Configuration")]
         [SerializeField] protected List<CharacterAsset> characterAssets;
+
+        [Tooltip("主角的角色ID，立绘管理器将忽略该 ID 的 Show 指令（只显示头像）")]
+        public string protagonistId = "AnLee";
 
         [Header("Dependencies")]
         [Tooltip("请拖入场景中的 StageLayoutManager")]
@@ -20,9 +26,14 @@ namespace FrontendEngine
 
         // 角色ID -> 资源配置的映射
         protected Dictionary<string, CharacterAsset> assetMap = new Dictionary<string, CharacterAsset>();
+        // 名字 -> ID 的映射，用于解析指令
+        protected Dictionary<string, string> nameToIdMap = new Dictionary<string, string>();
 
         protected virtual void Awake()
         {
+            // [新增] 设置单例
+            if (Instance == null) Instance = this;
+
             // 1. 初始化接口
             if (stageLayoutProviderRef is IStageLayoutProvider provider)
             {
@@ -36,7 +47,19 @@ namespace FrontendEngine
             // 2. 初始化资源索引
             foreach (var asset in characterAssets)
             {
-                if (asset) assetMap[asset.CharacterId] = asset;
+                if (asset)
+                {
+                    assetMap[asset.CharacterId] = asset;
+                    
+                    // [新增] 名字索引 (处理 "安·李" -> "AnLee")
+                    if (!string.IsNullOrEmpty(asset.DefaultDisplayName))
+                    {
+                        if (!nameToIdMap.ContainsKey(asset.DefaultDisplayName))
+                        {
+                            nameToIdMap[asset.DefaultDisplayName] = asset.CharacterId;
+                        }
+                    }
+                }
             }
         }
 
@@ -56,6 +79,18 @@ namespace FrontendEngine
             if (cmd.Args == null || cmd.Args.Length == 0) return;
             
             string charId = cmd.Args[0];
+
+            // [新增] 名字转 ID 映射，确保主角的名字也能被识别并忽略
+            if (!string.IsNullOrEmpty(charId) && nameToIdMap.TryGetValue(charId, out string realId))
+            {
+                charId = realId;
+            }
+
+            // [核心逻辑] 如果是主角，则立绘管理器直接忽略 Show 指令
+            if (charId == protagonistId && cmd.Type == CommandType.Show)
+            {
+                return;
+            }
 
             if (cmd.Type == CommandType.Show)
             {

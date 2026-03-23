@@ -12,9 +12,6 @@ namespace FrontendEngine
         [SerializeField] private GameObject nextArrow;
 
         [Header("Avatar System")]
-        [Tooltip("主角的角色ID (必须与剧本一致)，此角色的对话会显示头像")]
-        public string protagonistId = "AnLee"; 
-
         [SerializeField] private Image avatarImage; // 头像显示的Image组件
         [SerializeField] private GameObject avatarContainer; // 头像的父物体(用于控制显示/隐藏)
 
@@ -25,6 +22,9 @@ namespace FrontendEngine
         private Dictionary<string, CharacterAsset> _assetMap = new Dictionary<string, CharacterAsset>();
         private Dictionary<string, string> _nameToIdMap = new Dictionary<string, string>();
         private string _currentProtagonistVariant = "Normal"; // 记录主角当前的面部状态
+
+        // [新增] 统一从 CharacterManager 读取主角 ID
+        private string ProtagonistId => (CharacterManagerBase.Instance != null) ? CharacterManagerBase.Instance.protagonistId : "AnLee";
 
         protected override void Awake()
         {
@@ -76,7 +76,7 @@ namespace FrontendEngine
                     charId = realId;
                 }
 
-                if (charId == protagonistId && cmd.Type == CommandType.Show)
+                if (charId == ProtagonistId && cmd.Type == CommandType.Show)
                 {
                     string variant = cmd.Args.Length > 1 ? cmd.Args[1] : null;
                     if (!string.IsNullOrEmpty(variant))
@@ -106,7 +106,7 @@ namespace FrontendEngine
             }
             // =========================================================
 
-            if (entry.CharacterId == protagonistId)
+            if (entry.CharacterId == ProtagonistId)
             {
                 ShowAvatar();
             }
@@ -126,7 +126,7 @@ namespace FrontendEngine
         private void ShowAvatar()
         {
             if (avatarContainer) avatarContainer.SetActive(true);
-            RefreshAvatar(protagonistId);
+            RefreshAvatar(ProtagonistId);
         }
 
         private void HideAvatar()

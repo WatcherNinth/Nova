@@ -44,10 +44,10 @@ namespace FrontendEngine.Tests
 
         private void Start()
         {
-            // [新增] 在开始时将测试的主角ID注入到 UI 中
-            if (dialogueUI != null)
+            // [修改] 统一向 CharacterManager 注入主角 ID，因为 UI 现在从 Manager 读取
+            if (CharacterManagerBase.Instance != null)
             {
-                dialogueUI.protagonistId = testProtagonistId;
+                CharacterManagerBase.Instance.protagonistId = testProtagonistId;
             }
 
             if (autoPlayOnStart)
