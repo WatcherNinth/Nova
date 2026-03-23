@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using LogicEngine.Validation;
+using System.Linq;
 
 namespace LogicEngine.LevelGraph
 {
@@ -38,6 +39,36 @@ namespace LogicEngine.LevelGraph
         // 核心数据：<KeywordID, EntityInfo>
         public Dictionary<string, EntityItem> Data { get; set; } 
             = new Dictionary<string, EntityItem>();
+
+        /// <summary>
+        /// 根据名称或别名尝试获取实体 ID (忽略大小写)
+        /// </summary>
+        /// <param name="name">玩家输入的名称</param>
+        /// <returns>找到的 KeywordID，否则返回 null</returns>
+        public string TryGetEntityIdByName(string name)
+        {
+            if (Data == null || string.IsNullOrEmpty(name)) return null;
+
+            foreach (var kvp in Data)
+            {
+                var entity = kvp.Value;
+                if (entity == null) continue;
+
+                // 1. 匹配主名称
+                if (string.Equals(entity.Name, name, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return kvp.Key;
+                }
+
+                // 2. 匹配别名列表
+                if (entity.Alias != null && entity.Alias.Any(a => string.Equals(a, name, System.StringComparison.OrdinalIgnoreCase)))
+                {
+                    return kvp.Key;
+                }
+            }
+
+            return null;
+        }
 
         public void OnValidate(ValidationContext context)
         {

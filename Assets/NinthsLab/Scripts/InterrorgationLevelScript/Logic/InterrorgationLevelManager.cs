@@ -5,7 +5,6 @@ using Interrorgation.MidLayer;
 using AIEngine.Network;
 using System.IO;
 using LogicEngine.Parser;
-
 using System.Collections.Generic; // 引入 List
 
 namespace LogicEngine.LevelLogic
@@ -52,6 +51,9 @@ namespace LogicEngine.LevelLogic
         private GamePhaseManager gamePhaseManager;
         private NodeLogicManager nodeLogicManager;
         private GameScopeManager gameScopeManager;
+        private TemplateLogicManager templateLogicManager;
+        
+
         private void OnEnable()
         {
             _instance = this;
@@ -62,7 +64,6 @@ namespace LogicEngine.LevelLogic
             AIEventDispatcher.OnResponseReceived += HandleResponseReceived;
 
             GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
-            GameEventDispatcher.OnPlayerSubmitTemplateAnswer += HandleTemplateSubmit; // [新增]
             GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
         }
 
@@ -75,8 +76,10 @@ namespace LogicEngine.LevelLogic
             AIEventDispatcher.OnResponseReceived -= HandleResponseReceived;
 
             GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
-            GameEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandleTemplateSubmit; // [新增]
             GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
+            
+            // [新增] 清理逻辑管理器
+            templateLogicManager?.Dispose();
         }
 
         private void Start()
@@ -101,9 +104,9 @@ namespace LogicEngine.LevelLogic
             string relativePath = "Resources/TestResources";
             // 1. 获取完整路径
             string fullPath = Path.Combine(Application.dataPath, relativePath, $"{name}.json");
-            if (!Directory.Exists(fullPath))
+            if (!File.Exists(fullPath))
             {
-                Debug.LogError($"[InterrorgationLevelManager] 找不到关卡文件路径: {fullPath}");
+                Debug.LogError($"[InterrorgationLevelManager] 找不到关卡文件: {fullPath}");
                 return null;
             }
             return fullPath;
@@ -113,6 +116,9 @@ namespace LogicEngine.LevelLogic
         {
             string path = GetLevelFilePath(name);
             if(path == null) return;
+
+            // [新增] 在重新加载前清理旧的逻辑管理器，防止事件重复订阅
+            templateLogicManager?.Dispose();
 
             string levelJson = File.ReadAllText(path);
             currentLevelGraph = LevelGraphParser.Parse(levelJson);
@@ -130,7 +136,10 @@ namespace LogicEngine.LevelLogic
             // 4. [新增] 初始化 Scope
             gameScopeManager = new GameScopeManager(playerMindMapManager);
 
-            // 5. 注入依赖 (互相连接)
+            // 5. [新增] 初始化 Template Logic
+            templateLogicManager = new TemplateLogicManager(playerMindMapManager, nodeLogicManager);
+
+            // 6. 注入依赖 (互相连接)
             nodeLogicManager.SetPhaseManager(gamePhaseManager);
             nodeLogicManager.SetScopeManager(gameScopeManager); // Logic -> Scope
             gameScopeManager.SetLogicManager(nodeLogicManager); // Scope -> Logic
@@ -157,25 +166,6 @@ namespace LogicEngine.LevelLogic
                 currentPhaseId = "phase1";
             }
         } 
-
-        private void HandleTemplateSubmit(string templateId, List<string> inputs)
-        {
-            if (playerMindMapManager != null && nodeLogicManager != null)
-            {
-                // 1. MindMap 验证
-                string targetNodeId = playerMindMapManager.ValidateTemplateAnswer(templateId, inputs);
-                
-                if (!string.IsNullOrEmpty(targetNodeId))
-                {
-                    // 2. Logic 证明
-                    nodeLogicManager.TryProveNode(targetNodeId);
-                }
-                else
-                {
-                    Debug.Log($"[LevelManager] 填空验证失败。");
-                }
-            }
-        }
 
         private void HandlePhaseSwitchRequest(string targetPhaseId)
         {

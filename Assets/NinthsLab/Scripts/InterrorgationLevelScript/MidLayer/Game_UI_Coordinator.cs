@@ -1,7 +1,7 @@
 
 using DG.Tweening.Plugins.Options;
 using UnityEngine;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using DialogueSystem;
 
 namespace Interrorgation.MidLayer
@@ -39,18 +39,24 @@ namespace Interrorgation.MidLayer
         void OnEnable()
         {
             UIEventDispatcher.OnPlayerSubmitInput += HandlePlayerSubmitInput;
+            // [UI -> Game] 模板提交
+            UIEventDispatcher.OnPlayerSubmitTemplateAnswer += HandlePlayerSubmitTemplateAnswer;
             
             // [新增] 监听后端输出
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
+            // [Game -> UI] 模板发现
+            GameEventDispatcher.OnDiscoveredNewTemplates += HandleDiscoveredTemplates;
         }
 
         void OnDisable()
         {
             UIEventDispatcher.OnPlayerSubmitInput -= HandlePlayerSubmitInput;
+            UIEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandlePlayerSubmitTemplateAnswer;
             
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
+            GameEventDispatcher.OnDiscoveredNewTemplates -= HandleDiscoveredTemplates;
         }
 
         void Awake()
@@ -61,6 +67,13 @@ namespace Interrorgation.MidLayer
         void HandlePlayerSubmitInput(string input)
         {
             GameEventDispatcher.DispatchPlayerInputString(input);
+        }
+
+        // 处理 UI 侧发起的模板提交
+        void HandlePlayerSubmitTemplateAnswer(string templateId, List<string> answers)
+        {
+            // UI -> Game
+            GameEventDispatcher.DispatchPlayerSubmitTemplateAnswer(templateId, answers);
         }
 
         void HandleDialogueGenerated(List<string> dialogues)
@@ -83,6 +96,13 @@ namespace Interrorgation.MidLayer
         {
             // 转发给 UI 总线
             UIEventDispatcher.DispatchShowPhaseSelection(completedName, nextPhases);
+        }
+
+        // 处理逻辑侧分发的发现新模板
+        private void HandleDiscoveredTemplates(List<LogicEngine.LevelLogic.RuntimeTemplateData> templates)
+        {
+            // Game -> UI
+            UIEventDispatcher.DispatchDiscoveredNewTemplates(templates);
         }
     }
 }
