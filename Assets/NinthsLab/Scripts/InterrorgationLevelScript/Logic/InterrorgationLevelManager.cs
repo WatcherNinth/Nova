@@ -47,7 +47,7 @@ namespace LogicEngine.LevelLogic
         private LevelGraphData currentLevelGraph;
         private string currentPhaseId;
 
-        private PlayerMindMapManager playerMindMapManager;
+        public PlayerMindMapManager playerMindMapManager;
         private GamePhaseManager gamePhaseManager;
         private NodeLogicManager nodeLogicManager;
         private GameScopeManager gameScopeManager;
