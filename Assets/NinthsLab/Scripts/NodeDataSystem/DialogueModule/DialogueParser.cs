@@ -31,14 +31,21 @@ namespace LogicEngine
                 return "{}";
             }
 
-            // 规则2: 忽视对话头，直接取第一个有效的内容对象
             if (!root.HasValues) return "{}";
 
+            // 规则2: 如果有对话头就忽视对话头，直接取第一个有效的内容对象，否则直接塞root
             JProperty firstProp = root.Properties().First();
-            JObject dialogueContent = firstProp.Value as JObject;
+            JObject dialogueContent;
+            if (firstProp.Name.StartsWith("on_"))
+            {
+                dialogueContent = firstProp.Value as JObject;
 
-            if (dialogueContent == null) return "{}";
-
+                if (dialogueContent == null) return "{}";
+            }
+            else
+            {
+                dialogueContent = root;
+            }
             JObject resultObject = new JObject();
             StringBuilder textBuffer = new StringBuilder();
 
@@ -48,7 +55,7 @@ namespace LogicEngine
                 string key = property.Name;
                 JToken value = property.Value;
                 bool shouldStop = false;
-
+                Debug.Log($"[DialogueParser] 处理节点: {key} with value: {value.ToString(Formatting.None)}");
                 // 路由分发
                 if (key.StartsWith("text"))
                 {
@@ -71,6 +78,10 @@ namespace LogicEngine
                     FlushBufferToOutput(resultObject, textBuffer);
                     ResolveCallChoiceGroup(key, value, resultObject);
                     shouldStop = true;
+                }
+                else
+                {
+                    Debug.Log($"[DialogueParser] 未知节点类型: {key}，将被忽略。");
                 }
 
                 if (shouldStop) break;
@@ -96,7 +107,14 @@ namespace LogicEngine
             // 如果缓冲区不为空，添加换行符连接多段对话
             if (buffer.Length > 0)
             {
-                buffer.Append("\n");
+                if (!buffer.ToString().EndsWith("\n"))
+                {
+                    buffer.Append("\n\n");
+                }
+                else if (!buffer.ToString().EndsWith("\n\n"))
+                {
+                    buffer.Append("\n");
+                }
             }
             buffer.Append(text);
         }
@@ -350,6 +368,8 @@ namespace LogicEngine
             // 而是将其作为文本内容的一部分保留
             string jsonInput = dialogueJsonToken.ToString();
             string parsedJson = ParseDialogue(jsonInput);
+
+            Debug.Log($"[DialogueParser] 解析完成，结果 JSON: {parsedJson}");
 
             // 2. 将返回的 JSON 字符串转回对象，提取内容
             JObject resultObj;
