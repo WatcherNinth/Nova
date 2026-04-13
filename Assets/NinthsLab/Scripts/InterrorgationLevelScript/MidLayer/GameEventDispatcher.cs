@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LogicEngine.LevelLogic;
+using UnityEngine;
 
 namespace Interrorgation.MidLayer
 {
@@ -62,6 +63,7 @@ namespace Interrorgation.MidLayer
         public static event Action<string, List<string>> OnPlayerSubmitTemplateAnswer;
         public static void DispatchPlayerSubmitTemplateAnswer(string templateId, List<string> answers)
         {
+            Debug.Log($"[GameEventDispatcher] Dispatching PlayerSubmitTemplateAnswer: TemplateID={templateId}, Answers=[{string.Join(", ", answers)}]");
             OnPlayerSubmitTemplateAnswer?.Invoke(templateId, answers);
         }
 

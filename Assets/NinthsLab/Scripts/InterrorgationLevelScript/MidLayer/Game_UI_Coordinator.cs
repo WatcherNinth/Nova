@@ -55,6 +55,8 @@ namespace Interrorgation.MidLayer
 
             // [新增] 监听 AI 响应
             AIEventDispatcher.OnResponseReceived += HandleAIResponse;
+
+            UIEventDispatcher.OnNodeOptionSubmitted += HandleNodeOptionSubmitted;
         }
 
         void OnDisable()
@@ -68,11 +70,19 @@ namespace Interrorgation.MidLayer
 
             // [新增] 注销 AI 响应
             AIEventDispatcher.OnResponseReceived -= HandleAIResponse;
+
+            UIEventDispatcher.OnNodeOptionSubmitted -= HandleNodeOptionSubmitted;
         }
 
         void Awake()
         {
-
+            if (_instance != null && _instance != this)
+            {
+                Debug.LogWarning($"[Game_UI_Coordinator] 发现重复的 Coordinator 实例在 {gameObject.name} 上，正在销毁以防止重复事件触发。");
+                Destroy(gameObject);
+                return;
+            }
+            _instance = this;
         }
 
         void HandlePlayerSubmitInput(string input)
@@ -87,6 +97,11 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.DispatchPlayerSubmitTemplateAnswer(templateId, answers);
         }
 
+        void HandleNodeOptionSubmitted(string nodeId)
+        {
+            GameEventDispatcher.DispatchNodeOptionSubmitted(nodeId);
+        }
+
         private void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
         {
             if (context.IsSuccess)
@@ -94,6 +109,7 @@ namespace Interrorgation.MidLayer
                 Debug.Log("[Coordinator] 编排：模板成功序列");
                 GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId },
                     new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
+                UIEventDispatcher.DispatchDiscoveredNewNodes(new List<NodeData> { LevelGraphContext.CurrentGraph.nodeLookup[context.TargetNodeId].Node });
                 UIEventDispatcher.DispatchTemplateAnswerResult(context);
             }
             else

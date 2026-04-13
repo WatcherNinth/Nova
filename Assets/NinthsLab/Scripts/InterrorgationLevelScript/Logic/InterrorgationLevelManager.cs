@@ -149,7 +149,10 @@ namespace LogicEngine.LevelLogic
             {
                 // 调用 LogicManager
                 bool success = nodeLogicManager.TryProveNode(nodeId);
-                if (success) Debug.Log($"[LevelManager] 节点 {nodeId} 证明成功。");
+                if (success)
+                {
+                    Debug.Log($"[LevelManager] 节点 {nodeId} 证明成功。");
+                }
             }
         }
         // [新增] 启动逻辑 (激活初始阶段)

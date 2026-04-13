@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using LogicEngine;
-using LogicEngine.LevelLogic;
 using Interrorgation.MidLayer;
 
 namespace FrontendEngine
