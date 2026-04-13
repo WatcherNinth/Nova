@@ -57,5 +57,11 @@ namespace Interrorgation.MidLayer
         {
             OnPlayerSubmitTemplateAnswer?.Invoke(templateId, answers);
         }
+
+        public static event Action<GameEventDispatcher.TemplateSettlementContext> OnTemplateAnswerResult;
+        public static void DispatchTemplateAnswerResult(GameEventDispatcher.TemplateSettlementContext context)
+        {
+            OnTemplateAnswerResult?.Invoke(context);
+        }
     }
 }

@@ -92,12 +92,14 @@ namespace Interrorgation.MidLayer
             if (context.IsSuccess)
             {
                 Debug.Log("[Coordinator] 编排：模板成功序列");
-                GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId }, 
+                GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId },
                     new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
+                UIEventDispatcher.DispatchTemplateAnswerResult(context);
             }
             else
             {
                 Debug.Log("[Coordinator] 编排：模板失败表现");
+                UIEventDispatcher.DispatchTemplateAnswerResult(context);
             }
         }
 

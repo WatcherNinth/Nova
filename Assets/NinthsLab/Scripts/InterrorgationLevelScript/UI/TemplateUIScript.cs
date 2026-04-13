@@ -29,6 +29,7 @@ namespace FrontendEngine
         [SerializeField] private TMP_Text _textPrefab;
         [SerializeField] private TMP_Dropdown _dropdownPrefab;
         [SerializeField] private TMP_InputField _inputPrefab;
+        [SerializeField] private TMP_Text _outcomePrefab;
 
         // 运行时状态
         private TemplateData _currentData;
@@ -66,6 +67,19 @@ namespace FrontendEngine
         public void Hide()
         {
             if (_panelRoot) _panelRoot.SetActive(false);
+        }
+        
+        public void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
+        {
+            if (context.IsSuccess)
+            {
+                LevelGraphContext.CurrentGraph.nodeLookup.TryGetValue(context.TargetNodeId, out var node);
+                _outcomePrefab.text = $"回答正确！结果: {node.Node.Basic.Description}";
+            }
+            else
+            {
+                _outcomePrefab.text = $"回答错误，请再试一次。";
+            }
         }
 
         private void BuildUI(TemplateData data)

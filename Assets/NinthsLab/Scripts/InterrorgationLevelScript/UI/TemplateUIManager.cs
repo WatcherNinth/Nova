@@ -28,11 +28,13 @@ namespace FrontendEngine
         private void OnEnable()
         {
             UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
+            UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
         }
 
         private void OnDisable()
         {
             UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
+            UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
         }
 
         /// <summary>
@@ -76,7 +78,7 @@ namespace FrontendEngine
                 if (_templateMap.TryGetValue(runtimeData.Id, out var uiScript))
                 {
                     // 确保物体先激活，以便其内部逻辑（如 Awake/OnEnable）或 UI 布局组件能正常工作
-                    uiScript.gameObject.SetActive(true); 
+                    uiScript.gameObject.SetActive(true);
                     uiScript.ShowTemplate(runtimeData);
                     break;
                 }
@@ -85,6 +87,16 @@ namespace FrontendEngine
                     Debug.LogError($"[TemplateUIManager] Received template data with ID {runtimeData.Id}, but no matching UI element was found under root.");
                 }
             }
+        }
+        
+        private void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
+        {
+            if (!_templateMap.TryGetValue(context.TemplateId, out var uiScript))
+            {
+                Debug.LogError($"[TemplateUIManager] Template Settlement received for ID {context.TemplateId}, but no matching UI element was found.");
+                return;
+            }
+            uiScript.HandleTemplateSettlement(context);
         }
 
         /// <summary>
