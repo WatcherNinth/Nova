@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq; // 用于 Count 统计
 using LogicEngine.Validation;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace LogicEngine.LevelGraph
@@ -133,11 +134,13 @@ namespace LogicEngine.LevelGraph
                 if (node.Template != null && node.Template.Template != null)
                 {
                     allTemplates.Add($"nodeTemplate_{node.Id}", node.Template.Template);
+                    node.Template.Template.Id = $"nodeTemplate_{node.Id}";
                 }
             }
             foreach (var specTemplate in specialTemplateData)
             {
                 allTemplates.Add(specTemplate.Key, specTemplate.Value);
+                specTemplate.Value.Id = specTemplate.Key;
             }
         }
 

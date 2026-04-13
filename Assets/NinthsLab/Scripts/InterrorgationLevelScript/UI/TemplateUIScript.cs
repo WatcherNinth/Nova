@@ -51,12 +51,12 @@ namespace FrontendEngine
             }
         }
 
-        public void ShowTemplate(RuntimeTemplateData runtimeData)
+        public void ShowTemplate(TemplateData runtimeData)
         {
-            if (runtimeData == null || runtimeData.r_TemplateData == null) return;
+            if (runtimeData == null) return;
 
             _currentTemplateId = runtimeData.Id;
-            _currentData = runtimeData.r_TemplateData;
+            _currentData = runtimeData;
 
             BuildUI(_currentData);
             

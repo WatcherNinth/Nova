@@ -100,7 +100,7 @@ namespace LogicEngine.Tests
         // =========================================================
         // [新增] 响应后端事件
         // =========================================================
-        private void HandleNewTemplates(List<RuntimeTemplateData> templates)
+        private void HandleNewTemplates(List<TemplateData> templates)
         {
             if (templates == null || templates.Count == 0) return;
 
@@ -112,7 +112,7 @@ namespace LogicEngine.Tests
             
             // 更新 ID 和数据
             _currentTemplateId = target.Id;
-            _runtimeData = target.r_TemplateData;
+            _runtimeData = target;
 
             // 重建 UI
             BuildUI(_runtimeData);

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using LogicEngine.LevelLogic;
+using LogicEngine;
 using Interrorgation.MidLayer;
 
 namespace FrontendEngine
@@ -66,7 +66,7 @@ namespace FrontendEngine
         /// <summary>
         /// 响应后端发来的新模板数据
         /// </summary>
-        private void HandleNewTemplates(List<RuntimeTemplateData> templates)
+        private void HandleNewTemplates(List<TemplateData> templates)
         {
             if (templates == null || templates.Count == 0) return;
 
@@ -101,7 +101,7 @@ namespace FrontendEngine
         /// <summary>
         /// 根据 ID 查找并显示特定模板 (手动触发用)
         /// </summary>
-        public void ShowTemplateById(string id, RuntimeTemplateData data)
+        public void ShowTemplateById(string id, TemplateData data)
         {
             if (_templateMap.TryGetValue(id, out var ui))
             {

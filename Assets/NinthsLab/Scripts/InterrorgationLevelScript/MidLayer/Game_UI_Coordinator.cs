@@ -92,6 +92,8 @@ namespace Interrorgation.MidLayer
             if (context.IsSuccess)
             {
                 Debug.Log("[Coordinator] 编排：模板成功序列");
+                GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId }, 
+                    new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
             }
             else
             {
@@ -122,8 +124,21 @@ namespace Interrorgation.MidLayer
         }
 
         // 处理逻辑侧分发的发现新模板
-        private void HandleDiscoveredTemplates(List<LogicEngine.LevelLogic.RuntimeTemplateData> templates)
+        private void HandleDiscoveredTemplates(List<string> templateIds)
         {
+            var templates = new List<TemplateData>();
+            var graph = LevelGraphContext.CurrentGraph;
+            foreach (var id in templateIds)
+            {
+                if (graph.allTemplates.TryGetValue(id, out var template))
+                {
+                    templates.Add(template);
+                }
+                else
+                {
+                    Debug.LogError($"[Game_UI_Coordinator] Graph 中找不到 ID 为 {id} 的模板定义。");
+                }
+            }
             // Game -> UI
             UIEventDispatcher.DispatchDiscoveredNewTemplates(templates);
         }
@@ -139,12 +154,12 @@ namespace Interrorgation.MidLayer
             {
                 if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
                 {
-                    GameEventDispatcher.DispatchRequestDiscoverNodes(result.PassedNodeIds, 
+                    GameEventDispatcher.DispatchDiscoverNewNodes(result.PassedNodeIds, 
                         new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput));
                 }
                 if (result.EntityList != null && result.EntityList.Count > 0)
                 {
-                    GameEventDispatcher.DispatchRequestDiscoverEntity(result.EntityList);
+                    GameEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList);
                 }
             }
 
@@ -168,7 +183,7 @@ namespace Interrorgation.MidLayer
                     }
                     if (templatesToUnlock.Count > 0)
                     {
-                        GameEventDispatcher.DispatchRequestDiscoverTemplates(templatesToUnlock);
+                        GameEventDispatcher.DispatchDiscoveredNewTemplates(templatesToUnlock);
                     }
                 }
             }

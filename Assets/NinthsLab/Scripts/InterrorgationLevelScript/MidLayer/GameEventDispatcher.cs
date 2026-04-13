@@ -32,42 +32,23 @@ namespace Interrorgation.MidLayer
             }
         }
 
-        public static event Action<List<string>, NodeDiscoverContext> OnRequestDiscoverNodes;
-        public static void DispatchRequestDiscoverNodes(List<string> nodeIds, NodeDiscoverContext context)
+        public static event Action<List<string>, NodeDiscoverContext> OnDiscoverNewNodes;
+        public static void DispatchDiscoverNewNodes(List<string> nodeIds, NodeDiscoverContext context)
         {
-            OnRequestDiscoverNodes?.Invoke(nodeIds, context);
+            OnDiscoverNewNodes?.Invoke(nodeIds, context);
         }
 
-        public static event Action<List<string>> OnRequestDiscoverEntity;
-        public static void DispatchRequestDiscoverEntity(List<string> entityIds)
+        public static event Action<List<string>> OnDiscoveredNewEntity;
+
+        public static void DispatchDiscoveredNewEntityItems(List<string> entityItemIds)
         {
-            OnRequestDiscoverEntity?.Invoke(entityIds);
+            OnDiscoveredNewEntity?.Invoke(entityItemIds);
         }
 
-        public static event Action<List<string>> OnRequestDiscoverTemplates;
-        public static void DispatchRequestDiscoverTemplates(List<string> templateIds)
+        public static event Action<List<string>> OnDiscoveredNewTemplates;
+        public static void DispatchDiscoveredNewTemplates(List<string> templateIds)
         {
-            OnRequestDiscoverTemplates?.Invoke(templateIds);
-        }
-
-        public static event Action<List<RuntimeNodeData>, NodeDiscoverContext> OnDiscoveredNewNodes;
-
-        public static void DispatchDiscoveredNewNodes(List<RuntimeNodeData> nodes, NodeDiscoverContext context)
-        {
-            OnDiscoveredNewNodes?.Invoke(nodes, context);
-        }
-
-        public static event Action<List<RuntimeEntityItemData>> OnDiscoveredNewEntity;
-
-        public static void DispatchDiscoveredNewEntityItems(List<RuntimeEntityItemData> entityItems)
-        {
-            OnDiscoveredNewEntity?.Invoke(entityItems);
-        }
-
-        public static event Action<List<RuntimeTemplateData>> OnDiscoveredNewTemplates;
-        public static void DispatchDiscoveredNewTemplates(List<RuntimeTemplateData> templates)
-        {
-            OnDiscoveredNewTemplates?.Invoke(templates);
+            OnDiscoveredNewTemplates?.Invoke(templateIds);
         }
 
         // [修改] UI -> Logic: 提交节点
@@ -98,7 +79,7 @@ namespace Interrorgation.MidLayer
         {
             OnTemplateSettlement?.Invoke(context);
         }
-        
+
         #endregion
 
         // [新增] Logic -> UI: 节点状态变更 (包含 Submitted 或 Invalidated 标记变更)

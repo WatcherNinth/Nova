@@ -57,6 +57,7 @@ namespace LogicEngine
     /// </summary>
     public class TemplateData : IValidatable
     {
+        public string Id { get; set; }
         /// <summary>
         /// 原始文本（包含{0}等占位符）
         /// </summary>

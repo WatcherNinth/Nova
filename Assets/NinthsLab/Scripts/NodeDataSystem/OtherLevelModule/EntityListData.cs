@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using LogicEngine.Validation;
 using System.Linq;
 
-namespace LogicEngine.LevelGraph
+namespace LogicEngine
 {
     public class EntityItem : IValidatable
     {

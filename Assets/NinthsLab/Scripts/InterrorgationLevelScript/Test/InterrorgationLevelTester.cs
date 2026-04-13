@@ -56,7 +56,7 @@ namespace LogicEngine.Test
             {
                 var runtimeData = new RuntimeTemplateData(DiscoverTemplateId, templateData, RunTimeTemplateDataStatus.Discovered);
                 Debug.Log($"<color=orange>[Tester]</color> 模拟分发发现新模板: {DiscoverTemplateId}");
-                GameEventDispatcher.DispatchDiscoveredNewTemplates(new List<RuntimeTemplateData> { runtimeData });
+                GameEventDispatcher.DispatchDiscoveredNewTemplates(new List<string> { DiscoverTemplateId });
             }
             else
             {

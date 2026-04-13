@@ -84,62 +84,50 @@ namespace LogicEngine.LevelLogic
 
         public void SubscribeEvents()
         {
-            GameEventDispatcher.OnRequestDiscoverNodes += DiscoverNodes;
-            GameEventDispatcher.OnRequestDiscoverEntity += DiscoverEntity;
-            GameEventDispatcher.OnRequestDiscoverTemplates += DiscoverTemplates;
+            GameEventDispatcher.OnDiscoverNewNodes += DiscoverNodes;
+            GameEventDispatcher.OnDiscoveredNewEntity += DiscoverEntity;
+            GameEventDispatcher.OnDiscoveredNewTemplates += DiscoverTemplates;
         }
 
         public void UnsubscribeEvents()
         {
-            GameEventDispatcher.OnRequestDiscoverNodes -= DiscoverNodes;
-            GameEventDispatcher.OnRequestDiscoverEntity -= DiscoverEntity;
-            GameEventDispatcher.OnRequestDiscoverTemplates -= DiscoverTemplates;
+            GameEventDispatcher.OnDiscoverNewNodes -= DiscoverNodes;
+            GameEventDispatcher.OnDiscoveredNewEntity -= DiscoverEntity;
+            GameEventDispatcher.OnDiscoveredNewTemplates -= DiscoverTemplates;
         }
 
         public void DiscoverNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
         {
-            List<RuntimeNodeData> newlyDiscovered = new List<RuntimeNodeData>();
             foreach (var id in nodeIds)
             {
+                // 只有在 Hidden 状态下才允许被发现
                 if (RunTimeNodeDataMap.TryGetValue(id, out var node) && node.Status == RunTimeNodeStatus.Hidden)
                 {
                     node.Status = RunTimeNodeStatus.Discovered;
-                    newlyDiscovered.Add(node);
                 }
-            }
-            if (newlyDiscovered.Count > 0)
-            {
-                if (context == null) context = new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput);
-                GameEventDispatcher.DispatchDiscoveredNewNodes(newlyDiscovered, context);
             }
         }
 
         public void DiscoverEntity(List<string> entityIds)
         {
-            List<RuntimeEntityItemData> newlyDiscovered = new List<RuntimeEntityItemData>();
             foreach (var id in entityIds)
             {
                 if (RunTimeEntityItemDataMap.TryGetValue(id, out var entity) && entity.Status == RunTimeEntityItemStatus.Hidden)
                 {
                     entity.Status = RunTimeEntityItemStatus.Discovered;
-                    newlyDiscovered.Add(entity);
                 }
             }
-            if (newlyDiscovered.Count > 0) GameEventDispatcher.DispatchDiscoveredNewEntityItems(newlyDiscovered);
         }
 
         public void DiscoverTemplates(List<string> templateIds)
         {
-            List<RuntimeTemplateData> newlyDiscovered = new List<RuntimeTemplateData>();
             foreach (var id in templateIds)
             {
                 if (RunTimeTemplateDataMap.TryGetValue(id, out var tmpl) && tmpl.Status == RunTimeTemplateDataStatus.Hidden)
                 {
                     tmpl.Status = RunTimeTemplateDataStatus.Discovered;
-                    newlyDiscovered.Add(tmpl);
                 }
             }
-            if (newlyDiscovered.Count > 0) GameEventDispatcher.DispatchDiscoveredNewTemplates(newlyDiscovered);
         }
 
         // --- Template Validation ---
