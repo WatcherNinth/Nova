@@ -87,6 +87,10 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnDiscoverNewNodes += DiscoverNodes;
             GameEventDispatcher.OnDiscoveredNewEntity += DiscoverEntity;
             GameEventDispatcher.OnDiscoveredNewTemplates += DiscoverTemplates;
+
+            GameEventDispatcher.OnGetNodeStatus += HandleGetNodeStatus;
+            GameEventDispatcher.OnGetEntityStatus += HandleGetEntityStatus;
+            GameEventDispatcher.OnGetTemplateStatus += HandleGetTemplateStatus;
         }
 
         public void UnsubscribeEvents()
@@ -94,7 +98,15 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnDiscoverNewNodes -= DiscoverNodes;
             GameEventDispatcher.OnDiscoveredNewEntity -= DiscoverEntity;
             GameEventDispatcher.OnDiscoveredNewTemplates -= DiscoverTemplates;
+
+            GameEventDispatcher.OnGetNodeStatus -= HandleGetNodeStatus;
+            GameEventDispatcher.OnGetEntityStatus -= HandleGetEntityStatus;
+            GameEventDispatcher.OnGetTemplateStatus -= HandleGetTemplateStatus;
         }
+
+        private RuntimeNodeData HandleGetNodeStatus(string id) => RunTimeNodeDataMap.TryGetValue(id, out var data) ? data : null;
+        private RuntimeEntityItemData HandleGetEntityStatus(string id) => RunTimeEntityItemDataMap.TryGetValue(id, out var data) ? data : null;
+        private RuntimeTemplateData HandleGetTemplateStatus(string id) => RunTimeTemplateDataMap.TryGetValue(id, out var data) ? data : null;
 
         public void DiscoverNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
         {

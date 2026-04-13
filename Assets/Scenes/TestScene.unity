@@ -1180,6 +1180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterAssets:
   - {fileID: 11400000, guid: 0f998bee6c45c94458f4a7f39db30405, type: 2}
+  protagonistId: AnLee
   stageLayoutProviderRef: {fileID: 371168525}
   characterRoot: {fileID: 748324587}
   characterPrefab: {fileID: 3241393038392755469, guid: ce1ce02f0ab41534ab65e84096f28a99, type: 3}
@@ -2669,16 +2670,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6937d9ea62524ee4eafb38ed62f12cf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jsonInput: "\r\n    {\r\n        \"on_proven\": {\r\n            \"text_intro\":
-    \"[\u6D4B\u8BD5] \u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5\u6587\u672C\u5757\u3002\",\r\n           
+  jsonInput: "\r\n    {\r\r\n            \"text_intro\": \"[\u6D4B\u8BD5] \u8FD9\u662F\u4E00\u4E2A\u6D4B\u8BD5\u6587\u672C\u5757\u3002\",\r\n           
     \"first_valid_check\": {\r\n                \"triggered_text_vip\": {\r\n                   
     \"limit\": { \"is_vip\": true },\r\n                    \"text\": \"\u5C0A\u8D35\u7684VIP\u7528\u6237\uFF0C\u4F60\u597D\u3002\"\r\n               
     },\r\n                \"fallback_text\": \"\u666E\u901A\u7528\u6237\uFF0C\u4F60\u597D\u3002\"\r\n           
     },\r\n            \"triggered_text_extra\": {\r\n                \"limit\": {
     \"has_quest_item\": true },\r\n                \"text\": \"\u6211\u770B\u4F60\u9AA8\u9ABC\u60CA\u5947\uFF0C\u8FD9\u672C\u79D8\u7C4D\u5C31\u5356\u7ED9\u4F60\u4E86\u3002\"\r\n           
     },\r\n            \"call_choice_group_1\": \"choice_start_001\",\r\n           
-    \"text_ignored\": \"\u8FD9\u53E5\u8BDD\u5E94\u8BE5\u88AB\u622A\u65AD\uFF0C\u4E0D\u4F1A\u51FA\u73B0\u5728\u7ED3\u679C\u91CC\u3002\"\r\n       
-    }\r\n    }"
+    \"text_ignored\": \"\u8FD9\u53E5\u8BDD\u5E94\u8BE5\u88AB\u622A\u65AD\uFF0C\u4E0D\u4F1A\u51FA\u73B0\u5728\u7ED3\u679C\u91CC\u3002\"\r\r\n   
+    }"
 --- !u!4 &850854763
 Transform:
   m_ObjectHideFlags: 0
@@ -6378,7 +6378,6 @@ MonoBehaviour:
   bodyText: {fileID: 1779964432}
   typeSpeed: 0.05
   nextArrow: {fileID: 404663605}
-  protagonistId: AnLee
   avatarImage: {fileID: 1631627719}
   avatarContainer: {fileID: 2051795986}
   characterAssets:

@@ -136,5 +136,27 @@ namespace Interrorgation.MidLayer
         {
             OnScopeStackChanged?.Invoke(scopeStack);
         }
+
+        #region Runtime Status Query (Node, Entity, Template)
+
+        /// <summary>
+        /// [Query] 获取指定节点的当前 Runtime 状态
+        /// </summary>
+        public static event Func<string, RuntimeNodeData> OnGetNodeStatus;
+        public static RuntimeNodeData GetNodeStatus(string nodeId) => OnGetNodeStatus?.Invoke(nodeId);
+
+        /// <summary>
+        /// [Query] 获取指定实体的当前 Runtime 状态
+        /// </summary>
+        public static event Func<string, RuntimeEntityItemData> OnGetEntityStatus;
+        public static RuntimeEntityItemData GetEntityStatus(string entityId) => OnGetEntityStatus?.Invoke(entityId);
+
+        /// <summary>
+        /// [Query] 获取指定模板的当前 Runtime 状态
+        /// </summary>
+        public static event Func<string, RuntimeTemplateData> OnGetTemplateStatus;
+        public static RuntimeTemplateData GetTemplateStatus(string templateId) => OnGetTemplateStatus?.Invoke(templateId);
+
+        #endregion
     }
 }

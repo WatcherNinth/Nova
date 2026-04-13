@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using LogicEngine.Tests; // 引用 LevelTestManager
-using LogicEngine.Validation; // 引用你提供的验证系统命名空间
+using LogicEngine.Validation;
+using Interrorgation.MidLayer; // 引用你提供的验证系统命名空间
 
 namespace LogicEngine
 {
@@ -209,7 +210,16 @@ namespace LogicEngine
 
         private static bool CheckNodeStatus(string nodeId)
         {
+            //todo: 这里需要接入真正的节点状态检查逻辑，目前只是一个占位符
             Debug.Log($"[正式环境] 检查节点状态: {nodeId}");
+            var runtimeStatus = GameEventDispatcher.GetNodeStatus(nodeId);
+            if (runtimeStatus == null)
+            {
+                Debug.LogWarning($"[ConditionEvaluator] 节点 ID '{nodeId}' 不存在于当前状态系统中，默认返回 false。");
+                return false;
+            }
+            if (runtimeStatus.IsInvalidated) return false;
+            if (runtimeStatus.Status == LevelLogic.RunTimeNodeStatus.Submitted) return true;
             return false;
         }
     }
