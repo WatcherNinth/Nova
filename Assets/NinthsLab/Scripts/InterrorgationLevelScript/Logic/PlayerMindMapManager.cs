@@ -190,7 +190,7 @@ namespace LogicEngine.LevelLogic
     // Runtime Classes & Enums (保留在这里供全局引用)
     // ==========================================
     
-    public enum RunTimeNodeStatus { Hidden, Discovered, Submitted, Invalidated }
+    public enum RunTimeNodeStatus { Hidden, Discovered, Submitted }
     public enum RuntimePhaseStatus { Locked, Active, Completed, Paused }
     public enum RunTimeEntityItemStatus { Hidden, Discovered }
     public enum RunTimeTemplateDataStatus { Hidden, Discovered, Used }

@@ -85,6 +85,9 @@ namespace Interrorgation.MidLayer
         #endregion
 
         // [新增] Logic -> UI: 节点状态变更 (包含 Submitted 或 Invalidated 标记变更)
+        /// <summary>
+        /// 当节点状态发生变更时（例如被证明、被提交、被失效等）。注意必须验证IsInvalidated字段
+        /// </summary>
         public static event Action<RuntimeNodeData> OnNodeStatusChanged;
         public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData)
         {
