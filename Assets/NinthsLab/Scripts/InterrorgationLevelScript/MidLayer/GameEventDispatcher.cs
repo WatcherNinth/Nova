@@ -94,6 +94,24 @@ namespace Interrorgation.MidLayer
             OnNodeStatusChanged?.Invoke(nodeData);
         }
 
+        /// <summary>
+        /// 当实体状态发生变更时（例如从 Hidden 变为 Discovered）
+        /// </summary>
+        public static event Action<RuntimeEntityItemData> OnEntityStatusChanged;
+        public static void DispatchEntityStatusChanged(RuntimeEntityItemData entityData)
+        {
+            OnEntityStatusChanged?.Invoke(entityData);
+        }
+
+        /// <summary>
+        /// 当模板状态发生变更时（例如从 Hidden 变为 Discovered 或 Used）
+        /// </summary>
+        public static event Action<RuntimeTemplateData> OnTemplateStatusChanged;
+        public static void DispatchTemplateStatusChanged(RuntimeTemplateData templateData)
+        {
+            OnTemplateStatusChanged?.Invoke(templateData);
+        }
+
         // [新增] Logic -> UI: 阶段状态变更
         public static event Action<string, RuntimePhaseStatus> OnPhaseStatusChanged;
         public static void DispatchPhaseStatusChanged(string phaseId, RuntimePhaseStatus status)

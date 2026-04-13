@@ -116,6 +116,7 @@ namespace LogicEngine.LevelLogic
                 if (RunTimeNodeDataMap.TryGetValue(id, out var node) && node.Status == RunTimeNodeStatus.Hidden)
                 {
                     node.Status = RunTimeNodeStatus.Discovered;
+                    GameEventDispatcher.DispatchNodeStatusChanged(node);
                 }
             }
         }
@@ -127,6 +128,7 @@ namespace LogicEngine.LevelLogic
                 if (RunTimeEntityItemDataMap.TryGetValue(id, out var entity) && entity.Status == RunTimeEntityItemStatus.Hidden)
                 {
                     entity.Status = RunTimeEntityItemStatus.Discovered;
+                    GameEventDispatcher.DispatchEntityStatusChanged(entity);
                 }
             }
         }
@@ -138,6 +140,7 @@ namespace LogicEngine.LevelLogic
                 if (RunTimeTemplateDataMap.TryGetValue(id, out var tmpl) && tmpl.Status == RunTimeTemplateDataStatus.Hidden)
                 {
                     tmpl.Status = RunTimeTemplateDataStatus.Discovered;
+                    GameEventDispatcher.DispatchTemplateStatusChanged(tmpl);
                 }
             }
         }

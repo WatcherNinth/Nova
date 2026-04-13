@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Interrorgation.MidLayer;
 using LogicEngine;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.UI;
 
 namespace FrontendEngine.MindMap
 {
@@ -14,11 +16,13 @@ namespace FrontendEngine.MindMap
         private void OnEnable()
         {
             UIEventDispatcher.OnDiscoveredNewNodes += HandleNewNodes;
+            UIEventDispatcher.OnNodeStatusChanged += HandleNodeStatusChanged;
         }
 
         private void OnDisable()
         {
             UIEventDispatcher.OnDiscoveredNewNodes -= HandleNewNodes;
+            UIEventDispatcher.OnNodeStatusChanged -= HandleNodeStatusChanged;
         }
         // Implementation for the UI script managing node options in the mind map
         void Start()
@@ -46,6 +50,27 @@ namespace FrontendEngine.MindMap
             option.gameObject.SetActive(true);
         }
 
+        void HandleNodeStatusChanged(LogicEngine.LevelLogic.RuntimeNodeData nodeData)
+        {
+            foreach (Transform child in _optionContainer)
+            {
+                var optionScript = child.GetComponent<NodeOptionUIScript>();
+                if (optionScript != null && optionScript.nodeId == nodeData.Id)
+                {
+                    // 如果节点状态是已提交，则隐藏选项
+                    if (nodeData.Status == LogicEngine.LevelLogic.RunTimeNodeStatus.Submitted)
+                    {
+                        child.gameObject.SetActive(false);
+                        Destroy(child.gameObject, 0.1f); // 延迟销毁以避免潜在的 UI 交互问题
+                        return;
+                    }
+                    if (nodeData.IsInvalidated)
+                    {
+                        child.GetComponent<Button>().interactable = false;
+                    }
+                }
+            }
+        }
 
     }
 

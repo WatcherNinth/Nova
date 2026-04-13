@@ -50,6 +50,10 @@ namespace Interrorgation.MidLayer
             UIEventDispatcher.OnNodeOptionSubmitted += HandleNodeOptionSubmitted;
 
             // 订阅逻辑事件 -> 转发给 UI 或进行编排
+            GameEventDispatcher.OnNodeStatusChanged += UIEventDispatcher.DispatchNodeStatusChanged;
+            GameEventDispatcher.OnEntityStatusChanged += UIEventDispatcher.DispatchEntityStatusChanged;
+            GameEventDispatcher.OnTemplateStatusChanged += UIEventDispatcher.DispatchTemplateStatusChanged;
+            
             GameEventDispatcher.OnTemplateSettlement += HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
@@ -64,6 +68,10 @@ namespace Interrorgation.MidLayer
             UIEventDispatcher.OnPlayerSubmitInput -= HandlePlayerSubmitInput;
             UIEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandlePlayerSubmitTemplateAnswer;
             UIEventDispatcher.OnNodeOptionSubmitted -= HandleNodeOptionSubmitted;
+
+            GameEventDispatcher.OnNodeStatusChanged -= UIEventDispatcher.DispatchNodeStatusChanged;
+            GameEventDispatcher.OnEntityStatusChanged -= UIEventDispatcher.DispatchEntityStatusChanged;
+            GameEventDispatcher.OnTemplateStatusChanged -= UIEventDispatcher.DispatchTemplateStatusChanged;
 
             GameEventDispatcher.OnTemplateSettlement -= HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;

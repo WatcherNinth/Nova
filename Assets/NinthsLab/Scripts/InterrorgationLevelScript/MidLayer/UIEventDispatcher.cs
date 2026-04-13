@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using LogicEngine;
+using LogicEngine.LevelLogic;
 using UnityEngine;
 
 namespace Interrorgation.MidLayer
@@ -18,6 +19,35 @@ namespace Interrorgation.MidLayer
         public static void DispatchPlayerSubmitInput(string input)
         {
             OnPlayerSubmitInput?.Invoke(input);
+        }
+        #endregion
+
+        #region 状态变更 (Runtime Status)
+        /// <summary>
+        /// 节点状态变更
+        /// </summary>
+        public static event Action<RuntimeNodeData> OnNodeStatusChanged;
+        public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData)
+        {
+            OnNodeStatusChanged?.Invoke(nodeData);
+        }
+
+        /// <summary>
+        /// 实体状态变更
+        /// </summary>
+        public static event Action<RuntimeEntityItemData> OnEntityStatusChanged;
+        public static void DispatchEntityStatusChanged(RuntimeEntityItemData entityData)
+        {
+            OnEntityStatusChanged?.Invoke(entityData);
+        }
+
+        /// <summary>
+        /// 模板状态变更
+        /// </summary>
+        public static event Action<RuntimeTemplateData> OnTemplateStatusChanged;
+        public static void DispatchTemplateStatusChanged(RuntimeTemplateData templateData)
+        {
+            OnTemplateStatusChanged?.Invoke(templateData);
         }
         #endregion
 
