@@ -55,7 +55,7 @@ namespace LogicEngine
                 string key = property.Name;
                 JToken value = property.Value;
                 bool shouldStop = false;
-                Debug.Log($"[DialogueParser] 处理节点: {key} with value: {value.ToString(Formatting.None)}");
+
                 // 路由分发
                 if (key.StartsWith("text"))
                 {
@@ -368,8 +368,6 @@ namespace LogicEngine
             // 而是将其作为文本内容的一部分保留
             string jsonInput = dialogueJsonToken.ToString();
             string parsedJson = ParseDialogue(jsonInput);
-
-            Debug.Log($"[DialogueParser] 解析完成，结果 JSON: {parsedJson}");
 
             // 2. 将返回的 JSON 字符串转回对象，提取内容
             JObject resultObj;
