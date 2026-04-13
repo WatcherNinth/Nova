@@ -32,6 +32,24 @@ namespace Interrorgation.MidLayer
             }
         }
 
+        public static event Action<List<string>, NodeDiscoverContext> OnRequestDiscoverNodes;
+        public static void DispatchRequestDiscoverNodes(List<string> nodeIds, NodeDiscoverContext context)
+        {
+            OnRequestDiscoverNodes?.Invoke(nodeIds, context);
+        }
+
+        public static event Action<List<string>> OnRequestDiscoverEntity;
+        public static void DispatchRequestDiscoverEntity(List<string> entityIds)
+        {
+            OnRequestDiscoverEntity?.Invoke(entityIds);
+        }
+
+        public static event Action<List<string>> OnRequestDiscoverTemplates;
+        public static void DispatchRequestDiscoverTemplates(List<string> templateIds)
+        {
+            OnRequestDiscoverTemplates?.Invoke(templateIds);
+        }
+
         public static event Action<List<RuntimeNodeData>, NodeDiscoverContext> OnDiscoveredNewNodes;
 
         public static void DispatchDiscoveredNewNodes(List<RuntimeNodeData> nodes, NodeDiscoverContext context)
@@ -59,11 +77,29 @@ namespace Interrorgation.MidLayer
             OnNodeOptionSubmitted?.Invoke(id);
         }
 
+        #region 模板
         public static event Action<string, List<string>> OnPlayerSubmitTemplateAnswer;
         public static void DispatchPlayerSubmitTemplateAnswer(string templateId, List<string> answers)
         {
             OnPlayerSubmitTemplateAnswer?.Invoke(templateId, answers);
         }
+
+        public class TemplateSettlementContext
+        {
+            public bool IsSuccess;
+            public string TemplateId;
+            public string TargetNodeId; // 如果成功，对应的节点ID
+            public List<string> ErrorMessages; // 如果失败，反馈给玩家的错误（可选）
+        }
+
+        public static event Action<TemplateSettlementContext> OnTemplateSettlement;
+
+        public static void DispatchTemplateSettlement(TemplateSettlementContext context)
+        {
+            OnTemplateSettlement?.Invoke(context);
+        }
+        
+        #endregion
 
         // [新增] Logic -> UI: 节点状态变更 (包含 Submitted 或 Invalidated 标记变更)
         public static event Action<RuntimeNodeData> OnNodeStatusChanged;
@@ -100,7 +136,7 @@ namespace Interrorgation.MidLayer
         {
             OnPlayerRequestPhaseSwitch?.Invoke(phaseId);
         }
-        
+
         // [新增] Logic -> UI: 发送当前可用的切换列表 (用于 UI 显示侧边栏按钮或弹窗)
         // 这通常在状态变更时自动触发，或者 UI 主动查询
         public static event Action<List<(string id, string name, string status)>> OnAvailablePhasesChanged;

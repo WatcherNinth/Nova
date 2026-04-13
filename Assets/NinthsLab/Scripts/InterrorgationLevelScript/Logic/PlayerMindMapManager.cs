@@ -80,39 +80,23 @@ namespace LogicEngine.LevelLogic
             }
         }
 
-        // --- Discovery Logic (AI 响应处理) ---
+        // --- Discovery Logic (AI 响应处理 - 已迁移到 Coordinator) ---
 
-        public void ProcessAIResponse(AIResponseData responseData)
+        public void SubscribeEvents()
         {
-            if (responseData == null) return;
-
-            var result = responseData.RefereeResult;
-            if (result != null)
-            {
-                if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0) discoverNodes(result.PassedNodeIds);
-                if (result.EntityList != null && result.EntityList.Count > 0) discoverEntity(result.EntityList);
-            }
-
-            if (responseData.DiscoveryResult != null && responseData.DiscoveryResult.DiscoveredNodeIds.Count > 0)
-            {
-                var ids = responseData.DiscoveryResult.DiscoveredNodeIds;
-
-                // 尝试作为模板发现
-                List<string> templatesToUnlock = new List<string>();
-                foreach (var nodeId in ids)
-                {
-                    if (levelGraph.nodeLookup.TryGetValue(nodeId, out var nodeInfo) && nodeInfo.Node != null)
-                    {
-                        string specialTmplId = nodeInfo.Node.Template?.SpecialTemplateId;
-                        if (!string.IsNullOrEmpty(specialTmplId)) templatesToUnlock.Add(specialTmplId);
-                        else if (nodeInfo.Node.Template?.Template != null) templatesToUnlock.Add($"nodeTemplate_{nodeId}");
-                    }
-                }
-                if (templatesToUnlock.Count > 0) discoverTemplate(templatesToUnlock);
-            }
+            GameEventDispatcher.OnRequestDiscoverNodes += DiscoverNodes;
+            GameEventDispatcher.OnRequestDiscoverEntity += DiscoverEntity;
+            GameEventDispatcher.OnRequestDiscoverTemplates += DiscoverTemplates;
         }
 
-        void discoverNodes(List<string> nodeIds)
+        public void UnsubscribeEvents()
+        {
+            GameEventDispatcher.OnRequestDiscoverNodes -= DiscoverNodes;
+            GameEventDispatcher.OnRequestDiscoverEntity -= DiscoverEntity;
+            GameEventDispatcher.OnRequestDiscoverTemplates -= DiscoverTemplates;
+        }
+
+        public void DiscoverNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
         {
             List<RuntimeNodeData> newlyDiscovered = new List<RuntimeNodeData>();
             foreach (var id in nodeIds)
@@ -125,12 +109,12 @@ namespace LogicEngine.LevelLogic
             }
             if (newlyDiscovered.Count > 0)
             {
-                var context = new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput);
+                if (context == null) context = new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput);
                 GameEventDispatcher.DispatchDiscoveredNewNodes(newlyDiscovered, context);
             }
         }
 
-        void discoverEntity(List<string> entityIds)
+        public void DiscoverEntity(List<string> entityIds)
         {
             List<RuntimeEntityItemData> newlyDiscovered = new List<RuntimeEntityItemData>();
             foreach (var id in entityIds)
@@ -144,7 +128,7 @@ namespace LogicEngine.LevelLogic
             if (newlyDiscovered.Count > 0) GameEventDispatcher.DispatchDiscoveredNewEntityItems(newlyDiscovered);
         }
 
-        void discoverTemplate(List<string> templateIds)
+        public void DiscoverTemplates(List<string> templateIds)
         {
             List<RuntimeTemplateData> newlyDiscovered = new List<RuntimeTemplateData>();
             foreach (var id in templateIds)

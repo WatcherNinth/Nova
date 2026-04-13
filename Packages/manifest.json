@@ -9,6 +9,8 @@
     }
   ],
   "dependencies": {
+    "com.antigravity.ide": "https://github.com/billythekidz/UnityAntigravityIDE.git",
+    "com.besty.unity-skills": "https://github.com/Besty0728/Unity-Skills.git?path=/SkillsForUnity",
     "com.unity.ide.rider": "3.0.28",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.ide.vscode": "1.2.5",

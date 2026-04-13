@@ -18,7 +18,7 @@ namespace LogicEngine.LevelLogic
         {
             _mindMapManager = mindMap;
             _nodeLogicManager = nodeLogic;
-            
+
             // 订阅事件
             GameEventDispatcher.OnPlayerSubmitTemplateAnswer += HandleTemplateSubmit;
         }
@@ -78,7 +78,8 @@ namespace LogicEngine.LevelLogic
             }
 
             // 4. 处理结果
-            if (!string.IsNullOrEmpty(targetNodeId))
+            var isSuccess = !string.IsNullOrEmpty(targetNodeId);
+            if (isSuccess)
             {
                 Debug.Log($"<color=green>[TemplateLogicManager] 模板验证通过！</color> 目标节点: {targetNodeId}");
                 if (_nodeLogicManager != null)
@@ -90,6 +91,14 @@ namespace LogicEngine.LevelLogic
             {
                 Debug.Log($"<color=yellow>[TemplateLogicManager] 模板验证失败：没有匹配的正确答案（ID 匹配不符）。</color>");
             }
+
+            var context = new GameEventDispatcher.TemplateSettlementContext
+            {
+                IsSuccess = isSuccess,
+                TemplateId = templateId,
+                TargetNodeId = targetNodeId
+            };
+            GameEventDispatcher.DispatchTemplateSettlement(context);
         }
     }
 }

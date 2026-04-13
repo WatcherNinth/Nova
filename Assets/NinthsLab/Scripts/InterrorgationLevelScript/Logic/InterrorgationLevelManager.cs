@@ -60,9 +60,9 @@ namespace LogicEngine.LevelLogic
             // [修改4] 向 Context 注册自己
             LevelGraphContext.Register(this);
 
+            //这个删除
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
-            AIEventDispatcher.OnResponseReceived += HandleResponseReceived;
-
+            
             GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
         }
@@ -73,13 +73,13 @@ namespace LogicEngine.LevelLogic
             LevelGraphContext.Unregister(this);
 
             GameEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
-            AIEventDispatcher.OnResponseReceived -= HandleResponseReceived;
 
             GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
             
             // [新增] 清理逻辑管理器
             templateLogicManager?.Dispose();
+            playerMindMapManager?.UnsubscribeEvents();
         }
 
         private void Start()
@@ -90,12 +90,6 @@ namespace LogicEngine.LevelLogic
         private void HandlePlayerInput(string input)
         {
             AIEventDispatcher.DispatchPlayerInputString(currentLevelGraph, currentPhaseId, input);
-        }
-
-        private void HandleResponseReceived(AIResponseData responseData)
-        {
-            if (playerMindMapManager == null) return;
-            playerMindMapManager.ProcessAIResponse(responseData);
         }
 
         #region 加载关卡
@@ -119,6 +113,7 @@ namespace LogicEngine.LevelLogic
 
             // [新增] 在重新加载前清理旧的逻辑管理器，防止事件重复订阅
             templateLogicManager?.Dispose();
+            playerMindMapManager?.UnsubscribeEvents();
 
             string levelJson = File.ReadAllText(path);
             currentLevelGraph = LevelGraphParser.Parse(levelJson);
@@ -126,6 +121,7 @@ namespace LogicEngine.LevelLogic
 
             // 1. 初始化 MindMap
             playerMindMapManager = new PlayerMindMapManager(currentLevelGraph);
+            playerMindMapManager.SubscribeEvents();
 
             // 2. 初始化 Phase
             gamePhaseManager = new GamePhaseManager(playerMindMapManager);
@@ -165,7 +161,7 @@ namespace LogicEngine.LevelLogic
                 gamePhaseManager.SetPhaseStatus("phase1", RuntimePhaseStatus.Active);
                 currentPhaseId = "phase1";
             }
-        } 
+        }
 
         private void HandlePhaseSwitchRequest(string targetPhaseId)
         {
@@ -182,6 +178,10 @@ namespace LogicEngine.LevelLogic
                     Debug.LogWarning($"[LevelManager] 切换阶段失败: {targetPhaseId}");
                 }
             }
+        }
+        public string getcurrrentPhaseId()
+        {
+            return currentPhaseId;
         }
     }
 }

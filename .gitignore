@@ -103,3 +103,6 @@ __pycache__
 !.gitkeep
 Assets/NinthsLab/Images/UIImages/游戏项目白板.png
 Assets/NinthsLab/Images/UIImages/游戏项目白板.png.meta
+
+# skill
+/.gemini/*
