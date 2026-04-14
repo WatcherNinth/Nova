@@ -14,6 +14,16 @@ namespace LogicEngine.Test
     {
         [Header("Level Load Settings")]
         public string LevelName = "demo_v2";
+        [Tooltip("是否在 Start 时自动加载当前关卡")]
+        public bool AutoLoadOnStart = false;
+
+        private void Start()
+        {
+            if (AutoLoadOnStart)
+            {
+                TestLoadLevel();
+            }
+        }
 
         #region Level Loading
         public void TestLoadLevel()
