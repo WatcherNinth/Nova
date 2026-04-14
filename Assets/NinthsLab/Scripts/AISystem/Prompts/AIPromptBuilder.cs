@@ -70,6 +70,7 @@ namespace AIEngine.Prompts
 
                 // 筛选逻辑：全局节点 或 当前阶段节点
                 bool isValid = info.IsUniversal || (info.OwnerPhaseId == currentPhaseId);
+                if(currentPhaseId == "") isValid = true; // 如果 currentPhaseId 为空，则不进行阶段过滤，展示所有节点
 
                 if (isValid && info.Node != null)
                 {
