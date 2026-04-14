@@ -24,6 +24,7 @@ namespace Interrorgation.UI
         {
             // 显示推理板 UI
             deductionBoardPrefab.gameObject.SetActive(true);
+            GetComponent<TemplateUIManager>().FlushCache(); // 刷新模板 UI 显示
             // 这里可以根据实际情况实例化推理板预制件，或者激活已经存在的推理板 UI 对象
         }
 

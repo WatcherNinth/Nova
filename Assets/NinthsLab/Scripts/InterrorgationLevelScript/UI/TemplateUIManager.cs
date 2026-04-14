@@ -16,6 +16,7 @@ namespace Interrorgation.UI
         [SerializeField] private bool _autoSearchOnAwake = true;
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
+        private List<TemplateData> _templateCache = new List<TemplateData>();
 
         private void Awake()
         {
@@ -23,15 +24,22 @@ namespace Interrorgation.UI
             {
                 InitializeMap();
             }
-        }
-
-        private void OnEnable()
-        {
+            // 确保在Awake处订阅，即使面板没有激活也能在后台接收事件
             UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
             UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
         }
 
+        private void OnEnable()
+        {
+            
+        }
+
         private void OnDisable()
+        {
+            // 此处不做注销，使得面板隐藏时仍能缓存事件
+        }
+
+        private void OnDestroy()
         {
             UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
             UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
@@ -72,7 +80,35 @@ namespace Interrorgation.UI
         {
             if (templates == null || templates.Count == 0) return;
 
-            // 目前逻辑：显示列表中的第一个匹配 ID 的模板
+            // 如果当前 UI 不处于激活状态，将发现的模板加入缓存
+            bool isParentActive = (_uiRoot != null) ? _uiRoot.gameObject.activeInHierarchy : gameObject.activeInHierarchy;
+            if (!isParentActive)
+            {
+                foreach (var t in templates)
+                {
+                    if (!_templateCache.Exists(x => x.Id == t.Id))
+                    {
+                        _templateCache.Add(t);
+                    }
+                }
+                return;
+            }
+
+            ProcessTemplates(templates);
+        }
+
+        public void FlushCache()
+        {
+            if (_templateCache.Count > 0)
+            {
+                ProcessTemplates(_templateCache);
+                _templateCache.Clear();
+            }
+        }
+
+        private void ProcessTemplates(List<TemplateData> templates)
+        {
+            // 一次性更新所有相关状态
             foreach (var runtimeData in templates)
             {
                 if (_templateMap.TryGetValue(runtimeData.Id, out var uiScript))
@@ -80,7 +116,6 @@ namespace Interrorgation.UI
                     // 确保物体先激活，以便其内部逻辑（如 Awake/OnEnable）或 UI 布局组件能正常工作
                     uiScript.gameObject.SetActive(true);
                     uiScript.ShowTemplate(runtimeData);
-                    break;
                 }
                 else
                 {
