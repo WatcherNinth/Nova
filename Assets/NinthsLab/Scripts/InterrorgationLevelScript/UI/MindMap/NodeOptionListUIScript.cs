@@ -12,17 +12,22 @@ namespace FrontendEngine.MindMap
     {
         [SerializeField] private NodeOptionUIScript _optionPrefab;
         [SerializeField] private Transform _optionContainer;
+        [SerializeField] private ScrollRect _scrollRect;
 
         private void OnEnable()
         {
             UIEventDispatcher.OnDiscoveredNewNodes += HandleNewNodes;
             UIEventDispatcher.OnNodeStatusChanged += HandleNodeStatusChanged;
+            UIEventDispatcher.OnShowDialogues += HandleShowDialogues;
+            DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded += HandleDialogueEnd;
         }
 
         private void OnDisable()
         {
             UIEventDispatcher.OnDiscoveredNewNodes -= HandleNewNodes;
             UIEventDispatcher.OnNodeStatusChanged -= HandleNodeStatusChanged;
+            UIEventDispatcher.OnShowDialogues -= HandleShowDialogues;
+            DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded -= HandleDialogueEnd;
         }
         // Implementation for the UI script managing node options in the mind map
         void Start()
@@ -70,6 +75,17 @@ namespace FrontendEngine.MindMap
                     }
                 }
             }
+        }
+
+        void HandleShowDialogues(List<string> dialogues)
+        {
+            // 当新的对话出现时，隐藏选项列表，等待对话结束后再显示
+            _scrollRect.gameObject.SetActive(false);
+        }
+
+        void HandleDialogueEnd()
+        {
+            _scrollRect.gameObject.SetActive(true);
         }
 
     }

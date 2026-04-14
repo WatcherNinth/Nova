@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Interrorgation.MidLayer;
 using UnityEngine;
 
 namespace DialogueSystem
@@ -24,11 +25,11 @@ namespace DialogueSystem
         public void PushNewBatch(List<string> rawLines)
         {
             var batch = NovaScriptParser.ParseBatch(rawLines);
-            
+
             // 将新批次加入队列 (或者清空旧的，取决于设计，通常是追加)
             // 这里我们简单处理：如果之前播完了，直接开始；没播完就追加
             bool wasEmpty = _currentQueue.Count == 0;
-            
+
             foreach (var entry in batch.Entries)
             {
                 _currentQueue.Enqueue(entry);
@@ -37,6 +38,7 @@ namespace DialogueSystem
             if (!_isPlaying || wasEmpty)
             {
                 _isPlaying = true;
+                UIEventDispatcher.DispatchShowDialogues(rawLines);
                 PlayNext();
             }
         }
@@ -62,7 +64,7 @@ namespace DialogueSystem
                 {
                     // 如果是纯指令节点（无文本），自动跳到下一条
                     // 避免卡在空文本上等待点击
-                    PlayNext(); 
+                    PlayNext();
                 }
             }
             else
