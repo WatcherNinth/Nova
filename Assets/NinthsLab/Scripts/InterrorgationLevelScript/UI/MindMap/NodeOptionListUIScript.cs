@@ -77,10 +77,37 @@ namespace FrontendEngine.MindMap
             }
         }
 
+        void refreshAllOptions()
+        {
+            var runtimeData = GameEventDispatcher.GetAllNodeStatus();
+            // 刷新所有选项的状态（例如在节点状态变更时调用）
+            foreach (Transform child in _optionContainer)
+            {
+                var optionScript = child.GetComponent<NodeOptionUIScript>();
+                if (optionScript != null)
+                {
+                    runtimeData.TryGetValue(optionScript.nodeId, out var nodeData);
+                    if (nodeData != null)
+                    {
+                        if (nodeData.Status == LogicEngine.LevelLogic.RunTimeNodeStatus.Submitted)
+                        {
+                            child.gameObject.SetActive(false);
+                            Destroy(child.gameObject, 0.1f); // 延迟销毁以避免潜在的 UI 交互问题
+                        }
+                        else if (nodeData.IsInvalidated)
+                        {
+                            child.GetComponent<Button>().interactable = false;
+                        }
+                    }
+                }
+            }
+        }
+
         void HandleShowDialogues(List<string> dialogues)
         {
             // 当新的对话出现时，隐藏选项列表，等待对话结束后再显示
             _scrollRect.gameObject.SetActive(false);
+            refreshAllOptions();
         }
 
         void HandleDialogueEnd()
