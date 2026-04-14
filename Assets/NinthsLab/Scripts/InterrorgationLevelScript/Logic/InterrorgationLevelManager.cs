@@ -153,11 +153,17 @@ namespace LogicEngine.LevelLogic
         {
             if (nodeLogicManager != null)
             {
-                // 调用 LogicManager
+                // 调用 LogicManager 进行验证
                 bool success = nodeLogicManager.TryProveNode(nodeId);
                 if (success)
                 {
                     Debug.Log($"[LevelManager] 节点 {nodeId} 证明成功。");
+                    nodeLogicManager.OnProveSuccess(nodeId);
+                }
+                else
+                {
+                    Debug.Log($"[LevelManager] 节点 {nodeId} 证明失败。");
+                    nodeLogicManager.OnProveFailed(nodeId);
                 }
             }
         }

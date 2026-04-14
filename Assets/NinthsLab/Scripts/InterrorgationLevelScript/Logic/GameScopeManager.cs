@@ -108,14 +108,15 @@ namespace LogicEngine.LevelLogic
                     {
                         // 栈顶还没搞定，尝试利用新的局势去证明它
                         // (这会触发递归，但 TryProveNode 内部有防死循环机制)
-                        // 注意：这里调用 TryProveNode 可能会导致它变为 Submitted，那样下一次循环就会把它弹出
-                        bool success = _logicManager.TryProveNode(topId, isAutoResolve: true);
+                        // 注意：这里调用 TryProveNode 和 OnProveSuccess 可能会导致它变为 Submitted，那样下一次循环就会把它弹出
+                        bool success = _logicManager.TryProveNode(topId);
                         if (!success)
                         {
                             // 依然搞不定，链条断了，停止回溯
                             break;
                         }
-                        // 如果 success 为 true，状态变成了 Submitted，下一次循环会处理弹出
+                        // 如果可以证明，执行成功逻辑 (isAutoResolve = true)，状态变成了 Submitted
+                        _logicManager.OnProveSuccess(topId, isAutoResolve: true);
                     }
                 }
                 else

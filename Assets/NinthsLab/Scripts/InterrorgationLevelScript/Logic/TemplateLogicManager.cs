@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
-using Interrorgation.MidLayer;
 using System.Linq;
+using Interrorgation.MidLayer;
+using UnityEngine;
 
 namespace LogicEngine.LevelLogic
 {
@@ -82,10 +82,6 @@ namespace LogicEngine.LevelLogic
             if (isSuccess)
             {
                 Debug.Log($"<color=green>[TemplateLogicManager] 模板验证通过！</color> 目标节点: {targetNodeId}");
-                if (_nodeLogicManager != null)
-                {
-                    _nodeLogicManager.TryProveNode(targetNodeId);
-                }
             }
             else
             {

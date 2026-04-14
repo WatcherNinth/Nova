@@ -26,7 +26,7 @@ namespace LogicEngine.LevelLogic
         {
             _scopeManager = scopeManager;
         }
-        public bool TryProveNode(string nodeId, bool isAutoResolve = false)
+        public bool TryProveNode(string nodeId)
         {
             if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return false;
 
@@ -34,23 +34,13 @@ namespace LogicEngine.LevelLogic
             if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
 
             // 检查依赖
-            if (!CheckDependencies(runtimeNode.r_NodeData.Logic?.DependsOn))
-            {
-                // 只有玩家主动点击时，才触发“等待对话”和“Scope更新”
-                // 如果是自动结算过程中发现不满足，就静默失败
-                if (!isAutoResolve)
-                {
-                    TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
-                    if(runtimeNode.r_NodeData.Dialogue.OnPending == null)
-                    {
-                        Debug.Log($"[NodeLogic] 依赖未满足，节点 {nodeId} 无法被证明，但没有待定对话。");
-                    }
-                    
-                    // [修改] 调用 ScopeManager 处理深度逻辑
-                    _scopeManager?.UpdateScopeOnFail(nodeId);
-                }
-                return false;
-            }
+            return CheckDependencies(runtimeNode.r_NodeData.Logic?.DependsOn);
+        }
+
+        public void OnProveSuccess(string nodeId, bool isAutoResolve = false)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
+            if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return; // 避免重复执行
 
             // 成功逻辑
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
@@ -66,8 +56,26 @@ namespace LogicEngine.LevelLogic
             {
                 _scopeManager?.ResolveScopeChain(nodeId);
             }
+        }
 
-            return true;
+        public void OnProveFailed(string nodeId, bool isAutoResolve = false)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
+
+            // 只有当状态为已发现（但依赖不满足）时触发这些失败提醒
+            if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return;
+
+            if (!isAutoResolve)
+            {
+                TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
+                if(runtimeNode.r_NodeData.Dialogue == null || runtimeNode.r_NodeData.Dialogue.OnPending == null)
+                {
+                    Debug.Log($"[NodeLogic] 依赖未满足，节点 {nodeId} 无法被证明，但没有待定对话。");
+                }
+                
+                // [修改] 调用 ScopeManager 处理深度逻辑
+                _scopeManager?.UpdateScopeOnFail(nodeId);
+            }
         }
         
         private void TriggerDialogue(JToken dialogueScript)
