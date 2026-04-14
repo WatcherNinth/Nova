@@ -33,11 +33,16 @@ namespace Interrorgation.Test
             // 绘制节点状态
             DrawMap(manager.RunTimeNodeDataMap, ref nodesFolded, "Nodes (逻辑节点)", (id, data) => 
             {
-                var color = GetStatusColor(data.Status.ToString());
+                var statusText = data.Status.ToString();
+                var color = data.IsInvalidated ? Color.red : GetStatusColor(statusText);
+                
                 GUI.color = color;
-                EditorGUILayout.LabelField($"[{data.Status}]", GUILayout.Width(80));
+                EditorGUILayout.LabelField($"[{statusText}]", GUILayout.Width(80));
+                
+                string label = $"{id} - {data.r_NodeData?.Basic.Description}";
+                if (data.IsInvalidated) label = "[X] " + label;
+                EditorGUILayout.LabelField(label);
                 GUI.color = Color.white;
-                EditorGUILayout.LabelField($"{id} - {data.r_NodeData?.Basic.Description}");
             });
 
             // 绘制实体状态
