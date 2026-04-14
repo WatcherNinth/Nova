@@ -91,6 +91,10 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnGetNodeStatus += HandleGetNodeStatus;
             GameEventDispatcher.OnGetEntityStatus += HandleGetEntityStatus;
             GameEventDispatcher.OnGetTemplateStatus += HandleGetTemplateStatus;
+
+            GameEventDispatcher.OnGetAllNodeStatus += HandleGetAllNodeStatus;
+            GameEventDispatcher.OnGetAllEntityStatus += HandleGetAllEntityStatus;
+            GameEventDispatcher.OnGetAllTemplateStatus += HandleGetAllTemplateStatus;
         }
 
         public void UnsubscribeEvents()
@@ -102,11 +106,19 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnGetNodeStatus -= HandleGetNodeStatus;
             GameEventDispatcher.OnGetEntityStatus -= HandleGetEntityStatus;
             GameEventDispatcher.OnGetTemplateStatus -= HandleGetTemplateStatus;
+
+            GameEventDispatcher.OnGetAllNodeStatus -= HandleGetAllNodeStatus;
+            GameEventDispatcher.OnGetAllEntityStatus -= HandleGetAllEntityStatus;
+            GameEventDispatcher.OnGetAllTemplateStatus -= HandleGetAllTemplateStatus;
         }
 
         private RuntimeNodeData HandleGetNodeStatus(string id) => RunTimeNodeDataMap.TryGetValue(id, out var data) ? data : null;
         private RuntimeEntityItemData HandleGetEntityStatus(string id) => RunTimeEntityItemDataMap.TryGetValue(id, out var data) ? data : null;
         private RuntimeTemplateData HandleGetTemplateStatus(string id) => RunTimeTemplateDataMap.TryGetValue(id, out var data) ? data : null;
+
+        private Dictionary<string, RuntimeNodeData> HandleGetAllNodeStatus() => RunTimeNodeDataMap;
+        private Dictionary<string, RuntimeEntityItemData> HandleGetAllEntityStatus() => RunTimeEntityItemDataMap;
+        private Dictionary<string, RuntimeTemplateData> HandleGetAllTemplateStatus() => RunTimeTemplateDataMap;
 
         public void DiscoverNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
         {

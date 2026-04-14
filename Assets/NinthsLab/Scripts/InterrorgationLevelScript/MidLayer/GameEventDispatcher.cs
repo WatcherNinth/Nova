@@ -161,6 +161,24 @@ namespace Interrorgation.MidLayer
         /// </summary>
         public static event Func<string, RuntimeTemplateData> OnGetTemplateStatus;
         public static RuntimeTemplateData GetTemplateStatus(string templateId) => OnGetTemplateStatus?.Invoke(templateId);
+
+        /// <summary>
+        /// [Query] 获取所有节点的当前 Runtime 状态全表
+        /// </summary>
+        public static event Func<Dictionary<string, RuntimeNodeData>> OnGetAllNodeStatus;
+        public static Dictionary<string, RuntimeNodeData> GetAllNodeStatus() => OnGetAllNodeStatus?.Invoke();
+
+        /// <summary>
+        /// [Query] 获取所有实体的当前 Runtime 状态全表
+        /// </summary>
+        public static event Func<Dictionary<string, RuntimeEntityItemData>> OnGetAllEntityStatus;
+        public static Dictionary<string, RuntimeEntityItemData> GetAllEntityStatus() => OnGetAllEntityStatus?.Invoke();
+
+        /// <summary>
+        /// [Query] 获取所有模板的当前 Runtime 状态全表
+        /// </summary>
+        public static event Func<Dictionary<string, RuntimeTemplateData>> OnGetAllTemplateStatus;
+        public static Dictionary<string, RuntimeTemplateData> GetAllTemplateStatus() => OnGetAllTemplateStatus?.Invoke();
         #endregion
     }
 }
