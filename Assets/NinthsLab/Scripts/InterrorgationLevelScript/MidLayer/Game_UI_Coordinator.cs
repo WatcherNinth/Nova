@@ -170,6 +170,7 @@ namespace Interrorgation.MidLayer
             if (dialogueManager != null)
             {
                 dialogueManager.PushNewBatch(dialogues);
+                UIEventDispatcher.DispatchShowDialogues(dialogues);
             }
             else
             {

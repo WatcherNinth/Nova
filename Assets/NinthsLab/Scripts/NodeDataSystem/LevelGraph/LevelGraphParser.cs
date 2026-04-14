@@ -31,6 +31,9 @@ namespace LogicEngine.Parser
             levelGraph.entityListData = ParseEntityList(root);
             levelGraph.specialTemplateData = ParseSpecialTemplate(root);
 
+            // 5. 解析其他字段
+            levelGraph.levelStartDialogue = root.Value<string>("level_start_dialogue");
+
             return levelGraph;
         }
 

@@ -139,6 +139,12 @@ namespace LogicEngine.LevelLogic
             nodeLogicManager.SetPhaseManager(gamePhaseManager);
             nodeLogicManager.SetScopeManager(gameScopeManager); // Logic -> Scope
             gameScopeManager.SetLogicManager(nodeLogicManager); // Scope -> Logic
+
+            // 7. 启动逻辑
+            if (currentLevelGraph.levelStartDialogue != null)
+            {
+                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { currentLevelGraph.levelStartDialogue });
+            }
         }
         #endregion
 

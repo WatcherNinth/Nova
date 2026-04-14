@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: e1f1d44a4d996eb47b08683ed5eeaea6
+guid: ac214e393409698449b0954f643bdd9b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6864133539059030026
-    second: "\u888ERP"
+      213: -6267149708184109106
+    second: chkly17jpsi2t81pfpv07vjpk54gh5z_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 
+      name: chkly17jpsi2t81pfpv07vjpk54gh5z_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 727
-        height: 752
+        x: 74
+        y: 11
+        width: 625
+        height: 993
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6f7aa89f9e2bdb0a0800000000000000
-      internalID: -6864133539059030026
+      spriteID: ecf3e719b8c9609a0800000000000000
+      internalID: -6267149708184109106
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      : -6864133539059030026
+      chkly17jpsi2t81pfpv07vjpk54gh5z_0: -6267149708184109106
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
