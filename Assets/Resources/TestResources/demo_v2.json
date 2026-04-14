@@ -183,6 +183,21 @@
                             "text": "安·李::与此同时，地面的问题也不能被忽视。\n\n安·李::\n犯人刻意不留下脚印，也是为了不让大家意识到“原来是有人在地面取走了尸体的头颅”这一事实。\n\n事实证明，你的证明十分成功。一环套一环，令安乔完全认同了这一假说。\n"
                         }
                     },
+                    "on_pending": {
+                        "text_1": "安·李::\n（关于坠楼的推论……现在提出来还稍微早了点，我还需要更多的侧证。）",
+                        "triggered_text_1": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_falsified": false
+                            },
+                            "text": "安·李::\n（比如，关于“十五楼血迹是被伪造的”这一关键点，我还没有确凿的把握去说服安乔。）"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "falsified_footprints": false
+                            },
+                            "text": "安·李::\n（又或者，如果能论证“尸体附近的足迹是伪造的”，这个推论才会更有说服力吧。）"
+                        }
+                    },
                     "on_mutex": {
                         "triggered_text_1": {
                             "limit": {
@@ -329,7 +344,19 @@
                         }
                     },
                     "on_pending": {
-                        "text_1": ""
+                        "text_1": "安·李::\n（死因是斩首吗……虽然直观，但如果不解决血迹量的矛盾，很难让安乔完全信服。）",
+                        "triggered_text_1": {
+                            "limit": {
+                                "fifteenth_floor_bloodstain_true": false
+                            },
+                            "text": "安·李::\n（我首先得确认“十五楼的血迹确实属于死者”才行。）"
+                        },
+                        "triggered_text_2": {
+                            "limit": {
+                                "falsified_ground_bloodstain": false
+                            },
+                            "text": "安·李::\n（或者，证明“地面的血迹是伪造的”也是一个思路，但我现在还拿不出证据。）"
+                        }
                     },
                     "on_mutex": {
                         "triggered_text_1": {
@@ -767,7 +794,7 @@
                             "AnQiao",
                             "signature"
                         ],
-                        "this_1":[
+                        "this_1": [
                             "fifteenth_floor",
                             "AnQiao",
                             "graffti"
@@ -839,6 +866,15 @@
                 "dialogue": {
                     "on_proven": {
                         "text_1": "你证明了这个人可能是帮凶。"
+                    },
+                    "on_pending": {
+                        "text_1": "安·李::\n（陷害安乔的人是帮凶？这个想法很大胆，但前提是我得先确定这起案件真的存在“帮凶”才行。）",
+                        "triggered_text_1": {
+                            "limit": {
+                                "possible_accomplice": false
+                            },
+                            "text": "安·李::\n（在没能论证“犯人可能有帮凶”之前，这种话只会让对话陷入死胡同。）"
+                        }
                     }
                 }
             },
