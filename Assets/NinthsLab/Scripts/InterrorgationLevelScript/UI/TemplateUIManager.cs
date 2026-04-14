@@ -3,7 +3,7 @@ using UnityEngine;
 using LogicEngine;
 using Interrorgation.MidLayer;
 
-namespace FrontendEngine
+namespace Interrorgation.UI
 {
     /// <summary>
     /// 模板 UI 管理器
