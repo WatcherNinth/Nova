@@ -34,8 +34,10 @@ namespace AIEngine.Logic
                     NodeData node = info.Node;
 
                     // A. 阶段检查 (保持不变)：必须属于当前激活阶段 或 全局节点
-                    if (!info.IsUniversal && info.OwnerPhaseId != currentPhaseId) 
+                    // [修改] 如果 currentPhaseId 为空，则不进行阶段过滤，展示所有节点
+                    if (!string.IsNullOrEmpty(currentPhaseId) && !info.IsUniversal && info.OwnerPhaseId != currentPhaseId)
                     {
+                        Debug.Log($"[AIDiscoveryModel] 跳过节点 '{nodeId}'，因为它属于阶段 '{info.OwnerPhaseId}'，而当前阶段是 '{currentPhaseId}'");
                         continue;
                     }
                     // C. 提取描述
