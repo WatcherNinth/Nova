@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using LogicEngine.LevelGraph;
 using Interrorgation.MidLayer;
+using LogicEngine.LevelGraph;
 using Newtonsoft.Json.Linq;
 using UnityEngine; // 用于 Debug.Log
 
@@ -21,7 +21,7 @@ namespace LogicEngine.LevelLogic
         {
             _phaseManager = phaseManager;
         }
-        
+
         public void SetScopeManager(GameScopeManager scopeManager)
         {
             _scopeManager = scopeManager;
@@ -44,7 +44,7 @@ namespace LogicEngine.LevelLogic
 
             // 成功逻辑
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
-            
+
             TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
             ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
             ProcessAutoVerify();
@@ -52,7 +52,7 @@ namespace LogicEngine.LevelLogic
 
             // [新增] 成功后，通知 ScopeManager 尝试结算整个链条
             // 必须放在最后，否则递归可能出问题
-            if (!isAutoResolve) 
+            if (!isAutoResolve)
             {
                 _scopeManager?.ResolveScopeChain(nodeId);
             }
@@ -68,16 +68,16 @@ namespace LogicEngine.LevelLogic
             if (!isAutoResolve)
             {
                 TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
-                if(runtimeNode.r_NodeData.Dialogue == null || runtimeNode.r_NodeData.Dialogue.OnPending == null)
+                if (runtimeNode.r_NodeData.Dialogue == null || runtimeNode.r_NodeData.Dialogue.OnPending == null)
                 {
                     Debug.Log($"[NodeLogic] 依赖未满足，节点 {nodeId} 无法被证明，但没有待定对话。");
                 }
-                
+
                 // [修改] 调用 ScopeManager 处理深度逻辑
                 _scopeManager?.UpdateScopeOnFail(nodeId);
             }
         }
-        
+
         private void TriggerDialogue(JToken dialogueScript)
         {
             if (dialogueScript == null) return;
@@ -93,45 +93,53 @@ namespace LogicEngine.LevelLogic
         // ========================================================================
         public void ProcessMutex(string sourceNodeId, LogicEngine.Nodes.NodeLogicInfo logicInfo)
         {
-            if (logicInfo == null) return;
-            
-            string groupId = logicInfo.MutexGroup;
-            if (string.IsNullOrEmpty(groupId)) return;
+            Debug.Log($"[NodeLogic] 处理互斥: {sourceNodeId}");
 
-            // 1. 从 LevelGraphData 中直接获取互斥配置表
-            // 这里不再遍历所有节点，而是直接查表，效率极高
             var mutexData = _mindMapManager.levelGraph.nodeMutexGroupData;
-            var mutexItems = mutexData.GetMutexItems(groupId);
+            if (mutexData == null || mutexData.Data == null) return;
 
-            if (mutexItems == null)
+            // 遍历配置中所有的互斥组
+            foreach (var kvp in mutexData.Data)
             {
-                // 如果填了 MutexGroup 但没在 nodes_mutex_group 里定义，可能是配置错误
-                // 但也可能是简单的单向互斥，这里可以选择 LogWarning 或忽略
-                return; 
-            }
+                var mutexItems = kvp.Value;
+                if (mutexItems == null) continue;
 
-            // 2. 遍历该组定义的所有条目
-            foreach (var item in mutexItems)
-            {
-                // 情况 A: 单个节点互斥
-                if (!string.IsNullOrEmpty(item.SingleNodeId))
+                // 查找当前 sourceNodeId 是否属于该互斥组的某一个条目
+                NodeMutexItem ownerItem = null;
+                foreach (var item in mutexItems)
                 {
-                    // 只要不是自己，就作废
-                    if (item.SingleNodeId != sourceNodeId)
+                    if (!item.IsGroupList && item.SingleNodeId == sourceNodeId)
                     {
-                        InvalidateNode(item.SingleNodeId);
+                        ownerItem = item;
+                        break;
+                    }
+                    else if (item.IsGroupList && item.GroupNodeIds != null && item.GroupNodeIds.Contains(sourceNodeId))
+                    {
+                        ownerItem = item;
+                        break;
                     }
                 }
 
-                // 情况 B: 节点组互斥 (列表)
-                if (item.GroupNodeIds != null)
+                // 如果当前节点在该互斥组中，则把该组内**其他**条目的所有节点全部作废
+                if (ownerItem != null)
                 {
-                    foreach (var targetId in item.GroupNodeIds)
+                    foreach (var item in mutexItems)
                     {
-                        // 只要不是自己，就作废
-                        if (targetId != sourceNodeId)
+                        // 同一条目内部的节点不互斥（即当前节点组里的节点不互相互斥）
+                        if (item == ownerItem) continue;
+
+                        // 情况 A: 单个节点互斥
+                        if (!item.IsGroupList && !string.IsNullOrEmpty(item.SingleNodeId))
                         {
-                            InvalidateNode(targetId);
+                            InvalidateNode(item.SingleNodeId);
+                        }
+                        // 情况 B: 节点组互斥 (列表)
+                        else if (item.IsGroupList && item.GroupNodeIds != null)
+                        {
+                            foreach (var targetId in item.GroupNodeIds)
+                            {
+                                InvalidateNode(targetId);
+                            }
                         }
                     }
                 }
@@ -171,10 +179,10 @@ namespace LogicEngine.LevelLogic
                         if (CheckDependencies(node.r_NodeData.Logic.DependsOn))
                         {
                             _mindMapManager.SetNodeStatus(node.Id, RunTimeNodeStatus.Submitted);
-                            
+
                             // [修改] 传入 ID
                             ProcessMutex(node.Id, node.r_NodeData.Logic);
-                            
+
                             hasChanged = true;
                         }
                     }
