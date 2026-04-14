@@ -41,6 +41,10 @@ namespace LogicEngine.LevelLogic
                 if (!isAutoResolve)
                 {
                     TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
+                    if(runtimeNode.r_NodeData.Dialogue.OnPending == null)
+                    {
+                        Debug.Log($"[NodeLogic] 依赖未满足，节点 {nodeId} 无法被证明，但没有待定对话。");
+                    }
                     
                     // [修改] 调用 ScopeManager 处理深度逻辑
                     _scopeManager?.UpdateScopeOnFail(nodeId);

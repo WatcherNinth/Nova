@@ -87,7 +87,7 @@ namespace Interrorgation.MidLayer
         public static void DispatchDiscoverNewNodes(List<string> nodeIds, NodeDiscoverContext context) => OnDiscoverNewNodes?.Invoke(nodeIds, context);
 
         /// <summary>
-        /// 发现了新实体
+        /// 发现了新实体(使用时必须跟gameevent那边的同名一起分发，保持同步)
         /// </summary>
         public static event Action<List<string>> OnDiscoveredNewEntity;
         public static void DispatchDiscoveredNewEntityItems(List<string> entityItemIds) => OnDiscoveredNewEntity?.Invoke(entityItemIds);

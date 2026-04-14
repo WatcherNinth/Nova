@@ -73,7 +73,7 @@ namespace Interrorgation.MidLayer
 
         #region 实体系统 (Entities)
         /// <summary>
-        /// 发现并解锁了新实体
+        /// 发现并解锁了新实体，使用时必须跟uievent那边的同名一起分发，保持同步
         /// </summary>
         public static event Action<List<EntityItem>> OnDiscoveredNewEntity;
         public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems)

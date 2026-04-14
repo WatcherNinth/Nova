@@ -204,13 +204,15 @@ namespace Interrorgation.MidLayer
                 // 解锁通过的逻辑节点
                 if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
                 {
-                    GameEventDispatcher.DispatchDiscoverNewNodes(result.PassedNodeIds, 
+                    GameEventDispatcher.DispatchDiscoverNewNodes(result.PassedNodeIds,
                         new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput));
+                    UIEventDispatcher.DispatchDiscoveredNewNodes(result.PassedNodeIds.ConvertAll(id => LevelGraphContext.CurrentGraph.nodeLookup[id].Node));
                 }
                 // 解锁发现的实体
                 if (result.EntityList != null && result.EntityList.Count > 0)
                 {
                     GameEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList);
+                    UIEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList.ConvertAll(id => LevelGraphContext.CurrentGraph.entityListData.Data[id]));
                 }
             }
 
