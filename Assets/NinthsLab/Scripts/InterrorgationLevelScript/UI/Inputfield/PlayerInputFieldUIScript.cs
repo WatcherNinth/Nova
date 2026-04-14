@@ -1,6 +1,7 @@
 using UnityEngine;
 using Interrorgation.MidLayer;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerInputFieldUIScript : MonoBehaviour
 {
@@ -10,7 +11,9 @@ public class PlayerInputFieldUIScript : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
+        // 监听输入框的提交事件
+        inputField.onSubmit.AddListener(delegate { OnSubmitInput(); });
+        GetComponentInChildren<Button>().onClick.AddListener(OnSubmitInput);
     }
 
     // Update is called once per frame
