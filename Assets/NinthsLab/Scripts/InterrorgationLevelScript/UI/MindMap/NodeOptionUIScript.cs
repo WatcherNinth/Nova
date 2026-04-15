@@ -1,9 +1,9 @@
-using UnityEngine;
-using TMPro;
-using LogicEngine;
 using Interrorgation.MidLayer;
+using LogicEngine;
+using TMPro;
+using UnityEngine;
 
-namespace FrontendEngine.MindMap
+namespace Interrorgation.UI
 {
     public class NodeOptionUIScript : MonoBehaviour
     {

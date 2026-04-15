@@ -21,14 +21,18 @@ namespace Interrorgation.UI
         [Header("UI References")]
         [SerializeField] private GameObject _panelRoot;
         [SerializeField] private Transform _container;
+        [SerializeField] private Transform _optionContainer;
         [SerializeField] private Button _submitButton;
         [SerializeField] private Button _closeButton;
+
 
         [Header("Prefabs")]
         [SerializeField] private TMP_Text _textPrefab;
         [SerializeField] private TMP_Dropdown _dropdownPrefab;
         [SerializeField] private TMP_InputField _inputPrefab;
         [SerializeField] private TMP_Text _outcomePrefab;
+        [SerializeField] private NodeOptionUIScript _optionButtonPrefab;
+
 
         // 运行时状态
         private TemplateData _currentData;
@@ -67,6 +71,8 @@ namespace Interrorgation.UI
         {
             //todo
             Debug.Log(_currentTemplateId + "这个模板已经用完了！");
+            _outcomePrefab.text = "你已经发现了这个模板的所有答案！";
+            _submitButton.interactable = false;
         }
 
         public void Hide()
@@ -194,6 +200,13 @@ namespace Interrorgation.UI
             Debug.Log($"[TemplateUI] Submit: ID={_currentTemplateId}, Inputs={string.Join(", ", userInputs)}");
             UIEventDispatcher.DispatchPlayerSubmitTemplateAnswer(_currentTemplateId, userInputs);
 
+        }
+
+        private void addOptionButton(string nodeID)
+        {
+            var optionButton = Instantiate(_optionButtonPrefab, _optionContainer);
+            optionButton.gameObject.SetActive(true);
+            optionButton.Init(nodeID);
         }
     }
 }
