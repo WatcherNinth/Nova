@@ -179,6 +179,12 @@ namespace Interrorgation.MidLayer
         /// </summary>
         public static event Func<Dictionary<string, RuntimeTemplateData>> OnGetAllTemplateStatus;
         public static Dictionary<string, RuntimeTemplateData> GetAllTemplateStatus() => OnGetAllTemplateStatus?.Invoke();
+
+        /// <summary>
+        /// [Query] 获取当前Scope数据
+        /// </summary>
+        public static event Func<List<string>> OnGetCurrentScopeStack;
+        public static List<string> GetCurrentScopeStack() => OnGetCurrentScopeStack?.Invoke();
         #endregion
     }
 }

@@ -1,9 +1,9 @@
-using UnityEngine;
 using System.Collections.Generic;
-using DialogueSystem;
 using AIEngine.Network;
+using DialogueSystem;
 using LogicEngine;
 using LogicEngine.LevelGraph;
+using UnityEngine;
 
 namespace Interrorgation.MidLayer
 {
@@ -53,7 +53,8 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.OnNodeStatusChanged += UIEventDispatcher.DispatchNodeStatusChanged;
             GameEventDispatcher.OnEntityStatusChanged += UIEventDispatcher.DispatchEntityStatusChanged;
             GameEventDispatcher.OnTemplateStatusChanged += UIEventDispatcher.DispatchTemplateStatusChanged;
-            
+            GameEventDispatcher.OnScopeStackChanged += UIEventDispatcher.DispatchScopeStackChanged;
+
             GameEventDispatcher.OnTemplateSettlement += HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
@@ -122,10 +123,10 @@ namespace Interrorgation.MidLayer
                 // 1. 通知逻辑层解锁节点
                 GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId },
                     new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
-                
+
                 // 2. 通知 UI 层更新节点状态
                 UIEventDispatcher.DispatchDiscoveredNewNodes(new List<NodeData> { LevelGraphContext.CurrentGraph.nodeLookup[context.TargetNodeId].Node });
-                
+
                 // 3. 通知 UI 层结算结果（播放成功特效等）
                 UIEventDispatcher.DispatchTemplateAnswerResult(context);
             }
@@ -231,9 +232,9 @@ namespace Interrorgation.MidLayer
                         if (levelGraph.nodeLookup.TryGetValue(nodeId, out var nodeInfo) && nodeInfo.Node != null)
                         {
                             string specialTmplId = nodeInfo.Node.Template?.SpecialTemplateId;
-                            if (!string.IsNullOrEmpty(specialTmplId)) 
+                            if (!string.IsNullOrEmpty(specialTmplId))
                                 templatesToUnlock.Add(specialTmplId);
-                            else if (nodeInfo.Node.Template?.Template != null) 
+                            else if (nodeInfo.Node.Template?.Template != null)
                                 templatesToUnlock.Add($"nodeTemplate_{nodeId}");
                         }
                     }

@@ -1,11 +1,11 @@
 
-using UnityEngine;
-using LogicEngine.LevelGraph;
-using Interrorgation.MidLayer;
-using AIEngine.Network;
-using System.IO;
-using LogicEngine.Parser;
 using System.Collections.Generic; // 引入 List
+using System.IO;
+using AIEngine.Network;
+using Interrorgation.MidLayer;
+using LogicEngine.LevelGraph;
+using LogicEngine.Parser;
+using UnityEngine;
 
 namespace LogicEngine.LevelLogic
 {
@@ -52,7 +52,7 @@ namespace LogicEngine.LevelLogic
         private NodeLogicManager nodeLogicManager;
         private GameScopeManager gameScopeManager;
         private TemplateLogicManager templateLogicManager;
-        
+
 
         private void OnEnable()
         {
@@ -62,9 +62,10 @@ namespace LogicEngine.LevelLogic
 
             //这个删除
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
-            
+
             GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
+            handleRegister_ScopeManager(true);
         }
 
         private void OnDisable()
@@ -76,7 +77,8 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
-            
+            handleRegister_ScopeManager(false);
+
             // [新增] 清理逻辑管理器
             templateLogicManager?.Dispose();
             playerMindMapManager?.UnsubscribeEvents();
@@ -84,7 +86,7 @@ namespace LogicEngine.LevelLogic
 
         private void Start()
         {
-            
+
         }
 
         private void HandlePlayerInput(string input)
@@ -109,7 +111,7 @@ namespace LogicEngine.LevelLogic
         public void LoadLevel(string name)
         {
             string path = GetLevelFilePath(name);
-            if(path == null) return;
+            if (path == null) return;
 
             // [新增] 在重新加载前清理旧的逻辑管理器，防止事件重复订阅
             templateLogicManager?.Dispose();
@@ -128,7 +130,7 @@ namespace LogicEngine.LevelLogic
 
             // 3. 初始化 Logic
             nodeLogicManager = new NodeLogicManager(playerMindMapManager);
-            
+
             // 4. [新增] 初始化 Scope
             gameScopeManager = new GameScopeManager(playerMindMapManager);
 
@@ -197,6 +199,27 @@ namespace LogicEngine.LevelLogic
         public string getcurrrentPhaseId()
         {
             return currentPhaseId;
+        }
+
+        private void handleRegister_ScopeManager(bool register)
+        {
+            if (register)
+            {
+                GameEventDispatcher.OnGetCurrentScopeStack += handleGetCurrentScopeStack;
+            }
+            else
+            {
+                GameEventDispatcher.OnGetCurrentScopeStack -= handleGetCurrentScopeStack;
+            }
+        }
+
+        private List<string> handleGetCurrentScopeStack()
+        {
+            if (gameScopeManager != null)
+            {
+                return gameScopeManager.GetCurrentScopeStack();
+            }
+            return null;
         }
     }
 }

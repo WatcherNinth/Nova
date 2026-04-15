@@ -10,7 +10,7 @@ namespace Interrorgation.MidLayer
     /// UI 事件派发器，用于逻辑层向 UI 层发送通知
     /// </summary>
     public static class UIEventDispatcher
-    {        
+    {
         #region 玩家交互
         /// <summary>
         /// 玩家提交原始输入文本
@@ -121,8 +121,14 @@ namespace Interrorgation.MidLayer
         {
             OnShowDialogues?.Invoke(dialogues);
         }
+
+        /// <summary>
+        /// 调查范围堆栈变更
+        /// </summary>
+        public static event Action<List<string>> OnScopeStackChanged;
+        public static void DispatchScopeStackChanged(List<string> scopeStack) => OnScopeStackChanged.Invoke(scopeStack);
         #endregion
-        
+
         #region 阶段管理 (Phases)
         /// <summary>
         /// 通知 UI 层显示阶段选择弹窗（当一个阶段完成并解锁后续阶段时触发）

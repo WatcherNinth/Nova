@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
-using LogicEngine.LevelGraph;
 using Interrorgation.MidLayer;
+using LogicEngine.LevelGraph;
+using Newtonsoft.Json.Linq;
 
 namespace LogicEngine.LevelLogic
 {
@@ -29,6 +29,11 @@ namespace LogicEngine.LevelLogic
         public string GetCurrentScopeNode()
         {
             return _scopeStack.Count > 0 ? _scopeStack.Last() : null;
+        }
+
+        public List<string> GetCurrentScopeStack()
+        {
+            return _scopeStack;
         }
 
         /// <summary>
@@ -84,16 +89,16 @@ namespace LogicEngine.LevelLogic
 
             // 1. 如果证明的节点不在栈里，也不影响栈（除非它是栈里某节点的依赖，被自动验证处理了）
             // 这里我们主要处理栈内的连锁。
-            
+
             // 我们从栈顶（最深处）开始检查，看能不能往回缩
             // 只要栈顶的节点变成 Submitted 了，就把它弹出去，继续看下一个
             bool changed = false;
-            
+
             // 循环检查栈顶
             while (_scopeStack.Count > 0)
             {
                 string topId = _scopeStack.Last();
-                
+
                 // 获取节点状态
                 if (_mindMapManager.TryGetNode(topId, out var node))
                 {
@@ -102,7 +107,7 @@ namespace LogicEngine.LevelLogic
                         // 栈顶已经搞定了，弹出
                         _scopeStack.RemoveAt(_scopeStack.Count - 1);
                         changed = true;
-                        continue; 
+                        continue;
                     }
                     else
                     {
@@ -149,11 +154,11 @@ namespace LogicEngine.LevelLogic
         private bool IsDependencyOf(string childId, string parentId)
         {
             if (!_mindMapManager.TryGetNode(parentId, out var parentNode)) return false;
-            
+
             // 这里只做简单的直接依赖检查，或者一层 BFS
             // 也可以解析 Logic.DependsOn 的 JSON 结构
             // 为了简化，我们假设 logicManager 提供了解析服务，或者我们简单遍历 JSON
-            
+
             var dependsOn = parentNode.r_NodeData.Logic?.DependsOn;
             if (dependsOn == null) return false;
 
