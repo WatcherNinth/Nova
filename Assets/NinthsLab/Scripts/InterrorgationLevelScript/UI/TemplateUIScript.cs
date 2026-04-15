@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Interrorgation.MidLayer;
+using LogicEngine;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
-using LogicEngine;
-using Interrorgation.MidLayer;
 
 namespace Interrorgation.UI
 {
@@ -39,7 +39,7 @@ namespace Interrorgation.UI
         private void Awake()
         {
             if (_panelRoot) _panelRoot.SetActive(false);
-            
+
             if (_submitButton)
             {
                 _submitButton.onClick.AddListener(OnSubmitButtonClicked);
@@ -59,15 +59,21 @@ namespace Interrorgation.UI
             _currentData = runtimeData;
 
             BuildUI(_currentData);
-            
+
             if (_panelRoot) _panelRoot.SetActive(true);
+        }
+
+        public void OnTemplateUsed()
+        {
+            //todo
+            Debug.Log(_currentTemplateId + "这个模板已经用完了！");
         }
 
         public void Hide()
         {
             if (_panelRoot) _panelRoot.SetActive(false);
         }
-        
+
         public void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
         {
             if (context.IsSuccess)
@@ -187,9 +193,7 @@ namespace Interrorgation.UI
             // 2. 通过中间层提交给后端逻辑
             Debug.Log($"[TemplateUI] Submit: ID={_currentTemplateId}, Inputs={string.Join(", ", userInputs)}");
             UIEventDispatcher.DispatchPlayerSubmitTemplateAnswer(_currentTemplateId, userInputs);
-            
-            // 提交后通常可以关闭面板，或等待后端反馈后再关闭
-            // Hide(); 
+
         }
     }
 }

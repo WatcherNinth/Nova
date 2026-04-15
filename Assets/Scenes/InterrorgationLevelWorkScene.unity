@@ -4101,7 +4101,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1589356871}
-  - component: {fileID: 1589356872}
   - component: {fileID: 1589356873}
   m_Layer: 5
   m_Name: DeductionBoard
@@ -4130,20 +4129,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1589356872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1589356870}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2dd48a5e7eba0047afb55073eac77e5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  deductionBoardPrefab: {fileID: 77192876}
-  toggleButton: {fileID: 1469091595}
 --- !u!114 &1589356873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4156,6 +4141,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b672df1a02bd3b48965faf65819bc77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  deductionBoardPrefab: {fileID: 77192876}
+  toggleButton: {fileID: 1469091595}
   _uiRoot: {fileID: 47293558}
   _autoSearchOnAwake: 1
 --- !u!1 &1604074989

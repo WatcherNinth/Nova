@@ -1,7 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine;
-using LogicEngine;
 using Interrorgation.MidLayer;
+using LogicEngine;
+using LogicEngine.LevelLogic;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace Interrorgation.UI
 {
@@ -11,12 +13,17 @@ namespace Interrorgation.UI
     /// </summary>
     public class TemplateUIManager : MonoBehaviour
     {
+        [SerializeField] private GameObject deductionBoardPrefab;
+        [SerializeField] private Button toggleButton;
         [Header("Settings")]
         [SerializeField] private RectTransform _uiRoot;
         [SerializeField] private bool _autoSearchOnAwake = true;
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
-        private List<TemplateData> _templateCache = new List<TemplateData>();
+
+        // [新增] 状态缓存与脏标记，用于优化 UI 刷新逻辑
+        private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
+        private bool _isDirty = false;
 
         private void Awake()
         {
@@ -26,22 +33,19 @@ namespace Interrorgation.UI
             }
             // 确保在Awake处订阅，即使面板没有激活也能在后台接收事件
             UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
+            UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
         }
 
-        private void OnEnable()
+        private void Start()
         {
-            
-        }
-
-        private void OnDisable()
-        {
-            // 此处不做注销，使得面板隐藏时仍能缓存事件
+            toggleButton.onClick.AddListener(OnDeducitonBoardToggleButtonClicked);
         }
 
         private void OnDestroy()
         {
             UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
+            UIEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
         }
 
@@ -73,57 +77,98 @@ namespace Interrorgation.UI
             Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates.");
         }
 
+        private bool IsUIActive()
+        {
+            return deductionBoardPrefab.activeSelf;
+        }
+
         /// <summary>
-        /// 响应后端发来的新模板数据
+        /// 响应发现新模板的消息
         /// </summary>
         private void HandleNewTemplates(List<TemplateData> templates)
         {
             if (templates == null || templates.Count == 0) return;
 
-            // 如果当前 UI 不处于激活状态，将发现的模板加入缓存
-            bool isParentActive = (_uiRoot != null) ? _uiRoot.gameObject.activeInHierarchy : gameObject.activeInHierarchy;
-            if (!isParentActive)
+            // 如果当前 UI 不处于激活状态，记录脏标记，等下次打开时同步
+            if (!IsUIActive())
             {
-                foreach (var t in templates)
-                {
-                    if (!_templateCache.Exists(x => x.Id == t.Id))
-                    {
-                        _templateCache.Add(t);
-                    }
-                }
+                _isDirty = true;
                 return;
             }
 
-            ProcessTemplates(templates);
+            // 活跃状态下，直接通过全表同步来保证数据一致性
+            FlushCache();
         }
 
+        /// <summary>
+        /// 响应具体的模板状态变更（例如从 Discovered 变为 Used）
+        /// </summary>
+        private void HandleTemplateStatusChanged(RuntimeTemplateData templateData)
+        {
+            if (templateData == null) return;
+
+            if (!IsUIActive())
+            {
+                _isDirty = true;
+                return;
+            }
+
+            ApplyTemplateStatus(templateData);
+            _statusCache[templateData.Id] = templateData.Status;
+        }
+
+        /// <summary>
+        /// 将逻辑层最新的全量状态应用到 UI
+        /// </summary>
         public void FlushCache()
         {
-            if (_templateCache.Count > 0)
+            var allStatus = GameEventDispatcher.GetAllTemplateStatus();
+            if (allStatus == null)
             {
-                ProcessTemplates(_templateCache);
-                _templateCache.Clear();
+                Debug.LogWarning("[TemplateUIManager] FlushCache: GetAllTemplateStatus returned null. Logic may not be initialized.");
+                return;
+            }
+
+            foreach (var pair in allStatus)
+            {
+                string id = pair.Key;
+                RuntimeTemplateData runtimeData = pair.Value;
+
+                // 仅在状态发生变化时调用 UI 更新，减少性能消耗
+                if (!_statusCache.TryGetValue(id, out var cachedStatus) || cachedStatus != runtimeData.Status)
+                {
+                    ApplyTemplateStatus(runtimeData);
+                    _statusCache[id] = runtimeData.Status;
+                }
+            }
+
+            _isDirty = false;
+            Debug.Log("[TemplateUIManager] UI 状态已同步至最新。");
+        }
+
+        /// <summary>
+        /// 执行具体的 UI 显隐和展示逻辑
+        /// </summary>
+        private void ApplyTemplateStatus(RuntimeTemplateData runtimeData)
+        {
+            if (_templateMap.TryGetValue(runtimeData.Id, out var uiScript))
+            {
+                switch (runtimeData.Status)
+                {
+                    case RunTimeTemplateDataStatus.Hidden:
+                        uiScript.gameObject.SetActive(false);
+                        break;
+                    case RunTimeTemplateDataStatus.Discovered:
+                        uiScript.gameObject.SetActive(true);
+                        uiScript.ShowTemplate(runtimeData.r_TemplateData);
+                        break;
+                    case RunTimeTemplateDataStatus.Used:
+                        uiScript.OnTemplateUsed();
+                        break;
+                }
             }
         }
 
-        private void ProcessTemplates(List<TemplateData> templates)
-        {
-            // 一次性更新所有相关状态
-            foreach (var runtimeData in templates)
-            {
-                if (_templateMap.TryGetValue(runtimeData.Id, out var uiScript))
-                {
-                    // 确保物体先激活，以便其内部逻辑（如 Awake/OnEnable）或 UI 布局组件能正常工作
-                    uiScript.gameObject.SetActive(true);
-                    uiScript.ShowTemplate(runtimeData);
-                }
-                else
-                {
-                    Debug.LogError($"[TemplateUIManager] Received template data with ID {runtimeData.Id}, but no matching UI element was found under root.");
-                }
-            }
-        }
-        
         private void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
         {
             if (!_templateMap.TryGetValue(context.TemplateId, out var uiScript))
@@ -153,6 +198,35 @@ namespace Interrorgation.UI
             if (_templateMap.TryGetValue(id, out var ui))
             {
                 ui.ShowTemplate(data);
+            }
+        }
+        public void ShowDeductionBoard()
+        {
+            // 显示推理板 UI
+            deductionBoardPrefab.gameObject.SetActive(true);
+
+            if (_isDirty)
+            {
+                FlushCache();
+            }
+        }
+
+        public void HideDeductionBoard()
+        {
+            // 隐藏推理板 UI
+            deductionBoardPrefab.gameObject.SetActive(false);
+            // 这里可以根据实际情况销毁推理板预制件，或者隐藏已经存在的推理板 UI 对象
+        }
+
+        public void OnDeducitonBoardToggleButtonClicked()
+        {
+            if (deductionBoardPrefab.gameObject.activeSelf)
+            {
+                HideDeductionBoard();
+            }
+            else
+            {
+                ShowDeductionBoard();
             }
         }
     }
