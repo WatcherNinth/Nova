@@ -21,11 +21,13 @@ namespace LogicEngine.LevelLogic
 
             // 订阅事件
             GameEventDispatcher.OnPlayerSubmitTemplateAnswer += HandleTemplateSubmit;
+            GameEventDispatcher.OnDiscoverNewNodes += HandleDiscoverNewNodes;
         }
 
         public void Dispose()
         {
             GameEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandleTemplateSubmit;
+            GameEventDispatcher.OnDiscoverNewNodes -= HandleDiscoverNewNodes;
         }
 
         private void HandleTemplateSubmit(string templateId, List<string> inputs)
@@ -95,6 +97,33 @@ namespace LogicEngine.LevelLogic
                 TargetNodeId = targetNodeId
             };
             GameEventDispatcher.DispatchTemplateSettlement(context);
+        }
+
+        private void HandleDiscoverNewNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
+        {
+            var runtimeTemplatesData = GameEventDispatcher.GetAllTemplateStatus();
+            var runtimeNodesData = GameEventDispatcher.GetAllNodeStatus();
+            foreach (var pair in runtimeTemplatesData)
+            {
+                // 如果模板已经使用过，则跳过。虽然不太可能，但状态为hidden的模板也可能被玩家发现所有node进而进入已完成状态
+                if (pair.Value.Status == RunTimeTemplateDataStatus.Used) continue;
+                // 如果有模板的所有节点都已发现，则将模板状态改为已完成
+                var templateData = pair.Value;
+                var allNodesDiscovered = true;
+                foreach (var answer in templateData.r_TemplateData.Answers)
+                {
+                    if (runtimeNodesData[answer.TargetId].Status == RunTimeNodeStatus.Hidden)
+                    {
+                        allNodesDiscovered = false;
+                        break;
+                    }
+                }
+                if (allNodesDiscovered)
+                {
+                    templateData.Status = RunTimeTemplateDataStatus.Used;
+                    GameEventDispatcher.DispatchTemplateStatusChanged(templateData);
+                }
+            }
         }
     }
 }
