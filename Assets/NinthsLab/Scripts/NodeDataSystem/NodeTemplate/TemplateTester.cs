@@ -1,23 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using LogicEngine.Templates; 
-using LogicEngine.LevelLogic; // [新增] 引用 Runtime 数据
 using Interrorgation.MidLayer; // [新增] 引用 Dispatcher
-using Newtonsoft.Json.Linq;  
+using LogicEngine.LevelLogic; // [新增] 引用 Runtime 数据
+using LogicEngine.Templates;
+using Newtonsoft.Json.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace LogicEngine.Tests
 {
+    /// <summary>
+    /// 模板测试器（已弃用）
+    /// </summary>
     public class TemplateTester : MonoBehaviour
     {
         [Header("UI References")]
-        [SerializeField] private TMP_Text _textPrefab;         
-        [SerializeField] private TMP_Dropdown _dropdownPrefab; 
-        [SerializeField] private TMP_InputField _inputPrefab;  
-        [SerializeField] private Transform _container;         
+        [SerializeField] private TMP_Text _textPrefab;
+        [SerializeField] private TMP_Dropdown _dropdownPrefab;
+        [SerializeField] private TMP_InputField _inputPrefab;
+        [SerializeField] private Transform _container;
         [SerializeField] private Button _checkButton;
         [SerializeField] private TMP_Text _resultText;
 
@@ -26,7 +29,7 @@ namespace LogicEngine.Tests
         [SerializeField] private bool _listenToGameEvents = true;
 
         [Header("JSON Input (Test Only)")]
-        [TextArea(10, 20)] 
+        [TextArea(10, 20)]
         [SerializeField] private string _jsonContent = @"{
     ""text"": ""这是一个测试文本，请选择{0}，然后输入{1}。"",
     ""dropdown_blank_1"": [
@@ -60,7 +63,7 @@ namespace LogicEngine.Tests
             if (_listenToGameEvents)
             {
                 // 监听后端发来的新模板
-                UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
+                //UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
             }
         }
 
@@ -68,7 +71,7 @@ namespace LogicEngine.Tests
         {
             if (_listenToGameEvents)
             {
-                UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
+                //UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
             }
         }
 
@@ -107,16 +110,16 @@ namespace LogicEngine.Tests
             // 这里简单处理：如果有新模板，直接显示列表中的第一个（覆盖旧的）
             // 如果需要显示列表，这里的逻辑需要改成实例化多个 Panel，但在当前脚本结构下，我们复用现有的 Panel
             var target = templates[0];
-            
+
             Debug.Log($"[TemplateTester] 收到后端模板: {target.Id}");
-            
+
             // 更新 ID 和数据
             _currentTemplateId = target.Id;
             _runtimeData = target;
 
             // 重建 UI
             BuildUI(_runtimeData);
-            
+
             // 清空结果文本
             if (_resultText) _resultText.text = "";
         }
@@ -193,7 +196,7 @@ namespace LogicEngine.Tests
             // TODO: LocaleHelper.GetText(content)
             var textObj = Instantiate(_textPrefab, _container);
             textObj.gameObject.SetActive(true);
-            textObj.text = content; 
+            textObj.text = content;
         }
 
         private void CreateInputNode(int slotId, TemplateData data)
@@ -203,11 +206,11 @@ namespace LogicEngine.Tests
                 var dropdown = Instantiate(_dropdownPrefab, _container);
                 dropdown.gameObject.SetActive(true);
                 dropdown.ClearOptions();
-                
+
                 // 填充选项
                 // TODO: LocaleHelper 处理
                 dropdown.AddOptions(data.DropdownOptions[slotId]);
-                
+
                 _inputControls[slotId] = dropdown;
             }
             else
@@ -257,10 +260,10 @@ namespace LogicEngine.Tests
             {
                 // [游戏模式] 发送给后端
                 Debug.Log($"[TemplateTester] 发送答案: TemplateID={_currentTemplateId}, Inputs={string.Join(",", userInputs)}");
-                
+
                 // 调用 UIEventDispatcher (请确保该方法已定义)
                 UIEventDispatcher.DispatchPlayerSubmitTemplateAnswer(_currentTemplateId, userInputs);
-                
+
                 if (_resultText) _resultText.text = "已提交...等待结果";
             }
             else

@@ -8,11 +8,16 @@ using UnityEngine.UI;
 
 namespace Interrorgation.UI
 {
-    public class NodeOptionListUIScript : MonoBehaviour
+    public class NodeOptionListUIScript : MonoBehaviour, UISequence.IUIBacklogModule
     {
         [SerializeField] private NodeOptionUIScript _optionPrefab;
         [SerializeField] private Transform _optionContainer;
         [SerializeField] private ScrollRect _scrollRect;
+
+        // [改进] 表现积压列表
+        private List<System.Action> _backlog = new List<System.Action>();
+
+        public bool IsVisualActive => _scrollRect.gameObject.activeSelf;
 
         private void OnEnable()
         {
@@ -39,13 +44,28 @@ namespace Interrorgation.UI
 
         }
 
-        void HandleNewNodes(List<NodeData> newNodes)
+        void HandleNewNodes(List<NodeData> newNodes, string actionId)
         {
-            // 添加新选项
+            if (newNodes == null || newNodes.Count == 0) return;
+
+            if (!IsVisualActive)
+            {
+                Debug.Log($"[MindMapUI] 视觉面板已关闭，拦截并记录积压事件 (ID: {actionId})");
+                RecordBacklog(() => {
+                    foreach (var node in newNodes) addNodeOption(node.Id);
+                });
+                // 缓存后立即上报完成
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
+
+            // 活跃状态下，直接展示
             foreach (var node in newNodes)
             {
                 addNodeOption(node.Id);
             }
+            // 以后如果有动画在此处等待，则需要在动画结束后调用 DispatchActionCompleted
+            UIEventDispatcher.DispatchActionCompleted(actionId);
         }
 
         void addNodeOption(string targetNodeId)
@@ -55,8 +75,15 @@ namespace Interrorgation.UI
             option.gameObject.SetActive(true);
         }
 
-        void HandleNodeStatusChanged(LogicEngine.LevelLogic.RuntimeNodeData nodeData)
+        void HandleNodeStatusChanged(LogicEngine.LevelLogic.RuntimeNodeData nodeData, string actionId)
         {
+            if (!IsVisualActive)
+            {
+                RecordBacklog(() => HandleNodeStatusChanged(nodeData, ""));
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
+
             foreach (Transform child in _optionContainer)
             {
                 var optionScript = child.GetComponent<NodeOptionUIScript>();
@@ -67,7 +94,7 @@ namespace Interrorgation.UI
                     {
                         child.gameObject.SetActive(false);
                         Destroy(child.gameObject, 0.1f); // 延迟销毁以避免潜在的 UI 交互问题
-                        return;
+                        break;
                     }
                     if (nodeData.IsInvalidated)
                     {
@@ -75,6 +102,7 @@ namespace Interrorgation.UI
                     }
                 }
             }
+            UIEventDispatcher.DispatchActionCompleted(actionId);
         }
 
         void refreshAllOptions()
@@ -113,8 +141,26 @@ namespace Interrorgation.UI
         void HandleDialogueEnd()
         {
             _scrollRect.gameObject.SetActive(true);
+            ProcessBacklog();
         }
 
-    }
+        #region IUIBacklogModule 实现
+        public void RecordBacklog(System.Action action)
+        {
+            _backlog.Add(action);
+        }
 
+        public void ProcessBacklog()
+        {
+            if (_backlog.Count == 0) return;
+
+            Debug.Log($"[MindMapUI] 开始回放积压的表现动画 (Count: {_backlog.Count})");
+            foreach (var action in _backlog)
+            {
+                action?.Invoke();
+            }
+            _backlog.Clear();
+        }
+        #endregion
+    }
 }

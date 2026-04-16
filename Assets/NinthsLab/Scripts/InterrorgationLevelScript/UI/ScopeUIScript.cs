@@ -38,10 +38,10 @@ public class ScopeUIScript : MonoBehaviour
 
     }
 
-    private void UpdateScopeUI(List<string> scopeStack)
+    private void UpdateScopeUI(List<string> scopeStack, string actionId)
     {
-
         RefreshUI(scopeStack);
+        UIEventDispatcher.DispatchActionCompleted(actionId);
     }
 
     private void RefreshUI(List<string> scopeStack)

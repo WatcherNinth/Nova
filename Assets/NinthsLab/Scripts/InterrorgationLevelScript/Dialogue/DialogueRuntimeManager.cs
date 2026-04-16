@@ -71,6 +71,7 @@ namespace DialogueSystem
             {
                 _isPlaying = false;
                 DialogueEventDispatcher.DispatchDialogueBatchEnded();
+                UIEventDispatcher.DispatchActionCompleted("DialogueBatch");
                 Debug.Log("[DialogueSystem] 当前批次播放完毕");
             }
         }

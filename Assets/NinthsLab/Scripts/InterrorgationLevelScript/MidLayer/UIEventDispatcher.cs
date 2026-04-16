@@ -11,6 +11,13 @@ namespace Interrorgation.MidLayer
     /// </summary>
     public static class UIEventDispatcher
     {
+        // --- 表现完成反馈 ---
+        /// <summary>
+        /// 当一个 UI 表现执行完毕时触发
+        /// </summary>
+        public static event Action<string> OnActionCompleted;
+        public static void DispatchActionCompleted(string actionId) => OnActionCompleted?.Invoke(actionId);
+
         #region 玩家交互
         /// <summary>
         /// 玩家提交原始输入文本
@@ -26,28 +33,28 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 节点状态变更
         /// </summary>
-        public static event Action<RuntimeNodeData> OnNodeStatusChanged;
-        public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData)
+        public static event Action<RuntimeNodeData, string> OnNodeStatusChanged;
+        public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData, string actionId = "")
         {
-            OnNodeStatusChanged?.Invoke(nodeData);
+            OnNodeStatusChanged?.Invoke(nodeData, actionId);
         }
 
         /// <summary>
         /// 实体状态变更
         /// </summary>
-        public static event Action<RuntimeEntityItemData> OnEntityStatusChanged;
-        public static void DispatchEntityStatusChanged(RuntimeEntityItemData entityData)
+        public static event Action<RuntimeEntityItemData, string> OnEntityStatusChanged;
+        public static void DispatchEntityStatusChanged(RuntimeEntityItemData entityData, string actionId = "")
         {
-            OnEntityStatusChanged?.Invoke(entityData);
+            OnEntityStatusChanged?.Invoke(entityData, actionId);
         }
 
         /// <summary>
         /// 模板状态变更
         /// </summary>
-        public static event Action<RuntimeTemplateData> OnTemplateStatusChanged;
-        public static void DispatchTemplateStatusChanged(RuntimeTemplateData templateData)
+        public static event Action<RuntimeTemplateData, string> OnTemplateStatusChanged;
+        public static void DispatchTemplateStatusChanged(RuntimeTemplateData templateData, string actionId = "")
         {
-            OnTemplateStatusChanged?.Invoke(templateData);
+            OnTemplateStatusChanged?.Invoke(templateData, actionId);
         }
         #endregion
 
@@ -55,10 +62,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 发现并解锁了新节点
         /// </summary>
-        public static event Action<List<NodeData>> OnDiscoveredNewNodes;
-        public static void DispatchDiscoveredNewNodes(List<NodeData> nodes)
+        public static event Action<List<NodeData>, string> OnDiscoveredNewNodes;
+        public static void DispatchDiscoveredNewNodes(List<NodeData> nodes, string actionId = "")
         {
-            OnDiscoveredNewNodes?.Invoke(nodes);
+            OnDiscoveredNewNodes?.Invoke(nodes, actionId);
         }
 
         /// <summary>
@@ -73,12 +80,12 @@ namespace Interrorgation.MidLayer
 
         #region 实体系统 (Entities)
         /// <summary>
-        /// 发现并解锁了新实体，使用时必须跟uievent那边的同名一起分发，保持同步
+        /// 发现并解锁了新实体
         /// </summary>
-        public static event Action<List<EntityItem>> OnDiscoveredNewEntity;
-        public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems)
+        public static event Action<List<EntityItem>, string> OnDiscoveredNewEntity;
+        public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems, string actionId = "")
         {
-            OnDiscoveredNewEntity?.Invoke(entityItems);
+            OnDiscoveredNewEntity?.Invoke(entityItems, actionId);
         }
         #endregion
 
@@ -86,10 +93,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 发现并解锁了新模板
         /// </summary>
-        public static event Action<List<TemplateData>> OnDiscoveredNewTemplates;
-        public static void DispatchDiscoveredNewTemplates(List<TemplateData> templates)
+        public static event Action<List<TemplateData>, string> OnDiscoveredNewTemplates;
+        public static void DispatchDiscoveredNewTemplates(List<TemplateData> templates, string actionId = "")
         {
-            OnDiscoveredNewTemplates?.Invoke(templates);
+            OnDiscoveredNewTemplates?.Invoke(templates, actionId);
         }
 
         /// <summary>
@@ -105,10 +112,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 模板答案校验结果反馈
         /// </summary>
-        public static event Action<GameEventDispatcher.TemplateSettlementContext> OnTemplateAnswerResult;
-        public static void DispatchTemplateAnswerResult(GameEventDispatcher.TemplateSettlementContext context)
+        public static event Action<GameEventDispatcher.TemplateSettlementContext, string> OnTemplateAnswerResult;
+        public static void DispatchTemplateAnswerResult(GameEventDispatcher.TemplateSettlementContext context, string actionId = "")
         {
-            OnTemplateAnswerResult?.Invoke(context);
+            OnTemplateAnswerResult?.Invoke(context, actionId);
         }
         #endregion
 
@@ -125,8 +132,8 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 调查范围堆栈变更
         /// </summary>
-        public static event Action<List<string>> OnScopeStackChanged;
-        public static void DispatchScopeStackChanged(List<string> scopeStack) => OnScopeStackChanged.Invoke(scopeStack);
+        public static event Action<List<string>, string> OnScopeStackChanged;
+        public static void DispatchScopeStackChanged(List<string> scopeStack, string actionId = "") => OnScopeStackChanged?.Invoke(scopeStack, actionId);
         #endregion
 
         #region 阶段管理 (Phases)

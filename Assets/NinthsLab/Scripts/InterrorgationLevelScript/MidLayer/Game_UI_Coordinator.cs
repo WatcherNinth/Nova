@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AIEngine.Network;
 using DialogueSystem;
+using Interrorgation.UI.UISequence;
 using LogicEngine;
 using LogicEngine.LevelGraph;
 using UnityEngine;
@@ -50,10 +51,10 @@ namespace Interrorgation.MidLayer
             UIEventDispatcher.OnNodeOptionSubmitted += HandleNodeOptionSubmitted;
 
             // 订阅逻辑事件 -> 转发给 UI 或进行编排
-            GameEventDispatcher.OnNodeStatusChanged += UIEventDispatcher.DispatchNodeStatusChanged;
-            GameEventDispatcher.OnEntityStatusChanged += UIEventDispatcher.DispatchEntityStatusChanged;
-            GameEventDispatcher.OnTemplateStatusChanged += UIEventDispatcher.DispatchTemplateStatusChanged;
-            GameEventDispatcher.OnScopeStackChanged += UIEventDispatcher.DispatchScopeStackChanged;
+            GameEventDispatcher.OnNodeStatusChanged += HandleNodeStatusChanged;
+            GameEventDispatcher.OnEntityStatusChanged += HandleEntityStatusChanged;
+            GameEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
+            GameEventDispatcher.OnScopeStackChanged += HandleScopeStackChanged;
 
             GameEventDispatcher.OnTemplateSettlement += HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
@@ -72,17 +73,16 @@ namespace Interrorgation.MidLayer
             UIEventDispatcher.OnPlayerSubmitTemplateAnswer -= HandlePlayerSubmitTemplateAnswer;
             UIEventDispatcher.OnNodeOptionSubmitted -= HandleNodeOptionSubmitted;
 
-            GameEventDispatcher.OnNodeStatusChanged -= UIEventDispatcher.DispatchNodeStatusChanged;
-            GameEventDispatcher.OnEntityStatusChanged -= UIEventDispatcher.DispatchEntityStatusChanged;
-            GameEventDispatcher.OnTemplateStatusChanged -= UIEventDispatcher.DispatchTemplateStatusChanged;
-
+            GameEventDispatcher.OnNodeStatusChanged -= HandleNodeStatusChanged;
+            GameEventDispatcher.OnEntityStatusChanged -= HandleEntityStatusChanged;
+            GameEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
+            GameEventDispatcher.OnScopeStackChanged -= HandleScopeStackChanged;
             GameEventDispatcher.OnTemplateSettlement -= HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
             GameEventDispatcher.OnDiscoveredNewTemplates -= HandleDiscoveredTemplates;
             GameEventDispatcher.OnDiscoveredNewEntity -= HandleDiscoveredEntities;
             GameEventDispatcher.OnDiscoverNewNodes -= HandleDiscoveredNodes;
-            GameEventDispatcher.OnScopeStackChanged -= UIEventDispatcher.DispatchScopeStackChanged;
 
             AIEventDispatcher.OnResponseReceived -= HandleAIResponse;
         }
@@ -126,16 +126,23 @@ namespace Interrorgation.MidLayer
             {
                 Debug.Log("[Coordinator] 编排：模板成功序列。正在解锁目标节点。");
                 // 1. 通知逻辑层解锁节点 (Logic -> Logic Event)
+                // 注意：逻辑解锁会通过 OnDiscoverNewNodes 进一步触发 UI 序列
                 GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId },
                     new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
 
-                // 2. 通知 UI 层结算结果（播放成功特效等）
-                UIEventDispatcher.DispatchTemplateAnswerResult(context);
+                // 2. 将结算结果反馈入队
+                UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
+                {
+                    UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
+                }, isBlocking: false));
             }
             else
             {
                 Debug.Log("[Coordinator] 编排：模板失败表现。通知 UI 错误反馈。");
-                UIEventDispatcher.DispatchTemplateAnswerResult(context);
+                UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
+                {
+                    UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
+                }, isBlocking: false));
             }
         }
 
@@ -153,7 +160,12 @@ namespace Interrorgation.MidLayer
                     nodes.Add(nodeInfo.Node);
                 }
             }
-            UIEventDispatcher.DispatchDiscoveredNewNodes(nodes);
+
+            // 演出：非阻塞入队
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscNodes", (id) =>
+            {
+                UIEventDispatcher.DispatchDiscoveredNewNodes(nodes, id);
+            }, isBlocking: false));
         }
 
         /// <summary>
@@ -174,8 +186,11 @@ namespace Interrorgation.MidLayer
                     Debug.LogError($"[Game_UI_Coordinator] Graph 中找不到 ID 为 {id} 的模板定义。");
                 }
             }
-            // 转发给 UI 侧
-            UIEventDispatcher.DispatchDiscoveredNewTemplates(templates);
+            // 演出：非阻塞入队
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscTemplates", (id) =>
+            {
+                UIEventDispatcher.DispatchDiscoveredNewTemplates(templates, id);
+            }, isBlocking: false));
         }
 
         /// <summary>
@@ -192,26 +207,35 @@ namespace Interrorgation.MidLayer
                     entities.Add(entity);
                 }
             }
-            UIEventDispatcher.DispatchDiscoveredNewEntityItems(entities);
+            // 演出：非阻塞入队
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscEntities", (id) =>
+            {
+                UIEventDispatcher.DispatchDiscoveredNewEntityItems(entities, id);
+            }, isBlocking: false));
         }
         #endregion
 
         #region 对话与演出
         /// <summary>
+
         /// 处理后端生成的对话文本并推送到对话系统前端
         /// </summary>
         private void HandleDialogueGenerated(List<string> dialogues)
         {
-            Debug.Log($"[Coordinator] 收到 {dialogues.Count} 行对话，转发给对话管理器。");
+            Debug.Log($"[Coordinator] 收到 {dialogues.Count} 行对话，入队演出序列。");
 
             if (dialogueManager != null)
             {
-                dialogueManager.PushNewBatch(dialogues);
-                UIEventDispatcher.DispatchShowDialogues(dialogues);
+                UISequenceManager.Instance.Enqueue(new UIDialogueCommand("DialogueBatch", () =>
+                {
+                    dialogueManager.PushNewBatch(dialogues);
+                    UIEventDispatcher.DispatchShowDialogues(dialogues);
+                }));
             }
             else
             {
                 Debug.LogError("[Coordinator] 未绑定 DialogueRuntimeManager！");
+
             }
         }
         #endregion
@@ -251,14 +275,14 @@ namespace Interrorgation.MidLayer
                     GameEventDispatcher.DispatchDiscoverNewNodes(result.PassedNodeIds,
                         new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput));
                 }
-                
+
                 if (result.EntityList != null && result.EntityList.Count > 0)
                 {
                     GameEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList);
                 }
             }
 
-            // 2. 处理发现模型 (Discovery) 的结果：通常转化为模板解锁
+            // 处理发现模型(Discovery) 的结果：通常转化为模板解锁
             if (responseData.DiscoveryResult != null && responseData.DiscoveryResult.DiscoveredNodeIds.Count > 0)
             {
                 var ids = responseData.DiscoveryResult.DiscoveredNodeIds;
@@ -285,6 +309,39 @@ namespace Interrorgation.MidLayer
                 }
             }
         }
+        #region 其他状态变更 Handle
+        private void HandleNodeStatusChanged(LogicEngine.LevelLogic.RuntimeNodeData data)
+        {
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("NodeStatus", (id) =>
+            {
+                UIEventDispatcher.DispatchNodeStatusChanged(data, id);
+            }, isBlocking: false));
+        }
+
+        private void HandleEntityStatusChanged(LogicEngine.LevelLogic.RuntimeEntityItemData data)
+        {
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("EntityStatus", (id) =>
+            {
+                UIEventDispatcher.DispatchEntityStatusChanged(data, id);
+            }, isBlocking: false));
+        }
+
+        private void HandleTemplateStatusChanged(LogicEngine.LevelLogic.RuntimeTemplateData data)
+        {
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateStatus", (id) =>
+            {
+                UIEventDispatcher.DispatchTemplateStatusChanged(data, id);
+            }, isBlocking: false));
+        }
+
+        private void HandleScopeStackChanged(List<string> stack)
+        {
+            UISequenceManager.Instance.Enqueue(new UINotifyCommand("ScopeChanged", (id) =>
+            {
+                UIEventDispatcher.DispatchScopeStackChanged(stack, id);
+            }, isBlocking: false));
+        }
+        #endregion
         #endregion
     }
 }

@@ -11,7 +11,7 @@ namespace Interrorgation.UI
     /// 模板 UI 管理器
     /// 负责管理场景中所有预设的 TemplateUIScript，根据后端发来的 ID 调度显示。
     /// </summary>
-    public class TemplateUIManager : MonoBehaviour
+    public class TemplateUIManager : MonoBehaviour, UISequence.IUIBacklogModule
     {
         [SerializeField] private GameObject deductionBoardPrefab;
         [SerializeField] private Button toggleButton;
@@ -21,9 +21,14 @@ namespace Interrorgation.UI
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
 
+        // [改进] 通用表现积压列表
+        private List<System.Action> _backlog = new List<System.Action>();
+
         // [新增] 状态缓存与脏标记，用于优化 UI 刷新逻辑
         private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
         private bool _isDirty = false;
+
+        public bool IsVisualActive => deductionBoardPrefab.activeSelf;
 
         private void Awake()
         {
@@ -85,36 +90,48 @@ namespace Interrorgation.UI
         /// <summary>
         /// 响应发现新模板的消息
         /// </summary>
-        private void HandleNewTemplates(List<TemplateData> templates)
+        private void HandleNewTemplates(List<TemplateData> templates, string actionId)
         {
             if (templates == null || templates.Count == 0) return;
 
-            // 如果当前 UI 不处于激活状态，记录脏标记，等下次打开时同步
-            if (!IsUIActive())
+            // 使用通用逻辑：如果面板没开，则存入积压并立即回传 ID
+            if (!IsVisualActive)
             {
-                _isDirty = true;
+                RecordBacklog(() => FlushCache());
+                UIEventDispatcher.DispatchActionCompleted(actionId);
                 return;
             }
 
             // 活跃状态下，直接通过全表同步来保证数据一致性
             FlushCache();
+            // 注意：目前的 FlushCache 是瞬时的，如果以后有动画，需要在动画结束处调用 DispatchActionCompleted
+            UIEventDispatcher.DispatchActionCompleted(actionId);
         }
 
         /// <summary>
         /// 响应具体的模板状态变更（例如从 Discovered 变为 Used）
         /// </summary>
-        private void HandleTemplateStatusChanged(RuntimeTemplateData templateData)
+        private void HandleTemplateStatusChanged(RuntimeTemplateData templateData, string actionId)
         {
-            if (templateData == null) return;
-
-            if (!IsUIActive())
+            if (templateData == null)
             {
-                _isDirty = true;
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
+
+            if (!IsVisualActive)
+            {
+                RecordBacklog(() => {
+                    ApplyTemplateStatus(templateData);
+                    _statusCache[templateData.Id] = templateData.Status;
+                });
+                UIEventDispatcher.DispatchActionCompleted(actionId);
                 return;
             }
 
             ApplyTemplateStatus(templateData);
             _statusCache[templateData.Id] = templateData.Status;
+            UIEventDispatcher.DispatchActionCompleted(actionId);
         }
 
         /// <summary>
@@ -169,14 +186,26 @@ namespace Interrorgation.UI
             }
         }
 
-        private void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
+        private void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context, string actionId)
         {
             if (!_templateMap.TryGetValue(context.TemplateId, out var uiScript))
             {
                 Debug.LogError($"[TemplateUIManager] Template Settlement received for ID {context.TemplateId}, but no matching UI element was found.");
+                UIEventDispatcher.DispatchActionCompleted(actionId);
                 return;
             }
+
+            if (!IsVisualActive)
+            {
+                RecordBacklog(() => uiScript.HandleTemplateSettlement(context));
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
+
             uiScript.HandleTemplateSettlement(context);
+            // 假设 HandleTemplateSettlement 内部有动画，UI 侧应在动画完成后调用某个反馈。
+            // 暂时简写：立即反馈完成
+            UIEventDispatcher.DispatchActionCompleted(actionId);
         }
 
         /// <summary>
@@ -227,7 +256,28 @@ namespace Interrorgation.UI
             else
             {
                 ShowDeductionBoard();
+                ProcessBacklog();
             }
         }
+
+        #region IUIBacklogModule 实现
+        public void RecordBacklog(System.Action action)
+        {
+            _backlog.Add(action);
+            _isDirty = true;
+        }
+
+        public void ProcessBacklog()
+        {
+            if (_backlog.Count == 0) return;
+
+            Debug.Log($"[TemplateUIManager] 开始播放积压演出，共 {_backlog.Count} 项");
+            foreach (var action in _backlog)
+            {
+                action?.Invoke();
+            }
+            _backlog.Clear();
+        }
+        #endregion
     }
 }
