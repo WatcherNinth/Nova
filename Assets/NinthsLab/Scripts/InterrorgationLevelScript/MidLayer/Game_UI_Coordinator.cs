@@ -20,7 +20,7 @@ namespace Interrorgation.MidLayer
             {
                 if (_instance == null)
                 {
-                    _instance = FindAnyObjectByType<Game_UI_Coordinator>();
+                    _instance = FindFirstObjectByType<Game_UI_Coordinator>();
                 }
                 return _instance;
             }
@@ -59,6 +59,8 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
             GameEventDispatcher.OnDiscoveredNewTemplates += HandleDiscoveredTemplates;
+            GameEventDispatcher.OnDiscoveredNewEntity += HandleDiscoveredEntities;
+            GameEventDispatcher.OnDiscoverNewNodes += HandleDiscoveredNodes;
 
             // 订阅 AI 响应事件
             AIEventDispatcher.OnResponseReceived += HandleAIResponse;
@@ -78,6 +80,9 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
             GameEventDispatcher.OnDiscoveredNewTemplates -= HandleDiscoveredTemplates;
+            GameEventDispatcher.OnDiscoveredNewEntity -= HandleDiscoveredEntities;
+            GameEventDispatcher.OnDiscoverNewNodes -= HandleDiscoveredNodes;
+            GameEventDispatcher.OnScopeStackChanged -= UIEventDispatcher.DispatchScopeStackChanged;
 
             AIEventDispatcher.OnResponseReceived -= HandleAIResponse;
         }
@@ -119,15 +124,12 @@ namespace Interrorgation.MidLayer
         {
             if (context.IsSuccess)
             {
-                Debug.Log("[Coordinator] 编排：模板成功序列。正在解锁目标节点并通知 UI。");
-                // 1. 通知逻辑层解锁节点
+                Debug.Log("[Coordinator] 编排：模板成功序列。正在解锁目标节点。");
+                // 1. 通知逻辑层解锁节点 (Logic -> Logic Event)
                 GameEventDispatcher.DispatchDiscoverNewNodes(new List<string> { context.TargetNodeId },
                     new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.Template));
 
-                // 2. 通知 UI 层更新节点状态
-                UIEventDispatcher.DispatchDiscoveredNewNodes(new List<NodeData> { LevelGraphContext.CurrentGraph.nodeLookup[context.TargetNodeId].Node });
-
-                // 3. 通知 UI 层结算结果（播放成功特效等）
+                // 2. 通知 UI 层结算结果（播放成功特效等）
                 UIEventDispatcher.DispatchTemplateAnswerResult(context);
             }
             else
@@ -138,7 +140,24 @@ namespace Interrorgation.MidLayer
         }
 
         /// <summary>
-        /// 处理逻辑侧分发的发现新模板通知
+        /// 处理逻辑侧分发的发现新节点通知并翻译给 UI
+        /// </summary>
+        private void HandleDiscoveredNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
+        {
+            var nodes = new List<NodeData>();
+            var graph = LevelGraphContext.CurrentGraph;
+            foreach (var id in nodeIds)
+            {
+                if (graph.nodeLookup.TryGetValue(id, out var nodeInfo))
+                {
+                    nodes.Add(nodeInfo.Node);
+                }
+            }
+            UIEventDispatcher.DispatchDiscoveredNewNodes(nodes);
+        }
+
+        /// <summary>
+        /// 处理逻辑侧分发的发现新模板通知并翻译给 UI
         /// </summary>
         private void HandleDiscoveredTemplates(List<string> templateIds)
         {
@@ -157,6 +176,23 @@ namespace Interrorgation.MidLayer
             }
             // 转发给 UI 侧
             UIEventDispatcher.DispatchDiscoveredNewTemplates(templates);
+        }
+
+        /// <summary>
+        /// 处理逻辑侧分发的发现新实体通知
+        /// </summary>
+        private void HandleDiscoveredEntities(List<string> entityIds)
+        {
+            var entities = new List<EntityItem>();
+            var graph = LevelGraphContext.CurrentGraph;
+            foreach (var id in entityIds)
+            {
+                if (graph.entityListData.Data.TryGetValue(id, out var entity))
+                {
+                    entities.Add(entity);
+                }
+            }
+            UIEventDispatcher.DispatchDiscoveredNewEntityItems(entities);
         }
         #endregion
 
@@ -191,7 +227,13 @@ namespace Interrorgation.MidLayer
         }
         #endregion
 
-        #region AI 逻辑与发现
+        #region AI 逻辑处理 (AI Logical Bridge)
+        /* 
+         * 注意：根据架构优化原则，AI 响应的“解析逻辑”本应放在专门的 AILogicManager 中。
+         * 目前由 Coordinator 暂时代管，负责将 AI 原始响应 (AIResponseData) 
+         * 转换为逻辑层变更 (GameEvent) 以及 UI 层表现 (UIEvent)。
+         */
+
         /// <summary>
         /// 核心 AI 响应处理逻辑：根据裁判和发现模型的结果，分发到各个逻辑子系统
         /// </summary>
@@ -203,18 +245,16 @@ namespace Interrorgation.MidLayer
             var result = responseData.RefereeResult;
             if (result != null)
             {
-                // 解锁通过的逻辑节点
+                // 仅触发逻辑事件，UI 转发将由 HandleDiscoveredNodes / HandleDiscoveredEntities 自动完成
                 if (result.PassedNodeIds != null && result.PassedNodeIds.Count > 0)
                 {
                     GameEventDispatcher.DispatchDiscoverNewNodes(result.PassedNodeIds,
                         new GameEventDispatcher.NodeDiscoverContext(GameEventDispatcher.NodeDiscoverContext.e_DiscoverNewNodeMethod.PlayerInput));
-                    UIEventDispatcher.DispatchDiscoveredNewNodes(result.PassedNodeIds.ConvertAll(id => LevelGraphContext.CurrentGraph.nodeLookup[id].Node));
                 }
-                // 解锁发现的实体
+                
                 if (result.EntityList != null && result.EntityList.Count > 0)
                 {
                     GameEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList);
-                    UIEventDispatcher.DispatchDiscoveredNewEntityItems(result.EntityList.ConvertAll(id => LevelGraphContext.CurrentGraph.entityListData.Data[id]));
                 }
             }
 
