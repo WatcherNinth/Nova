@@ -36,14 +36,12 @@ namespace Interrorgation.UI
 
         // 运行时状态
         private TemplateData _currentData;
-        private string _currentTemplateId;
         private Dictionary<int, object> _inputControls = new Dictionary<int, object>();
         private List<int> _slotOrder = new List<int>();
+        private bool isUsed = false;
 
         private void Awake()
         {
-            if (_panelRoot) _panelRoot.SetActive(false);
-
             if (_submitButton)
             {
                 _submitButton.onClick.AddListener(OnSubmitButtonClicked);
@@ -55,39 +53,81 @@ namespace Interrorgation.UI
             }
         }
 
-        public void ShowTemplate(TemplateData runtimeData)
+        public void Init()
         {
-            if (runtimeData == null) return;
+            _panelRoot.SetActive(false);
+        }
 
-            _currentTemplateId = runtimeData.Id;
-            _currentData = runtimeData;
+        public void ShowTemplate()
+        {
+            if (_currentData == null) getDataFromContext();
 
             BuildUI(_currentData);
 
-            if (_panelRoot) _panelRoot.SetActive(true);
+            _panelRoot.SetActive(true);
         }
 
         public void OnTemplateUsed()
         {
-            //todo
-            Debug.Log(_currentTemplateId + "这个模板已经用完了！");
+            if (_currentData == null) getDataFromContext();
             _outcomePrefab.text = "你已经发现了这个模板的所有答案！";
+            // todo：这里之后有演出的话需要强制播放showtemplate的演出来显示，现在临时启用一下。因为可能showtemplate和used会一起发生。
+            _panelRoot.SetActive(true);
             _submitButton.interactable = false;
+            if (TemplateId.StartsWith("nodeTemplate"))
+            {
+                // 根据 templatedata 和唯一答案生成完整答案
+                if (_currentData.Answers != null && _currentData.Answers.Count > 0)
+                {
+                    string raw = _currentData.RawText;
+                    var answer = _currentData.Answers[0];
+                    string fullText = raw;
+
+                    var graph = LevelGraphContext.CurrentGraph;
+
+                    for (int i = 0; i < answer.RequiredInputs.Count; i++)
+                    {
+                        string displayVal = answer.RequiredInputs[i];
+
+                        // 如果该位不是下拉菜单（即输入框），则说明 RequiredInputs[i] 是 EntityID，需要转义
+                        if (!_currentData.DropdownOptions.ContainsKey(i))
+                        {
+                            if (graph != null && graph.entityListData.Data.TryGetValue(displayVal, out var entity))
+                            {
+                                displayVal = entity.Name;
+                            }
+                        }
+
+                        fullText = fullText.Replace("{" + i + "}", displayVal);
+                    }
+
+                    // 清理旧物体并显示完整答案
+                    foreach (Transform child in _container)
+                    {
+                        Destroy(child.gameObject);
+                    }
+
+                    var textObj = Instantiate(_textPrefab, _container);
+                    textObj.gameObject.SetActive(true);
+                    textObj.text = fullText;
+                }
+            }
+            isUsed = true;
         }
 
         public void Hide()
         {
-            if (_panelRoot) _panelRoot.SetActive(false);
+            _panelRoot.SetActive(false);
         }
 
         public void HandleTemplateSettlement(GameEventDispatcher.TemplateSettlementContext context)
         {
-            if (context.IsSuccess)
+            if (context.IsSuccess && !isUsed)
             {
                 LevelGraphContext.CurrentGraph.nodeLookup.TryGetValue(context.TargetNodeId, out var node);
                 _outcomePrefab.text = $"回答正确！结果: {node.Node.Basic.Description}";
             }
-            else
+            if (!context.IsSuccess)
             {
                 _outcomePrefab.text = $"回答错误，请再试一次。";
             }
@@ -197,16 +237,13 @@ namespace Interrorgation.UI
             }
 
             // 2. 通过中间层提交给后端逻辑
-            Debug.Log($"[TemplateUI] Submit: ID={_currentTemplateId}, Inputs={string.Join(", ", userInputs)}");
-            UIEventDispatcher.DispatchPlayerSubmitTemplateAnswer(_currentTemplateId, userInputs);
+            Debug.Log($"[TemplateUI] Submit: ID={TemplateId}, Inputs={string.Join(", ", userInputs)}");
+            UIEventDispatcher.DispatchPlayerSubmitTemplateAnswer(TemplateId, userInputs);
 
         }
-
-        private void addOptionButton(string nodeID)
+        private void getDataFromContext()
         {
-            var optionButton = Instantiate(_optionButtonPrefab, _optionContainer);
-            optionButton.gameObject.SetActive(true);
-            optionButton.Init(nodeID);
+            LevelGraphContext.CurrentGraph.allTemplates.TryGetValue(_templateId, out _currentData);
         }
     }
 }

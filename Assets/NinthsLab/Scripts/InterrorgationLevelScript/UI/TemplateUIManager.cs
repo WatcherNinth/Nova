@@ -20,6 +20,7 @@ namespace Interrorgation.UI
         [SerializeField] private bool _autoSearchOnAwake = true;
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
+        private Dictionary<string, NodeOptionUIScript> _optionMap = new Dictionary<string, NodeOptionUIScript>();
 
         // [改进] 通用表现积压列表
         private List<System.Action> _backlog = new List<System.Action>();
@@ -77,9 +78,27 @@ namespace Interrorgation.UI
                     Debug.LogError($"[TemplateUIManager] Duplicate Template ID found: {script.TemplateId} on {script.name}. Overwriting previous.");
                 }
                 _templateMap[script.TemplateId] = script;
+                script.Init();
             }
 
-            Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates.");
+            // 深度搜索所有子物体中的 OptionButton
+            var allOptions = _uiRoot.GetComponentsInChildren<NodeOptionUIScript>(true);
+            foreach (var option in allOptions)
+            {
+                if (string.IsNullOrEmpty(option.nodeId))
+                {
+                    Debug.LogWarning($"[TemplateUIManager] Found OptionButton on {option.name} with empty ID.");
+                    continue;
+                }
+
+                if (_optionMap.ContainsKey(option.nodeId))
+                {
+                    Debug.LogError($"[TemplateUIManager] Duplicate Option ID found: {option.nodeId} on {option.name}. Overwriting previous.");
+                }
+                _optionMap[option.nodeId] = option;
+            }
+
+            Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates and {_optionMap.Count} options.");
         }
 
         private bool IsUIActive()
@@ -121,7 +140,8 @@ namespace Interrorgation.UI
 
             if (!IsVisualActive)
             {
-                RecordBacklog(() => {
+                RecordBacklog(() =>
+                {
                     ApplyTemplateStatus(templateData);
                     _statusCache[templateData.Id] = templateData.Status;
                 });
@@ -177,7 +197,7 @@ namespace Interrorgation.UI
                         break;
                     case RunTimeTemplateDataStatus.Discovered:
                         uiScript.gameObject.SetActive(true);
-                        uiScript.ShowTemplate(runtimeData.r_TemplateData);
+                        uiScript.ShowTemplate();
                         break;
                     case RunTimeTemplateDataStatus.Used:
                         uiScript.OnTemplateUsed();
@@ -222,11 +242,11 @@ namespace Interrorgation.UI
         /// <summary>
         /// 根据 ID 查找并显示特定模板 (手动触发用)
         /// </summary>
-        public void ShowTemplateById(string id, TemplateData data)
+        public void ShowTemplateById(string id)
         {
             if (_templateMap.TryGetValue(id, out var ui))
             {
-                ui.ShowTemplate(data);
+                ui.ShowTemplate();
             }
         }
         public void ShowDeductionBoard()

@@ -627,7 +627,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &7542903809291651380
 RectTransform:
   m_ObjectHideFlags: 0
@@ -645,7 +645,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 474.1142, y: -0.000041962}
-  m_SizeDelta: {x: 240.686, y: 0}
+  m_SizeDelta: {x: 240.686, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8137654866194583788
 CanvasRenderer:
@@ -899,12 +899,14 @@ MonoBehaviour:
   _templateId: is_bloodstain_from_sabinna_template
   _panelRoot: {fileID: 2047498672779904057}
   _container: {fileID: 256987810433378687}
+  _optionContainer: {fileID: 256987810433378687}
   _submitButton: {fileID: 56934664114094686}
   _closeButton: {fileID: 0}
   _textPrefab: {fileID: 7148972760353842222}
   _dropdownPrefab: {fileID: 5238114504243988539}
   _inputPrefab: {fileID: 7551464879229879251}
   _outcomePrefab: {fileID: 504965695129778916}
+  _optionButtonPrefab: {fileID: 4474416106016042072}
 --- !u!1 &2179138195907892459
 GameObject:
   m_ObjectHideFlags: 0
