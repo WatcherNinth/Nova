@@ -109,6 +109,19 @@ namespace LogicEngine.LevelLogic
                 if (pair.Value.Status == RunTimeTemplateDataStatus.Used) continue;
                 // 如果有模板的所有节点都已发现，则将模板状态改为已完成
                 var templateData = pair.Value;
+                var anyNodeDiscovered = false;
+                foreach (var answer in templateData.r_TemplateData.Answers)
+                {
+                    if (nodeIds.Contains(answer.TargetId))
+                    {
+                        anyNodeDiscovered = true;
+                        break;
+                    }
+                }
+                if (templateData.Status == RunTimeTemplateDataStatus.Hidden && anyNodeDiscovered)
+                {
+                    GameEventDispatcher.DispatchDiscoveredNewTemplates(new List<string> { pair.Key });
+                }
                 var allNodesDiscovered = true;
                 foreach (var answer in templateData.r_TemplateData.Answers)
                 {
