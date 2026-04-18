@@ -45,6 +45,7 @@ namespace DialogueSystem
 
         private void PlayNext()
         {
+            if (!_isPlaying) return;
             if (_currentQueue.Count > 0)
             {
                 var entry = _currentQueue.Dequeue();

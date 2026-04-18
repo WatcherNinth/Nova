@@ -1,57 +1,92 @@
 using System.Collections.Generic;
 using Interrorgation.MidLayer;
+using Interrorgation.UI.UIState;
 using LogicEngine;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Video;
 
-public class ScopeUIScript : MonoBehaviour
+public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
 {
+    public enum ScopeState
+    {
+        Hidden,
+        Shown
+    }
+
     [SerializeField] TMP_Text scopeTextPrefab;
     [SerializeField] Transform scopeContainer;
     [SerializeField] GameObject scopeSeparatorPrefab;
 
     private List<string> _scopeCache;
 
-    private void Awake()
+    protected override ScopeState InitialState => ScopeState.Hidden;
+
+    protected override Dictionary<ScopeState, List<ScopeState>> DefineTransitions()
     {
-        _scopeCache = new List<string>();
+        return new Dictionary<ScopeState, List<ScopeState>>
+        {
+            { ScopeState.Hidden, new List<ScopeState> { ScopeState.Shown } },
+            { ScopeState.Shown,  new List<ScopeState> { ScopeState.Hidden } },
+        };
+    }
+
+
+    /// <summary>
+    /// Scope显示永远视觉活跃
+    /// </summary>
+    /// <param name="state"></param>
+    /// <returns></returns>
+    protected override bool CheckIsVisualActive(ScopeState state) => true;
+
+    protected override void SubscribeEvents()
+    {
         UIEventDispatcher.OnScopeStackChanged += UpdateScopeUI;
     }
 
-    private void OnDestroy()
+    protected override void UnsubscribeEvents()
     {
         UIEventDispatcher.OnScopeStackChanged -= UpdateScopeUI;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    protected override void Awake()
     {
+        base.Awake();
         _scopeCache = new List<string>();
-        RefreshUI(_scopeCache);
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
+        _scopeCache = new List<string>();
+    }
 
+    public override void OnStateEnter(ScopeState state)
+    {
+        switch (state)
+        {
+            case ScopeState.Hidden:
+                scopeContainer.gameObject.SetActive(false);
+                break;
+            case ScopeState.Shown:
+                scopeContainer.gameObject.SetActive(true);
+                break;
+        }
     }
 
     private void UpdateScopeUI(List<string> scopeStack, string actionId)
     {
-        RefreshUI(scopeStack);
-        UIEventDispatcher.DispatchActionCompleted(actionId);
+        DispatchOrBacklog(() => RefreshUI(scopeStack), actionId);
     }
 
     private void RefreshUI(List<string> scopeStack)
     {
         if (scopeStack.Count == 0)
         {
-            scopeContainer.gameObject.SetActive(false);
+            StateMachine.TryTransitionTo(ScopeState.Hidden);
             return;
         }
-        scopeContainer.gameObject.SetActive(true);
+        StateMachine.TryTransitionTo(ScopeState.Shown);
+        
         foreach (Transform child in scopeContainer)
         {
             Destroy(child.gameObject);

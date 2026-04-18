@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Interrorgation.MidLayer;
+using Interrorgation.UI.UIState;
 using LogicEngine;
 using LogicEngine.LevelLogic;
 using UnityEngine;
@@ -11,8 +12,15 @@ namespace Interrorgation.UI
     /// 模板 UI 管理器
     /// 负责管理场景中所有预设的 TemplateUIScript，根据后端发来的 ID 调度显示。
     /// </summary>
-    public class TemplateUIManager : MonoBehaviour, UISequence.IUIBacklogModule
+    public class TemplateUIManager : UIStateController<TemplateUIManager.DeductionBoardState>
     {
+        public enum DeductionBoardState
+        {
+            Closed,
+            Open,
+            Minimized   // 未来扩展：最小化状态
+        }
+
         [SerializeField] private GameObject deductionBoardPrefab;
         [SerializeField] private Button toggleButton;
         [Header("Settings")]
@@ -21,26 +29,30 @@ namespace Interrorgation.UI
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
         private Dictionary<string, NodeOptionUIScript> _optionMap = new Dictionary<string, NodeOptionUIScript>();
-
-        // [改进] 通用表现积压列表
-        private List<System.Action> _backlog = new List<System.Action>();
-
-        // [新增] 状态缓存与脏标记，用于优化 UI 刷新逻辑
         private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
         private bool _isDirty = false;
 
-        public bool IsVisualActive => deductionBoardPrefab.activeSelf;
+        protected override DeductionBoardState InitialState => DeductionBoardState.Closed;
 
-        private void Awake()
+        protected override Dictionary<DeductionBoardState, List<DeductionBoardState>> DefineTransitions()
         {
+            return new Dictionary<DeductionBoardState, List<DeductionBoardState>>
+            {
+                { DeductionBoardState.Closed,   new List<DeductionBoardState> { DeductionBoardState.Open } },
+                { DeductionBoardState.Open,     new List<DeductionBoardState> { DeductionBoardState.Closed, DeductionBoardState.Minimized } },
+                { DeductionBoardState.Minimized, new List<DeductionBoardState> { DeductionBoardState.Open, DeductionBoardState.Closed } },
+            };
+        }
+
+        protected override bool CheckIsVisualActive(DeductionBoardState state) => state == DeductionBoardState.Open;
+
+        protected override void Awake()
+        {
+            base.Awake();
             if (_autoSearchOnAwake)
             {
                 InitializeMap();
             }
-            // 确保在Awake处订阅，即使面板没有激活也能在后台接收事件
-            UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
-            UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
-            UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
         }
 
         private void Start()
@@ -48,7 +60,14 @@ namespace Interrorgation.UI
             toggleButton.onClick.AddListener(OnDeducitonBoardToggleButtonClicked);
         }
 
-        private void OnDestroy()
+        protected override void SubscribeEvents()
+        {
+            UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
+            UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
+            UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
+        }
+
+        protected override void UnsubscribeEvents()
         {
             UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
             UIEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
@@ -101,35 +120,12 @@ namespace Interrorgation.UI
             Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates and {_optionMap.Count} options.");
         }
 
-        private bool IsUIActive()
-        {
-            return deductionBoardPrefab.activeSelf;
-        }
-
-        /// <summary>
-        /// 响应发现新模板的消息
-        /// </summary>
         private void HandleNewTemplates(List<TemplateData> templates, string actionId)
         {
             if (templates == null || templates.Count == 0) return;
-
-            // 使用通用逻辑：如果面板没开，则存入积压并立即回传 ID
-            if (!IsVisualActive)
-            {
-                RecordBacklog(() => FlushCache());
-                UIEventDispatcher.DispatchActionCompleted(actionId);
-                return;
-            }
-
-            // 活跃状态下，直接通过全表同步来保证数据一致性
-            FlushCache();
-            // 注意：目前的 FlushCache 是瞬时的，如果以后有动画，需要在动画结束处调用 DispatchActionCompleted
-            UIEventDispatcher.DispatchActionCompleted(actionId);
+            DispatchOrBacklog(() => FlushCache(), actionId);
         }
 
-        /// <summary>
-        /// 响应具体的模板状态变更（例如从 Discovered 变为 Used）
-        /// </summary>
         private void HandleTemplateStatusChanged(RuntimeTemplateData templateData, string actionId)
         {
             if (templateData == null)
@@ -137,21 +133,11 @@ namespace Interrorgation.UI
                 UIEventDispatcher.DispatchActionCompleted(actionId);
                 return;
             }
-
-            if (!IsVisualActive)
+            DispatchOrBacklog(() =>
             {
-                RecordBacklog(() =>
-                {
-                    ApplyTemplateStatus(templateData);
-                    _statusCache[templateData.Id] = templateData.Status;
-                });
-                UIEventDispatcher.DispatchActionCompleted(actionId);
-                return;
-            }
-
-            ApplyTemplateStatus(templateData);
-            _statusCache[templateData.Id] = templateData.Status;
-            UIEventDispatcher.DispatchActionCompleted(actionId);
+                ApplyTemplateStatus(templateData);
+                _statusCache[templateData.Id] = templateData.Status;
+            }, actionId);
         }
 
         /// <summary>
@@ -214,18 +200,7 @@ namespace Interrorgation.UI
                 UIEventDispatcher.DispatchActionCompleted(actionId);
                 return;
             }
-
-            if (!IsVisualActive)
-            {
-                RecordBacklog(() => uiScript.HandleTemplateSettlement(context));
-                UIEventDispatcher.DispatchActionCompleted(actionId);
-                return;
-            }
-
-            uiScript.HandleTemplateSettlement(context);
-            // 假设 HandleTemplateSettlement 内部有动画，UI 侧应在动画完成后调用某个反馈。
-            // 暂时简写：立即反馈完成
-            UIEventDispatcher.DispatchActionCompleted(actionId);
+            DispatchOrBacklog(() => uiScript.HandleTemplateSettlement(context), actionId);
         }
 
         /// <summary>
@@ -249,6 +224,7 @@ namespace Interrorgation.UI
                 ui.ShowTemplate();
             }
         }
+
         public void ShowDeductionBoard()
         {
             // 显示推理板 UI
@@ -269,35 +245,28 @@ namespace Interrorgation.UI
 
         public void OnDeducitonBoardToggleButtonClicked()
         {
-            if (deductionBoardPrefab.gameObject.activeSelf)
-            {
-                HideDeductionBoard();
-            }
+            if (StateMachine.CurrentState == DeductionBoardState.Open)
+                StateMachine.TryTransitionTo(DeductionBoardState.Closed);
             else
+                StateMachine.TryTransitionTo(DeductionBoardState.Open);
+        }
+
+        public override void OnStateEnter(DeductionBoardState state)
+        {
+            switch (state)
             {
-                ShowDeductionBoard();
-                ProcessBacklog();
+                case DeductionBoardState.Closed:
+                    deductionBoardPrefab.SetActive(false);
+                    break;
+                case DeductionBoardState.Open:
+                    deductionBoardPrefab.SetActive(true);
+                    if (_isDirty) FlushCache();
+                    break;
+                case DeductionBoardState.Minimized:
+                    // 未来：缩小面板但不完全关闭
+                    deductionBoardPrefab.SetActive(false);
+                    break;
             }
         }
-
-        #region IUIBacklogModule 实现
-        public void RecordBacklog(System.Action action)
-        {
-            _backlog.Add(action);
-            _isDirty = true;
-        }
-
-        public void ProcessBacklog()
-        {
-            if (_backlog.Count == 0) return;
-
-            Debug.Log($"[TemplateUIManager] 开始播放积压演出，共 {_backlog.Count} 项");
-            foreach (var action in _backlog)
-            {
-                action?.Invoke();
-            }
-            _backlog.Clear();
-        }
-        #endregion
     }
 }

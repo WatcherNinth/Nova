@@ -1,41 +1,67 @@
-using UnityEngine;
-using Interrorgation.MidLayer;
-using TMPro;
-using UnityEngine.UI;
 using System.Collections.Generic;
+using Interrorgation.MidLayer;
+using Interrorgation.UI.UIState;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
 
-public class PlayerInputFieldUIScript : MonoBehaviour
+public class PlayerInputFieldUIScript : UIStateController<PlayerInputFieldUIScript.InputFieldState>
 {
-    [SerializeField]
-    private TMP_InputField inputField;
+    public enum InputFieldState
+    {
+        Hidden,
+        Active
+    }
 
-    [SerializeField]
-    private Button submitButton;
+    [SerializeField] private TMP_InputField inputField;
+    [SerializeField] private Button submitButton;
 
-    void OnEnable()
+    protected override InputFieldState InitialState => InputFieldState.Active;
+
+    protected override Dictionary<InputFieldState, List<InputFieldState>> DefineTransitions()
+    {
+        return new Dictionary<InputFieldState, List<InputFieldState>>
+        {
+            { InputFieldState.Hidden, new List<InputFieldState> { InputFieldState.Active } },
+            { InputFieldState.Active, new List<InputFieldState> { InputFieldState.Hidden } },
+        };
+    }
+
+    protected override bool CheckIsVisualActive(InputFieldState state) => state == InputFieldState.Active;
+
+    protected override void SubscribeEvents()
     {
         UIEventDispatcher.OnShowDialogues += HandleShowDialogues;
         DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded += HandleDialogueEnd;
     }
 
-    void OnDisable()
+    protected override void UnsubscribeEvents()
     {
         UIEventDispatcher.OnShowDialogues -= HandleShowDialogues;
         DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded -= HandleDialogueEnd;
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        // 监听输入框的提交事件
         inputField.onSubmit.AddListener(delegate { OnSubmitInput(); });
         submitButton.onClick.AddListener(OnSubmitInput);
     }
 
-    // Update is called once per frame
-    void Update()
+    public override void OnStateEnter(InputFieldState state)
     {
+        bool visible = state == InputFieldState.Active;
+        inputField.gameObject.SetActive(visible);
+        submitButton.gameObject.SetActive(visible);
+    }
 
+    private void HandleShowDialogues(List<string> dialogues)
+    {
+        StateMachine.TryTransitionTo(InputFieldState.Hidden);
+    }
+
+    private void HandleDialogueEnd()
+    {
+        StateMachine.TryTransitionTo(InputFieldState.Active);
     }
 
     public void OnSubmitInput()
@@ -43,23 +69,8 @@ public class PlayerInputFieldUIScript : MonoBehaviour
         string playerInput = inputField.text;
         if (!string.IsNullOrEmpty(playerInput))
         {
-            // 向外部发送事件，告知玩家提交了输入
             UIEventDispatcher.DispatchPlayerSubmitInput(playerInput);
-            inputField.text = ""; // 提交后清空输入框
+            inputField.text = "";
         }
-    }
-
-    void HandleShowDialogues(List<string> dialogues)
-    {
-        // 当显示对话时，隐藏输入框
-        inputField.gameObject.SetActive(false);
-        submitButton.gameObject.SetActive(false);
-    }
-
-    void HandleDialogueEnd()
-    {
-        // 当对话批次结束时，显示输入框
-        inputField.gameObject.SetActive(true);
-        submitButton.gameObject.SetActive(true);
     }
 }
