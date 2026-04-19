@@ -127,8 +127,15 @@ namespace LogicEngine.Nodes
         public List<string> ExtraMutexList { get; set; }
         public JToken OverrideMutexTrigger { get; set; }
         public JToken DependsOn { get; set; }
+        /// <summary>
+        /// 软性dependon里的节点可以被单独证明。当证明本节点时，自动证明软性dependon里的所有节点。
+        /// </summary>
+        public List<string> SoftDependOn { get; set; }
         public List<string> GeneratedDependencyNodes { get; set; }
         public List<string> GeneratedMutexNodes { get; set; }
+        /// <summary>
+        /// 这个节点在满足所有dependon前置后会自动被证明
+        /// </summary>
         public bool IsAutoVerified { get; set; }
 
         public void OnValidate(ValidationContext context)

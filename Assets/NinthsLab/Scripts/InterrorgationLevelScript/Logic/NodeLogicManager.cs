@@ -42,6 +42,15 @@ namespace LogicEngine.LevelLogic
             if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
             if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return; // 避免重复执行
 
+            if (runtimeNode.r_NodeData.Logic.SoftDependOn.Count != 0)
+            {
+                // 先把软性dependon里的都证明一遍
+                foreach(var softnode in runtimeNode.r_NodeData.Logic.SoftDependOn)
+                {
+                    GameEventDispatcher.DispatchNodeDeriveProveEvent(softnode);
+                }
+            }
+
             // 成功逻辑
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
@@ -178,11 +187,8 @@ namespace LogicEngine.LevelLogic
                     {
                         if (node.r_NodeData.Logic.GetDependOnResult())
                         {
-                            _mindMapManager.SetNodeStatus(node.Id, RunTimeNodeStatus.Submitted);
-
-                            // [修改] 传入 ID
-                            ProcessMutex(node.Id, node.r_NodeData.Logic);
-
+                            // 这里不能用事件，因为derive事件还会调用一次autoverify，容易死循环
+                            OnProveSuccess(node.Id);
                             hasChanged = true;
                         }
                     }

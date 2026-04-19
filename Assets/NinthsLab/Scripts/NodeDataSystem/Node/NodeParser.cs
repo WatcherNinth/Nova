@@ -81,15 +81,17 @@ namespace LogicEngine.Parser
             return new NodeLogicInfo
             {
                 MutexGroup = json["mutex_group"]?.ToString(),
-                
+
                 ExtraMutexList = JsonToList(json["extra_mutex_list"]),
-                
+
                 // 复杂结构暂存为 JToken
                 OverrideMutexTrigger = json["override_mutex_trigger"],
-                
+
                 // 复杂结构暂存为 JToken
                 DependsOn = json["depends_on"],
-                
+
+                SoftDependOn = json["soft_depends_on"] != null ? JsonToList(json["soft_depends_on"]) : new List<string>() ,
+
                 IsAutoVerified = json["is_auto_verified"]?.ToObject<bool>() ?? false
             };
         }

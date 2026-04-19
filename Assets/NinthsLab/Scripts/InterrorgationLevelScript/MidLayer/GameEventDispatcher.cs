@@ -46,6 +46,16 @@ namespace Interrorgation.MidLayer
         public static void DispatchNodeStatusChanged(RuntimeNodeData nodeData) => OnNodeStatusChanged?.Invoke(nodeData);
 
         /// <summary>
+        /// 节点因为自动证明等原因被默发尝试证明
+        /// </summary>
+        public static event Action<string> OnNodeDeriveProveEvent;
+        public static void DispatchNodeDeriveProveEvent(string targetId)
+        {
+            Debug.Log($"[GameEventDispatcher] Dispatching OnNodeDeriveProveEvent: targetId={targetId}");
+            OnNodeDeriveProveEvent?.Invoke(targetId);
+        }
+
+        /// <summary>
         /// 当实体状态发生变更时（例如从 Hidden 变为 Discovered）
         /// </summary>
         public static event Action<RuntimeEntityItemData> OnEntityStatusChanged;

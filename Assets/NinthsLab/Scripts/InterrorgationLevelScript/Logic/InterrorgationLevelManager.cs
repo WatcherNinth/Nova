@@ -63,7 +63,8 @@ namespace LogicEngine.LevelLogic
             //这个删除
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
 
-            GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeSubmit;
+            GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeProve;
+            GameEventDispatcher.OnNodeDeriveProveEvent += HandleNodeProve;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
             handleRegister_ScopeManager(true);
         }
@@ -75,7 +76,8 @@ namespace LogicEngine.LevelLogic
 
             GameEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
 
-            GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeSubmit;
+            GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeProve;
+            GameEventDispatcher.OnNodeDeriveProveEvent -= HandleNodeProve;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
             handleRegister_ScopeManager(false);
 
@@ -155,7 +157,7 @@ namespace LogicEngine.LevelLogic
         #endregion
 
         // [新增] 处理节点提交
-        private void HandleNodeSubmit(string nodeId)
+        private void HandleNodeProve(string nodeId)
         {
             if (nodeLogicManager != null)
             {
