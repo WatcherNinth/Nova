@@ -7,6 +7,7 @@ namespace Interrorgation.UI.UISequence
     {
         string CommandId { get; }
         bool IsBlocking { get; }
+        string DedupKey { get; }
         void Execute();
     }
 
@@ -25,12 +26,17 @@ namespace Interrorgation.UI.UISequence
         /// <param name="id">用于信号回传的 ID</param>
         /// <param name="action">具体的执行逻辑，Action 携带 id 方便 UI 侧回传信号</param>
         /// <param name="isBlocking">是否阻塞队列</param>
-        public UINotifyCommand(string id, Action<string> action, bool isBlocking = false)
+        /// <param name="dedupDescription">去重描述字符串</param>
+        public UINotifyCommand(string id, Action<string> action, bool isBlocking = false, string dedupDescription = "")
         {
             CommandId = id;
             _action = action;
             IsBlocking = isBlocking;
+            _dedupDescription = dedupDescription;
         }
+
+        public string DedupKey => CommandId + "|" + (string.IsNullOrEmpty(_dedupDescription) ? "" : _dedupDescription);
+        private string _dedupDescription;
 
         public void Execute()
         {
@@ -54,11 +60,15 @@ namespace Interrorgation.UI.UISequence
         public bool IsBlocking => true;
         private Action _action;
 
-        public UIDialogueCommand(string id, Action action)
+        public UIDialogueCommand(string id, Action action, string dedupDescription = "")
         {
             CommandId = id;
             _action = action;
+            _dedupDescription = dedupDescription;
         }
+
+        public string DedupKey => CommandId + "|" + (string.IsNullOrEmpty(_dedupDescription) ? "" : _dedupDescription);
+        private string _dedupDescription;
 
         public void Execute()
         {

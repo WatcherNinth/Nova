@@ -134,7 +134,7 @@ namespace Interrorgation.MidLayer
                 UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
                 {
                     UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
-                }, isBlocking: false));
+                }, isBlocking: false), dedupDescription: $"TemplateId: {context.TemplateId} Result: Success");
             }
             else
             {
@@ -142,7 +142,7 @@ namespace Interrorgation.MidLayer
                 UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
                 {
                     UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
-                }, isBlocking: false));
+                }, isBlocking: false), dedupDescription: $"TemplateId: {context.TemplateId} Result: Fail");
             }
         }
 
@@ -151,21 +151,17 @@ namespace Interrorgation.MidLayer
         /// </summary>
         private void HandleDiscoveredNodes(List<string> nodeIds, GameEventDispatcher.NodeDiscoverContext context)
         {
-            var nodes = new List<NodeData>();
             var graph = LevelGraphContext.CurrentGraph;
             foreach (var id in nodeIds)
             {
                 if (graph.nodeLookup.TryGetValue(id, out var nodeInfo))
                 {
-                    nodes.Add(nodeInfo.Node);
+                    UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscNode", (actionId) =>
+                    {
+                        UIEventDispatcher.DispatchDiscoveredNewNode(nodeInfo.Node, actionId);
+                    }, isBlocking: false), dedupDescription: id);
                 }
             }
-
-            // 演出：非阻塞入队
-            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscNodes", (id) =>
-            {
-                UIEventDispatcher.DispatchDiscoveredNewNodes(nodes, id);
-            }, isBlocking: false));
         }
 
         /// <summary>
@@ -173,24 +169,21 @@ namespace Interrorgation.MidLayer
         /// </summary>
         private void HandleDiscoveredTemplates(List<string> templateIds)
         {
-            var templates = new List<TemplateData>();
             var graph = LevelGraphContext.CurrentGraph;
             foreach (var id in templateIds)
             {
                 if (graph.allTemplates.TryGetValue(id, out var template))
                 {
-                    templates.Add(template);
+                    UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscTemplate", (actionId) =>
+                    {
+                        UIEventDispatcher.DispatchDiscoveredNewTemplate(template, actionId);
+                    }, isBlocking: false), dedupDescription: id);
                 }
                 else
                 {
                     Debug.LogError($"[Game_UI_Coordinator] Graph 中找不到 ID 为 {id} 的模板定义。");
                 }
             }
-            // 演出：非阻塞入队
-            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscTemplates", (id) =>
-            {
-                UIEventDispatcher.DispatchDiscoveredNewTemplates(templates, id);
-            }, isBlocking: false));
         }
 
         /// <summary>
@@ -198,20 +191,17 @@ namespace Interrorgation.MidLayer
         /// </summary>
         private void HandleDiscoveredEntities(List<string> entityIds)
         {
-            var entities = new List<EntityItem>();
             var graph = LevelGraphContext.CurrentGraph;
             foreach (var id in entityIds)
             {
                 if (graph.entityListData.Data.TryGetValue(id, out var entity))
                 {
-                    entities.Add(entity);
+                    UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscEntity", (actionId) =>
+                    {
+                        UIEventDispatcher.DispatchDiscoveredNewEntity(entity, actionId);
+                    }, isBlocking: false), dedupDescription: id);
                 }
             }
-            // 演出：非阻塞入队
-            UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscEntities", (id) =>
-            {
-                UIEventDispatcher.DispatchDiscoveredNewEntityItems(entities, id);
-            }, isBlocking: false));
         }
         #endregion
 
@@ -230,7 +220,7 @@ namespace Interrorgation.MidLayer
                 {
                     dialogueManager.PushNewBatch(dialogues);
                     UIEventDispatcher.DispatchShowDialogues(dialogues);
-                }));
+                }), dedupDescription: dialogues.Count.ToString());
             }
             else
             {
@@ -315,7 +305,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("NodeStatus", (id) =>
             {
                 UIEventDispatcher.DispatchNodeStatusChanged(data, id);
-            }, isBlocking: false));
+            }, isBlocking: false), dedupDescription: data.Id);
         }
 
         private void HandleEntityStatusChanged(LogicEngine.LevelLogic.RuntimeEntityItemData data)
@@ -323,7 +313,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("EntityStatus", (id) =>
             {
                 UIEventDispatcher.DispatchEntityStatusChanged(data, id);
-            }, isBlocking: false));
+            }, isBlocking: false), dedupDescription: data.Id);
         }
 
         private void HandleTemplateStatusChanged(LogicEngine.LevelLogic.RuntimeTemplateData data)
@@ -331,7 +321,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateStatus", (id) =>
             {
                 UIEventDispatcher.DispatchTemplateStatusChanged(data, id);
-            }, isBlocking: false));
+            }, isBlocking: false), dedupDescription: data.Id);
         }
 
         private void HandleScopeStackChanged(List<string> stack)
@@ -339,7 +329,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("ScopeChanged", (id) =>
             {
                 UIEventDispatcher.DispatchScopeStackChanged(stack, id);
-            }, isBlocking: false));
+            }, isBlocking: false), dedupDescription: string.Join(",", stack));
         }
         #endregion
         #endregion

@@ -62,10 +62,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 发现并解锁了新节点
         /// </summary>
-        public static event Action<List<NodeData>, string> OnDiscoveredNewNodes;
-        public static void DispatchDiscoveredNewNodes(List<NodeData> nodes, string actionId = "")
+        public static event Action<NodeData, string> OnDiscoveredNewNode;
+        public static void DispatchDiscoveredNewNode(NodeData node, string actionId = "")
         {
-            OnDiscoveredNewNodes?.Invoke(nodes, actionId);
+            OnDiscoveredNewNode?.Invoke(node, actionId);
         }
 
         /// <summary>
@@ -82,10 +82,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 发现并解锁了新实体
         /// </summary>
-        public static event Action<List<EntityItem>, string> OnDiscoveredNewEntity;
-        public static void DispatchDiscoveredNewEntityItems(List<EntityItem> entityItems, string actionId = "")
+        public static event Action<EntityItem, string> OnDiscoveredNewEntity;
+        public static void DispatchDiscoveredNewEntity(EntityItem entity, string actionId = "")
         {
-            OnDiscoveredNewEntity?.Invoke(entityItems, actionId);
+            OnDiscoveredNewEntity?.Invoke(entity, actionId);
         }
         #endregion
 
@@ -93,10 +93,10 @@ namespace Interrorgation.MidLayer
         /// <summary>
         /// 发现并解锁了新模板
         /// </summary>
-        public static event Action<List<TemplateData>, string> OnDiscoveredNewTemplates;
-        public static void DispatchDiscoveredNewTemplates(List<TemplateData> templates, string actionId = "")
+        public static event Action<TemplateData, string> OnDiscoveredNewTemplate;
+        public static void DispatchDiscoveredNewTemplate(TemplateData template, string actionId = "")
         {
-            OnDiscoveredNewTemplates?.Invoke(templates, actionId);
+            OnDiscoveredNewTemplate?.Invoke(template, actionId);
         }
 
         /// <summary>

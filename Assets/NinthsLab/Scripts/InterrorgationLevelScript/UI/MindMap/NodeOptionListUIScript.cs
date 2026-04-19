@@ -34,7 +34,7 @@ namespace Interrorgation.UI
 
         protected override void SubscribeEvents()
         {
-            UIEventDispatcher.OnDiscoveredNewNodes += HandleNewNodes;
+            UIEventDispatcher.OnDiscoveredNewNode += HandleNewNode;
             UIEventDispatcher.OnNodeStatusChanged += HandleNodeStatusChanged;
             UIEventDispatcher.OnShowDialogues += HandleShowDialogues;
             DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded += HandleDialogueEnd;
@@ -42,7 +42,7 @@ namespace Interrorgation.UI
 
         protected override void UnsubscribeEvents()
         {
-            UIEventDispatcher.OnDiscoveredNewNodes -= HandleNewNodes;
+            UIEventDispatcher.OnDiscoveredNewNode -= HandleNewNode;
             UIEventDispatcher.OnNodeStatusChanged -= HandleNodeStatusChanged;
             UIEventDispatcher.OnShowDialogues -= HandleShowDialogues;
             DialogueSystem.DialogueEventDispatcher.OnDialogueBatchEnded -= HandleDialogueEnd;
@@ -61,13 +61,10 @@ namespace Interrorgation.UI
             }
         }
 
-        private void HandleNewNodes(List<NodeData> newNodes, string actionId)
+        private void HandleNewNode(NodeData node, string actionId)
         {
-            if (newNodes == null || newNodes.Count == 0) return;
-            DispatchOrBacklog(() =>
-            {
-                foreach (var node in newNodes) addNodeOption(node.Id);
-            }, actionId);
+            if (node == null) return;
+            DispatchOrBacklog(() => addNodeOption(node.Id), actionId);
         }
 
         private void addNodeOption(string targetNodeId)

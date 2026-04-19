@@ -26,6 +26,7 @@ namespace Interrorgation.UI.UISequence
 
         private Queue<IUICommand> _commandQueue = new Queue<IUICommand>();
         private IUICommand _currentJob = null;
+        private HashSet<string> _dedupKeys = new HashSet<string>();
 
         private void Awake()
         {
@@ -35,7 +36,6 @@ namespace Interrorgation.UI.UISequence
                 return;
             }
             _instance = this;
-            DontDestroyOnLoad(gameObject);
         }
 
         private void OnEnable()
@@ -48,9 +48,17 @@ namespace Interrorgation.UI.UISequence
             UIEventDispatcher.OnActionCompleted -= HandleActionCompleted;
         }
 
-        public void Enqueue(IUICommand command)
+        public void Enqueue(IUICommand command, string dedupDescription = "")
         {
+            // 去重检查
+            if (_dedupKeys.Contains(command.DedupKey))
+            {
+                Debug.LogWarning($"[UISequenceManager] 丢弃重复命令: {command.DedupKey}");
+                return;
+            }
+
             _commandQueue.Enqueue(command);
+            _dedupKeys.Add(command.DedupKey);
             ProcessNext();
         }
 
@@ -71,6 +79,7 @@ namespace Interrorgation.UI.UISequence
             if (_currentJob != null && _currentJob.CommandId == actionId)
             {
                 Debug.Log($"[UISequenceManager] 命令完成: {actionId}");
+                _dedupKeys.Remove(_currentJob.DedupKey);
                 _currentJob = null;
                 ProcessNext();
             }

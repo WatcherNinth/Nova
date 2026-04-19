@@ -62,14 +62,14 @@ namespace Interrorgation.UI
 
         protected override void SubscribeEvents()
         {
-            UIEventDispatcher.OnDiscoveredNewTemplates += HandleNewTemplates;
+            UIEventDispatcher.OnDiscoveredNewTemplate += HandleNewTemplate;
             UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
         }
 
         protected override void UnsubscribeEvents()
         {
-            UIEventDispatcher.OnDiscoveredNewTemplates -= HandleNewTemplates;
+            UIEventDispatcher.OnDiscoveredNewTemplate -= HandleNewTemplate;
             UIEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
         }
@@ -120,9 +120,13 @@ namespace Interrorgation.UI
             Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates and {_optionMap.Count} options.");
         }
 
-        private void HandleNewTemplates(List<TemplateData> templates, string actionId)
+        private void HandleNewTemplate(TemplateData template, string actionId)
         {
-            if (templates == null || templates.Count == 0) return;
+            if (template == null)
+            {
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
             DispatchOrBacklog(() => FlushCache(), actionId);
         }
 
