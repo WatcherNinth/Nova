@@ -48,7 +48,7 @@ namespace Interrorgation.UI.UISequence
             UIEventDispatcher.OnActionCompleted -= HandleActionCompleted;
         }
 
-        public void Enqueue(IUICommand command, string dedupDescription = "")
+        public void Enqueue(IUICommand command)
         {
             // 去重检查
             if (_dedupKeys.Contains(command.DedupKey))

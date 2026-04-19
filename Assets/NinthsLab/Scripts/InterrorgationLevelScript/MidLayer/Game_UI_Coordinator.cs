@@ -134,7 +134,7 @@ namespace Interrorgation.MidLayer
                 UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
                 {
                     UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
-                }, isBlocking: false), dedupDescription: $"TemplateId: {context.TemplateId} Result: Success");
+                }, isBlocking: false, dedupDescription: $"TemplateId: {context.TemplateId} Result: Success"));
             }
             else
             {
@@ -142,7 +142,7 @@ namespace Interrorgation.MidLayer
                 UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateResult", (id) =>
                 {
                     UIEventDispatcher.DispatchTemplateAnswerResult(context, id);
-                }, isBlocking: false), dedupDescription: $"TemplateId: {context.TemplateId} Result: Fail");
+                }, isBlocking: false, dedupDescription: $"TemplateId: {context.TemplateId} Result: Fail"));
             }
         }
 
@@ -159,7 +159,7 @@ namespace Interrorgation.MidLayer
                     UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscNode", (actionId) =>
                     {
                         UIEventDispatcher.DispatchDiscoveredNewNode(nodeInfo.Node, actionId);
-                    }, isBlocking: false), dedupDescription: id);
+                    }, isBlocking: false, dedupDescription: id));
                 }
             }
         }
@@ -177,7 +177,7 @@ namespace Interrorgation.MidLayer
                     UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscTemplate", (actionId) =>
                     {
                         UIEventDispatcher.DispatchDiscoveredNewTemplate(template, actionId);
-                    }, isBlocking: false), dedupDescription: id);
+                    }, isBlocking: false, dedupDescription: id));
                 }
                 else
                 {
@@ -199,7 +199,7 @@ namespace Interrorgation.MidLayer
                     UISequenceManager.Instance.Enqueue(new UINotifyCommand("DiscEntity", (actionId) =>
                     {
                         UIEventDispatcher.DispatchDiscoveredNewEntity(entity, actionId);
-                    }, isBlocking: false), dedupDescription: id);
+                    }, isBlocking: false, dedupDescription: id));
                 }
             }
         }
@@ -220,7 +220,7 @@ namespace Interrorgation.MidLayer
                 {
                     dialogueManager.PushNewBatch(dialogues);
                     UIEventDispatcher.DispatchShowDialogues(dialogues);
-                }), dedupDescription: dialogues.Count.ToString());
+                }, dedupDescription: string.Join("\n", dialogues)));
             }
             else
             {
@@ -305,7 +305,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("NodeStatus", (id) =>
             {
                 UIEventDispatcher.DispatchNodeStatusChanged(data, id);
-            }, isBlocking: false), dedupDescription: data.Id);
+            }, isBlocking: false, dedupDescription: data.Id));
         }
 
         private void HandleEntityStatusChanged(LogicEngine.LevelLogic.RuntimeEntityItemData data)
@@ -313,7 +313,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("EntityStatus", (id) =>
             {
                 UIEventDispatcher.DispatchEntityStatusChanged(data, id);
-            }, isBlocking: false), dedupDescription: data.Id);
+            }, isBlocking: false, dedupDescription: data.Id));
         }
 
         private void HandleTemplateStatusChanged(LogicEngine.LevelLogic.RuntimeTemplateData data)
@@ -321,7 +321,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("TemplateStatus", (id) =>
             {
                 UIEventDispatcher.DispatchTemplateStatusChanged(data, id);
-            }, isBlocking: false), dedupDescription: data.Id);
+            }, isBlocking: false, dedupDescription: data.Id));
         }
 
         private void HandleScopeStackChanged(List<string> stack)
@@ -329,7 +329,7 @@ namespace Interrorgation.MidLayer
             UISequenceManager.Instance.Enqueue(new UINotifyCommand("ScopeChanged", (id) =>
             {
                 UIEventDispatcher.DispatchScopeStackChanged(stack, id);
-            }, isBlocking: false), dedupDescription: string.Join(",", stack));
+            }, isBlocking: false, dedupDescription: string.Join(",", stack)));
         }
         #endregion
         #endregion
