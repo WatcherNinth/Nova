@@ -34,7 +34,7 @@ namespace LogicEngine.LevelLogic
             if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
 
             // 检查依赖
-            return CheckDependencies(runtimeNode.r_NodeData.Logic?.DependsOn);
+            return runtimeNode.r_NodeData.Logic.GetDependOnResult();
         }
 
         public void OnProveSuccess(string nodeId, bool isAutoResolve = false)
@@ -176,7 +176,7 @@ namespace LogicEngine.LevelLogic
                     if (node.Status == RunTimeNodeStatus.Discovered && !node.IsInvalidated &&
                         node.r_NodeData.Logic != null && node.r_NodeData.Logic.IsAutoVerified)
                     {
-                        if (CheckDependencies(node.r_NodeData.Logic.DependsOn))
+                        if (node.r_NodeData.Logic.GetDependOnResult())
                         {
                             _mindMapManager.SetNodeStatus(node.Id, RunTimeNodeStatus.Submitted);
 
@@ -191,7 +191,7 @@ namespace LogicEngine.LevelLogic
         }
 
         // --- Dependency Parsing (保持不变) ---
-
+/*
         private bool CheckDependencies(JToken dependsOn)
         {
             if (dependsOn == null || !dependsOn.HasValues) return true;
@@ -254,5 +254,6 @@ namespace LogicEngine.LevelLogic
             }
             return false;
         }
+        */
     }
 }
