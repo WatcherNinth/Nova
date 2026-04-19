@@ -42,16 +42,16 @@ namespace LogicEngine.LevelLogic
             if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
             if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return; // 避免重复执行
 
+
+            // 成功逻辑
             if (runtimeNode.r_NodeData.Logic.SoftDependOn.Count != 0)
             {
                 // 先把软性dependon里的都证明一遍
-                foreach(var softnode in runtimeNode.r_NodeData.Logic.SoftDependOn)
+                foreach (var softnode in runtimeNode.r_NodeData.Logic.SoftDependOn)
                 {
-                    GameEventDispatcher.DispatchNodeDeriveProveEvent(softnode);
+                    
                 }
             }
-
-            // 成功逻辑
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
             TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
@@ -87,6 +87,12 @@ namespace LogicEngine.LevelLogic
             }
         }
 
+
+        /// <summary>
+        /// 发起对话。
+        /// 注意！这个方法会立刻调用UISequence，注意调用顺序！
+        /// </summary>
+        /// <param name="dialogueScript"></param>
         private void TriggerDialogue(JToken dialogueScript)
         {
             if (dialogueScript == null) return;
@@ -171,8 +177,9 @@ namespace LogicEngine.LevelLogic
             }
         }
 
-        // ========================================================================
-
+        /// <summary>
+        /// 开始扫描全局进行自动证明，应当在证明对话之后进行
+        /// </summary>
         private void ProcessAutoVerify()
         {
             bool hasChanged = true;

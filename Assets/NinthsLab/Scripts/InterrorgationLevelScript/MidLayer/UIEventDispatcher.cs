@@ -76,6 +76,12 @@ namespace Interrorgation.MidLayer
         {
             OnNodeOptionSubmitted?.Invoke(nodeId);
         }
+
+        public static event Action<string> OnNodeProveStarted;
+        public static void DispatchNodeProveStarted(string nodeId)
+        {
+            OnNodeProveStarted?.Invoke(nodeId);
+        }
         #endregion
 
         #region 实体系统 (Entities)
