@@ -4716,7 +4716,6 @@ MonoBehaviour:
   deductionBoardPrefab: {fileID: 77192876}
   toggleButton: {fileID: 1469091595}
   _uiRoot: {fileID: 47293558}
-  _autoSearchOnAwake: 1
 --- !u!1 &1604074989
 GameObject:
   m_ObjectHideFlags: 0

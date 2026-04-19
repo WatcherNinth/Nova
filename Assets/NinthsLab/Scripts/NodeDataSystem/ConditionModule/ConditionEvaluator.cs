@@ -8,6 +8,14 @@ using Interrorgation.MidLayer; // 引用你提供的验证系统命名空间
 
 namespace LogicEngine
 {
+    public enum NodeDependency
+    {
+        RequiredTrue,
+        RequiredFalse,
+        Related,
+        Irrelevant
+    }
+
     public static class ConditionEvaluator
     {
         // =====================================================
@@ -129,6 +137,94 @@ namespace LogicEngine
         }
 
         // =====================================================
+        // 依赖检查逻辑 (Dependency Check)
+        // =====================================================
+
+        public static NodeDependency CheckDependency(string nodeId, string jsonContent)
+        {
+            if (string.IsNullOrWhiteSpace(jsonContent)) return NodeDependency.Irrelevant;
+
+            try
+            {
+                var root = JObject.Parse(jsonContent);
+                // 根节点通常隐式为一个 AND 组
+                return CheckDependencyRecursive(nodeId, root, true);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ConditionEvaluator] JSON 解析错误: {ex.Message}");
+                return NodeDependency.Irrelevant;
+            }
+        }
+
+        private static NodeDependency CheckDependencyRecursive(string nodeId, JToken token, bool inAndGroup)
+        {
+            if (token.Type != JTokenType.Object) return NodeDependency.Irrelevant;
+            var obj = (JObject)token;
+
+            // 当前组的最终状态，默认无关
+            NodeDependency groupResult = NodeDependency.Irrelevant;
+
+            foreach (var property in obj.Properties())
+            {
+                string key = property.Name;
+                JToken value = property.Value;
+
+                NodeDependency childResult = NodeDependency.Irrelevant;
+
+                if (value.Type == JTokenType.Object)
+                {
+                    bool isOrGroup = key.StartsWith("or", StringComparison.OrdinalIgnoreCase) ||
+                    key.StartsWith("any_of", StringComparison.OrdinalIgnoreCase);
+                    // 只要不是 OR 组，通常 JSON 结构中其他嵌套对象都是隐式的 AND
+                    childResult = CheckDependencyRecursive(nodeId, value, !isOrGroup);
+                }
+                else if (value.Type == JTokenType.Boolean)
+                {
+                    if (key == nodeId)
+                    {
+                        bool expected = (bool)value;
+                        if (inAndGroup)
+                        {
+                            // 在 AND 组中，节点状态直接决定它是“必要成立”还是“必要不成立”
+                            childResult = expected ? NodeDependency.RequiredTrue : NodeDependency.RequiredFalse;
+                        }
+                        else
+                        {
+                            // 在 OR 组中，没有任何单一节点是“必要”的。
+                            // 满足定义：为 true 时有助于条件成立 -> 相关
+                            // 如果期望是 false（例如 Not A or B），A为true反而无助，视作无关
+                            childResult = expected ? NodeDependency.Related : NodeDependency.Irrelevant;
+                        }
+                    }
+                }
+
+                // --- 核心逻辑：将子节点结果聚合到当前组 ---
+                if (inAndGroup)
+                {
+                    // 在 AND 组中：必要条件会向上传递。优先级：Required > Related > Irrelevant
+                    if (childResult == NodeDependency.RequiredTrue)
+                        groupResult = NodeDependency.RequiredTrue;
+                    else if (childResult == NodeDependency.RequiredFalse && groupResult != NodeDependency.RequiredTrue)
+                        groupResult = NodeDependency.RequiredFalse;
+                    else if (childResult == NodeDependency.Related && groupResult == NodeDependency.Irrelevant)
+                        groupResult = NodeDependency.Related;
+                }
+                else
+                {
+                    // 在 OR 组中：内部的“必要成立”降级为“相关”（因为 OR 组有其他分支可以满足条件）
+                    if (childResult == NodeDependency.RequiredTrue || childResult == NodeDependency.Related)
+                    {
+                        groupResult = NodeDependency.Related;
+                    }
+                    // 内部的“必要不成立”在 OR 组中对 Node 为 True 的情况没有帮助，保持 Irrelevant 即可
+                }
+            }
+
+            return groupResult;
+        }
+
+        // =====================================================
         // 运行时评估逻辑 (Execution) - 保持不变
         // =====================================================
 
@@ -210,7 +306,6 @@ namespace LogicEngine
 
         private static bool CheckNodeStatus(string nodeId)
         {
-            //todo: 这里需要接入真正的节点状态检查逻辑，目前只是一个占位符
             Debug.Log($"[正式环境] 检查节点状态: {nodeId}");
             var runtimeStatus = GameEventDispatcher.GetNodeStatus(nodeId);
             if (runtimeStatus == null)
