@@ -25,10 +25,9 @@ namespace Interrorgation.UI
         [SerializeField] private Button toggleButton;
         [Header("Settings")]
         [SerializeField] private RectTransform _uiRoot;
-        [SerializeField] private bool _autoSearchOnAwake = true;
 
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
-        private Dictionary<string, NodeOptionUIScript> _optionMap = new Dictionary<string, NodeOptionUIScript>();
+        private Dictionary<string, MindMapNodeOptionUIScript> _optionMap = new Dictionary<string, MindMapNodeOptionUIScript>();
         private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
         private bool _isDirty = false;
 
@@ -49,10 +48,7 @@ namespace Interrorgation.UI
         protected override void Awake()
         {
             base.Awake();
-            if (_autoSearchOnAwake)
-            {
-                InitializeMap();
-            }
+            // 不再在 Awake 中自动初始化，等 OnLevelReady 事件
         }
 
         private void Start()
@@ -65,6 +61,7 @@ namespace Interrorgation.UI
             UIEventDispatcher.OnDiscoveredNewTemplate += HandleNewTemplate;
             UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
+            UIEventDispatcher.OnLevelReady += HandleLevelReady;
         }
 
         protected override void UnsubscribeEvents()
@@ -72,6 +69,7 @@ namespace Interrorgation.UI
             UIEventDispatcher.OnDiscoveredNewTemplate -= HandleNewTemplate;
             UIEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
+            UIEventDispatcher.OnLevelReady -= HandleLevelReady;
         }
 
         /// <summary>
@@ -98,10 +96,12 @@ namespace Interrorgation.UI
                 }
                 _templateMap[script.TemplateId] = script;
                 script.Init();
+                var runtimeTemplateData = GameEventDispatcher.GetTemplateStatus(script.TemplateId);
+                ApplyTemplateStatus(runtimeTemplateData);
             }
 
             // 深度搜索所有子物体中的 OptionButton
-            var allOptions = _uiRoot.GetComponentsInChildren<NodeOptionUIScript>(true);
+            var allOptions = _uiRoot.GetComponentsInChildren<MindMapNodeOptionUIScript>(true);
             foreach (var option in allOptions)
             {
                 if (string.IsNullOrEmpty(option.nodeId))
@@ -183,11 +183,10 @@ namespace Interrorgation.UI
                 switch (runtimeData.Status)
                 {
                     case RunTimeTemplateDataStatus.Hidden:
-                        uiScript.gameObject.SetActive(false);
+                        uiScript.HideTemplate();
                         break;
                     case RunTimeTemplateDataStatus.Discovered:
-                        uiScript.gameObject.SetActive(true);
-                        uiScript.ShowTemplate();
+                        uiScript.DiscoverTemplate();
                         break;
                     case RunTimeTemplateDataStatus.Used:
                         uiScript.OnTemplateUsed();
@@ -225,7 +224,7 @@ namespace Interrorgation.UI
         {
             if (_templateMap.TryGetValue(id, out var ui))
             {
-                ui.ShowTemplate();
+                ui.DiscoverTemplate();
             }
         }
 
@@ -271,6 +270,11 @@ namespace Interrorgation.UI
                     deductionBoardPrefab.SetActive(false);
                     break;
             }
+        }
+
+        private void HandleLevelReady()
+        {
+            InitializeMap();
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using LogicEngine.LevelGraph;
 using LogicEngine.LevelLogic;
 using UnityEngine;
 
@@ -185,6 +186,20 @@ namespace Interrorgation.MidLayer
         /// </summary>
         public static event Func<List<string>> OnGetCurrentScopeStack;
         public static List<string> GetCurrentScopeStack() => OnGetCurrentScopeStack?.Invoke();
+        #endregion
+
+        #region 关卡初始化 (Level Initialization)
+        /// <summary>
+        /// LevelGraph 解析并初始化完成后触发
+        /// </summary>
+        public static event Action<LevelGraphData> OnLevelGraphLoaded;
+        public static void DispatchLevelGraphLoaded(LevelGraphData graph) => OnLevelGraphLoaded?.Invoke(graph);
+
+        /// <summary>
+        /// 所有逻辑管理器创建、依赖注入完成后触发
+        /// </summary>
+        public static event Action OnLogicInitialized;
+        public static void DispatchLogicInitialized() => OnLogicInitialized?.Invoke();
         #endregion
     }
 }

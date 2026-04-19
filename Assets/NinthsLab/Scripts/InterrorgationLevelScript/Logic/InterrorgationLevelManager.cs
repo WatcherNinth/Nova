@@ -121,6 +121,8 @@ namespace LogicEngine.LevelLogic
             currentLevelGraph = LevelGraphParser.Parse(levelJson);
             currentLevelGraph.InitializeRuntimeData();
 
+            GameEventDispatcher.DispatchLevelGraphLoaded(currentLevelGraph);
+
             // 1. 初始化 MindMap
             playerMindMapManager = new PlayerMindMapManager(currentLevelGraph);
             playerMindMapManager.SubscribeEvents();
@@ -141,6 +143,8 @@ namespace LogicEngine.LevelLogic
             nodeLogicManager.SetPhaseManager(gamePhaseManager);
             nodeLogicManager.SetScopeManager(gameScopeManager); // Logic -> Scope
             gameScopeManager.SetLogicManager(nodeLogicManager); // Scope -> Logic
+
+            GameEventDispatcher.DispatchLogicInitialized();
 
             // 7. 启动逻辑
             if (currentLevelGraph.levelStartDialogue != null)

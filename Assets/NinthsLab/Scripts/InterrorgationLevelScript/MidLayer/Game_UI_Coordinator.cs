@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AIEngine.Network;
 using DialogueSystem;
+using Interrorgation.MidLayer;
 using Interrorgation.UI.UISequence;
 using LogicEngine;
 using LogicEngine.LevelGraph;
@@ -65,6 +66,9 @@ namespace Interrorgation.MidLayer
 
             // 订阅 AI 响应事件
             AIEventDispatcher.OnResponseReceived += HandleAIResponse;
+
+            // 订阅关卡初始化事件
+            GameEventDispatcher.OnLogicInitialized += HandleLogicInitialized;
         }
 
         void OnDisable()
@@ -85,6 +89,9 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.OnDiscoverNewNodes -= HandleDiscoveredNodes;
 
             AIEventDispatcher.OnResponseReceived -= HandleAIResponse;
+
+            // 取消订阅关卡初始化事件
+            GameEventDispatcher.OnLogicInitialized -= HandleLogicInitialized;
         }
         #endregion
 
@@ -243,7 +250,7 @@ namespace Interrorgation.MidLayer
 
         #region AI 逻辑处理 (AI Logical Bridge)
         /* 
-         * 注意：根据架构优化原则，AI 响应的“解析逻辑”本应放在专门的 AILogicManager 中。
+         * 注意：根据架构优化原则，AI 响应的"解析逻辑"本应放在专门的 AILogicManager 中。
          * 目前由 Coordinator 暂时代管，负责将 AI 原始响应 (AIResponseData) 
          * 转换为逻辑层变更 (GameEvent) 以及 UI 层表现 (UIEvent)。
          */
@@ -332,6 +339,16 @@ namespace Interrorgation.MidLayer
             }, isBlocking: false, dedupDescription: string.Join(",", stack)));
         }
         #endregion
+        #endregion
+
+        #region 关卡初始化事件处理
+        /// <summary>
+        /// 逻辑层初始化完成后，通知 UI 层关卡就绪
+        /// </summary>
+        private void HandleLogicInitialized()
+        {
+            UIEventDispatcher.DispatchLevelReady();
+        }
         #endregion
     }
 }

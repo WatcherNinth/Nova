@@ -55,21 +55,22 @@ namespace Interrorgation.UI
 
         public void Init()
         {
-            _panelRoot.SetActive(false);
+            if (_currentData == null) getDataFromContext();
         }
 
-        public void ShowTemplate()
+        public void HideTemplate()
         {
-            if (_currentData == null) getDataFromContext();
+            _outcomePrefab.text = "这是一个未被发现的模板"; 
+        }
 
-            BuildUI(_currentData);
-
-            _panelRoot.SetActive(true);
+        public void DiscoverTemplate()
+        {
+            BuildQuestion(_currentData);
+            _outcomePrefab.text = "";
         }
 
         public void OnTemplateUsed()
         {
-            if (_currentData == null) getDataFromContext();
             _outcomePrefab.text = "你已经发现了这个模板的所有答案！";
             // todo：这里之后有演出的话需要强制播放showtemplate的演出来显示，现在临时启用一下。因为可能showtemplate和used会一起发生。
             _panelRoot.SetActive(true);
@@ -133,7 +134,7 @@ namespace Interrorgation.UI
             }
         }
 
-        private void BuildUI(TemplateData data)
+        private void BuildQuestion(TemplateData data)
         {
             // 1. 清理旧物体
             foreach (Transform child in _container)

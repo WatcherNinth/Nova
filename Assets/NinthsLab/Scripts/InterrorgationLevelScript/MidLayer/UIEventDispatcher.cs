@@ -146,5 +146,13 @@ namespace Interrorgation.MidLayer
             OnShowPhaseSelection?.Invoke(completedPhase, nextPhases);
         }
         #endregion
+
+        #region 关卡初始化 (Level Initialization)
+        /// <summary>
+        /// 关卡完全就绪后触发（LevelGraph + Logic 已初始化完成），UI 元件可在此事件中执行依赖 LevelGraph 的初始化
+        /// </summary>
+        public static event Action OnLevelReady;
+        public static void DispatchLevelReady() => OnLevelReady?.Invoke();
+        #endregion
     }
 }
