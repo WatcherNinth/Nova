@@ -31,7 +31,7 @@ namespace Interrorgation.UI
         [SerializeField] private TMP_Dropdown _dropdownPrefab;
         [SerializeField] private TMP_InputField _inputPrefab;
         [SerializeField] private TMP_Text _outcomePrefab;
-        [SerializeField] private NodeOptionUIScript _optionButtonPrefab;
+        [SerializeField] private MindMapNodeOptionUIScript _optionButtonPrefab;
 
 
         // 运行时状态
@@ -56,6 +56,19 @@ namespace Interrorgation.UI
         public void Init()
         {
             if (_currentData == null) getDataFromContext();
+        }
+
+        public Dictionary<string, MindMapNodeOptionUIScript> InitOptions()
+        {
+            _optionContainer.gameObject.SetActive(true); 
+            var result = new Dictionary<string, MindMapNodeOptionUIScript>();
+            foreach (var nodeId in _currentData.GetAllAnswerNodeId())
+            {
+                var optionPrefab = Instantiate(_optionButtonPrefab, _optionContainer);
+                optionPrefab.Init(nodeId);
+                result.Add(nodeId, optionPrefab);
+            }
+            return result;
         }
 
         public void HideTemplate()

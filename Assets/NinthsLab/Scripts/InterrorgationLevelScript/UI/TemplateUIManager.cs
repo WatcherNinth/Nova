@@ -29,6 +29,7 @@ namespace Interrorgation.UI
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
         private Dictionary<string, MindMapNodeOptionUIScript> _optionMap = new Dictionary<string, MindMapNodeOptionUIScript>();
         private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
+        private Dictionary<string, RunTimeNodeStatus> _nodeStatusCache = new Dictionary<string, RunTimeNodeStatus>();
         private bool _isDirty = false;
 
         protected override DeductionBoardState InitialState => DeductionBoardState.Closed;
@@ -62,6 +63,7 @@ namespace Interrorgation.UI
             UIEventDispatcher.OnTemplateStatusChanged += HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult += HandleTemplateSettlement;
             UIEventDispatcher.OnLevelReady += HandleLevelReady;
+            UIEventDispatcher.OnNodeStatusChanged += HandleNodeStatusChanged;
         }
 
         protected override void UnsubscribeEvents()
@@ -70,6 +72,7 @@ namespace Interrorgation.UI
             UIEventDispatcher.OnTemplateStatusChanged -= HandleTemplateStatusChanged;
             UIEventDispatcher.OnTemplateAnswerResult -= HandleTemplateSettlement;
             UIEventDispatcher.OnLevelReady -= HandleLevelReady;
+            UIEventDispatcher.OnNodeStatusChanged -= HandleNodeStatusChanged;
         }
 
         /// <summary>
@@ -96,27 +99,21 @@ namespace Interrorgation.UI
                 }
                 _templateMap[script.TemplateId] = script;
                 script.Init();
-                var runtimeTemplateData = GameEventDispatcher.GetTemplateStatus(script.TemplateId);
-                ApplyTemplateStatus(runtimeTemplateData);
-            }
+                // 手动应用初始状态
+                ApplyTemplateStatus(GameEventDispatcher.GetTemplateStatus(script.TemplateId));
 
-            // 深度搜索所有子物体中的 OptionButton
-            var allOptions = _uiRoot.GetComponentsInChildren<MindMapNodeOptionUIScript>(true);
-            foreach (var option in allOptions)
-            {
-                if (string.IsNullOrEmpty(option.nodeId))
+                // 为特殊模板添加选项
+                if (!script.TemplateId.StartsWith(TemplateData.nodeTemplatePrefix))
                 {
-                    Debug.LogWarning($"[TemplateUIManager] Found OptionButton on {option.name} with empty ID.");
-                    continue;
+                    foreach (var node in script.InitOptions())
+                    {
+                        _optionMap.Add(node.Key, node.Value);
+                        var nodeStatus = GameEventDispatcher.GetNodeStatus(node.Key);
+                        ApplyNodeStatus(nodeStatus);
+                        _nodeStatusCache[node.Key] = nodeStatus.Status;
+                    }
                 }
-
-                if (_optionMap.ContainsKey(option.nodeId))
-                {
-                    Debug.LogError($"[TemplateUIManager] Duplicate Option ID found: {option.nodeId} on {option.name}. Overwriting previous.");
-                }
-                _optionMap[option.nodeId] = option;
             }
-
             Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates and {_optionMap.Count} options.");
         }
 
@@ -141,6 +138,20 @@ namespace Interrorgation.UI
             {
                 ApplyTemplateStatus(templateData);
                 _statusCache[templateData.Id] = templateData.Status;
+            }, actionId);
+        }
+
+        private void HandleNodeStatusChanged(RuntimeNodeData nodeData, string actionId)
+        {
+            if (nodeData == null)
+            {
+                UIEventDispatcher.DispatchActionCompleted(actionId);
+                return;
+            }
+            DispatchOrBacklog(() =>
+            {
+                ApplyNodeStatus(nodeData);
+                _nodeStatusCache[nodeData.Id] = nodeData.Status;
             }, actionId);
         }
 
@@ -169,6 +180,24 @@ namespace Interrorgation.UI
                 }
             }
 
+            var allNodeStatus = GameEventDispatcher.GetAllNodeStatus();
+            if (allNodeStatus != null)
+            {
+                foreach (var pair in allNodeStatus)
+                {
+                    string id = pair.Key;
+                    RuntimeNodeData runtimeData = pair.Value;
+
+                    if (!_optionMap.ContainsKey(id)) continue;
+
+                    if (!_nodeStatusCache.TryGetValue(id, out var cachedStatus) || cachedStatus != runtimeData.Status)
+                    {
+                        ApplyNodeStatus(runtimeData);
+                        _nodeStatusCache[id] = runtimeData.Status;
+                    }
+                }
+            }
+
             _isDirty = false;
             Debug.Log("[TemplateUIManager] UI 状态已同步至最新。");
         }
@@ -190,6 +219,26 @@ namespace Interrorgation.UI
                         break;
                     case RunTimeTemplateDataStatus.Used:
                         uiScript.OnTemplateUsed();
+                        break;
+                }
+            }
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_uiRoot);
+        }
+
+        private void ApplyNodeStatus(RuntimeNodeData runtimeData)
+        {
+            if (_optionMap.TryGetValue(runtimeData.Id, out var uiScript))
+            {
+                switch (runtimeData.Status)
+                {
+                    case RunTimeNodeStatus.Hidden:
+                        uiScript.HideNodeOption();
+                        break;
+                    case RunTimeNodeStatus.Discovered:
+                        uiScript.DiscoverNodeOption();
+                        break;
+                    case RunTimeNodeStatus.Submitted:
+                        uiScript.SubmitNodeOption();
                         break;
                 }
             }

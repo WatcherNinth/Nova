@@ -135,8 +135,8 @@ namespace LogicEngine.LevelGraph
                 // 这里使用了空值传播符 (?.) 防止空引用报错
                 if (node.Template != null && node.Template.Template != null)
                 {
-                    allTemplates.Add($"nodeTemplate_{node.Id}", node.Template.Template);
-                    node.Template.Template.Id = $"nodeTemplate_{node.Id}";
+                    allTemplates.Add($"{TemplateData.nodeTemplatePrefix}{node.Id}", node.Template.Template);
+                    node.Template.Template.Id = $"{TemplateData.nodeTemplatePrefix}{node.Id}";
                 }
             }
             foreach (var specTemplate in specialTemplateData)

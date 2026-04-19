@@ -1,6 +1,10 @@
 using LogicEngine.Validation;
 using System.Collections.Generic;
 using LogicEngine.Templates;
+using System.Data.Common;
+using System.Runtime.Remoting.Messaging;
+using System.Xml.XPath;
+using System.Net.NetworkInformation;
 
 namespace LogicEngine.Templates
 {
@@ -75,6 +79,8 @@ namespace LogicEngine
         /// </summary>
         public List<AnswerData> Answers { get; private set; }
 
+        public static string nodeTemplatePrefix = "nodeTemplate_";
+
         public TemplateData()
         {
             DropdownOptions = new Dictionary<int, List<string>>();
@@ -94,6 +100,16 @@ namespace LogicEngine
         public void AddAnswer(AnswerData answer)
         {
             Answers.Add(answer);
+        }
+
+        public List<string> GetAllAnswerNodeId()
+        {
+            List<string> result = new List<string>();
+            foreach (var answer in Answers)
+            {
+                result.Add(answer.TargetId);
+            }
+            return result;
         }
 
         public void OnValidate(ValidationContext context)

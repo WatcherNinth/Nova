@@ -296,7 +296,7 @@ namespace Interrorgation.MidLayer
                             if (!string.IsNullOrEmpty(specialTmplId))
                                 templatesToUnlock.Add(specialTmplId);
                             else if (nodeInfo.Node.Template?.Template != null)
-                                templatesToUnlock.Add($"nodeTemplate_{nodeId}");
+                                templatesToUnlock.Add($"{TemplateData.nodeTemplatePrefix}{nodeId}");
                         }
                     }
                     if (templatesToUnlock.Count > 0)

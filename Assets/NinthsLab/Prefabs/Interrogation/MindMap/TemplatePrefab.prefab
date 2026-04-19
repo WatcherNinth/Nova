@@ -747,14 +747,14 @@ MonoBehaviour:
   _templateId: is_bloodstain_from_sabinna_template
   _panelRoot: {fileID: 2047498672779904057}
   _container: {fileID: 256987810433378687}
-  _optionContainer: {fileID: 256987810433378687}
+  _optionContainer: {fileID: 7542903809291651380}
   _submitButton: {fileID: 56934664114094686}
   _closeButton: {fileID: 0}
   _textPrefab: {fileID: 7148972760353842222}
   _dropdownPrefab: {fileID: 5238114504243988539}
   _inputPrefab: {fileID: 7551464879229879251}
   _outcomePrefab: {fileID: 504965695129778916}
-  _optionButtonPrefab: {fileID: 0}
+  _optionButtonPrefab: {fileID: 813995313903402975, guid: 55c0915e18ed19141bc51ab84d0e9d74, type: 3}
 --- !u!1 &2179138195907892459
 GameObject:
   m_ObjectHideFlags: 0
