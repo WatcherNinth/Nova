@@ -48,13 +48,19 @@ namespace Interrorgation.UI
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
             LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
         }
-        
+
         public void SubmitNodeOption()
         {
             _optionText.text = _nodeData.Basic.Description;
             GetComponent<Button>().interactable = false;
             LayoutRebuilder.ForceRebuildLayoutImmediate(GetComponent<RectTransform>());
             LayoutRebuilder.ForceRebuildLayoutImmediate(transform.parent.GetComponent<RectTransform>());
+        }
+        
+        public void InvalidNodeOption()
+        {
+            GetComponent<Button>().interactable = false;
+            GetComponent<Image>().color = Color.red;
         }
     }
 }

@@ -78,22 +78,31 @@ namespace Interrorgation.UI
         {
             DispatchOrBacklog(() =>
             {
+                var inList = false;
+                // 对里面有的元素进行判定，不满足条件就摘除
                 foreach (Transform child in _optionContainer)
                 {
                     var optionScript = child.GetComponent<NodeOptionUIScript>();
                     if (optionScript != null && optionScript.nodeId == nodeData.Id)
                     {
+                        inList = true;
                         // 如果节点状态是已提交，则隐藏选项
-                        if (nodeData.Status == LogicEngine.LevelLogic.RunTimeNodeStatus.Submitted)
+                        if (nodeData.Status == LogicEngine.LevelLogic.RunTimeNodeStatus.Submitted
+                        || nodeData.IsInvalidated)
                         {
                             child.gameObject.SetActive(false);
                             Destroy(child.gameObject, 0.1f); // 延迟销毁以避免潜在的 UI 交互问题
                             break;
                         }
-                        if (nodeData.IsInvalidated)
-                        {
-                            child.GetComponent<Button>().interactable = false;
-                        }
+                    }
+                }
+                // 如果不在列表里
+                if (!inList)
+                {
+                    // 重新加入：已被发现且不互斥
+                    if(nodeData.Status == LogicEngine.LevelLogic.RunTimeNodeStatus.Discovered || !nodeData.IsInvalidated)
+                    {
+                        addNodeOption(nodeData.Id);
                     }
                 }
             }, actionId);

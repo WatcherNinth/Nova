@@ -241,6 +241,10 @@ namespace Interrorgation.UI
                         uiScript.SubmitNodeOption();
                         break;
                 }
+                if (runtimeData.IsInvalidated)
+                {
+                    uiScript.InvalidNodeOption();
+                }
             }
         }
 
