@@ -99,8 +99,7 @@ namespace LogicEngine.LevelLogic
                     else
                     {
                         // 栈顶还没搞定，尝试利用新的局势去证明它
-                        // (这会触发递归，但 TryProveNode 内部有防死循环机制)
-                        // 注意：这里调用 TryProveNode 和 OnProveSuccess 可能会导致它变为 Submitted，那样下一次循环就会把它弹出
+                        // 使用新的证明方法，避免循环调用
                         bool success = _logicManager.TryProveNode(topId);
                         if (!success)
                         {
@@ -108,7 +107,7 @@ namespace LogicEngine.LevelLogic
                             break;
                         }
                         // 如果可以证明，执行成功逻辑 (isAutoResolve = true)，状态变成了 Submitted
-                        _logicManager.OnProveSuccess(topId, isAutoResolve: true);
+                        _logicManager.ExecuteFullProofFlow(topId, isDerived: true);
                     }
                 }
                 else
@@ -177,6 +176,47 @@ namespace LogicEngine.LevelLogic
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// 结算 Scope 链（使用提供的证明函数，避免触发完整证明流程）
+        /// </summary>
+        public void ResolveScopeChainWithProof(string provenNodeId, System.Func<string, bool> proveFunc)
+        {
+            if (_scopeStack.Count == 0) return;
+
+            bool changed = false;
+
+            while (_scopeStack.Count > 0)
+            {
+                string topId = _scopeStack.Last();
+
+                if (!_mindMapManager.TryGetNode(topId, out var node))
+                {
+                    _scopeStack.RemoveAt(_scopeStack.Count - 1);
+                    changed = true;
+                    continue;
+                }
+
+                if (node.Status == RunTimeNodeStatus.Submitted)
+                {
+                    _scopeStack.RemoveAt(_scopeStack.Count - 1);
+                    changed = true;
+                    continue;
+                }
+
+                // 使用提供的证明函数
+                bool success = proveFunc(topId);
+                if (!success)
+                {
+                    break; // 无法证明，停止回溯
+                }
+            }
+
+            if (changed)
+            {
+                NotifyScopeChanged();
+            }
         }
     }
 }

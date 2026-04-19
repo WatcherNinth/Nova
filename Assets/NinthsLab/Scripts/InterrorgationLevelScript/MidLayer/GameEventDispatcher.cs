@@ -56,6 +56,36 @@ namespace Interrorgation.MidLayer
         }
 
         /// <summary>
+        /// 衍生证明类型枚举
+        /// </summary>
+        public enum DeriveProofType
+        {
+            SoftDependency,
+            Scope,
+            AutoVerified
+        }
+
+        /// <summary>
+        /// 衍生证明开始事件
+        /// </summary>
+        public static event Action<DeriveProofType, string> OnDeriveProofStarted;
+        public static void DispatchDeriveProofStarted(DeriveProofType type, string nodeId)
+        {
+            Debug.Log($"[GameEventDispatcher] 衍生证明{type}开始：{nodeId}");
+            OnDeriveProofStarted?.Invoke(type, nodeId);
+        }
+
+        /// <summary>
+        /// 主证明流程开始事件
+        /// </summary>
+        public static event Action<string> OnMainProofStarted;
+        public static void DispatchMainProofStarted(string nodeId)
+        {
+            Debug.Log($"[GameEventDispatcher] 主证明开始: {nodeId}");
+            OnMainProofStarted?.Invoke(nodeId);
+        }
+
+        /// <summary>
         /// 当实体状态发生变更时（例如从 Hidden 变为 Discovered）
         /// </summary>
         public static event Action<RuntimeEntityItemData> OnEntityStatusChanged;

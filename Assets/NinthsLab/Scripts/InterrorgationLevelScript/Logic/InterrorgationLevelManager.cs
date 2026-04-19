@@ -64,7 +64,6 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnPlayerInputString += HandlePlayerInput;
 
             GameEventDispatcher.OnNodeOptionSubmitted += HandleNodeProve;
-            GameEventDispatcher.OnNodeDeriveProveEvent += HandleNodeProve;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch += HandlePhaseSwitchRequest;
             handleRegister_ScopeManager(true);
         }
@@ -77,7 +76,6 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.OnPlayerInputString -= HandlePlayerInput;
 
             GameEventDispatcher.OnNodeOptionSubmitted -= HandleNodeProve;
-            GameEventDispatcher.OnNodeDeriveProveEvent -= HandleNodeProve;
             GameEventDispatcher.OnPlayerRequestPhaseSwitch -= HandlePhaseSwitchRequest;
             handleRegister_ScopeManager(false);
 
@@ -159,21 +157,18 @@ namespace LogicEngine.LevelLogic
         // [新增] 处理节点提交
         private void HandleNodeProve(string nodeId)
         {
-            if (nodeLogicManager != null)
+            if (nodeLogicManager == null) return;
+
+            // 检查节点是否可以证明
+            bool canProve = nodeLogicManager.TryProveNode(nodeId);
+            if (!canProve)
             {
-                // 调用 LogicManager 进行验证
-                bool success = nodeLogicManager.TryProveNode(nodeId);
-                if (success)
-                {
-                    Debug.Log($"[LevelManager] 节点 {nodeId} 证明成功。");
-                    nodeLogicManager.OnProveSuccess(nodeId);
-                }
-                else
-                {
-                    Debug.Log($"[LevelManager] 节点 {nodeId} 证明失败。");
-                    nodeLogicManager.OnProveFailed(nodeId);
-                }
+                nodeLogicManager.OnProveFailed(nodeId, isAutoResolve: false);
+                return;
             }
+
+            // 执行完整的证明流程（包含所有衍生证明）
+            nodeLogicManager.ExecuteFullProofFlow(nodeId, isDerived: false);
         }
         // [新增] 启动逻辑 (激活初始阶段)
         public void StartGameLogic()

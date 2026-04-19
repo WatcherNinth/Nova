@@ -37,35 +37,7 @@ namespace LogicEngine.LevelLogic
             return runtimeNode.r_NodeData.Logic.GetDependOnResult();
         }
 
-        public void OnProveSuccess(string nodeId, bool isAutoResolve = false)
-        {
-            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
-            if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return; // 避免重复执行
-
-
-            // 成功逻辑
-            if (runtimeNode.r_NodeData.Logic.SoftDependOn.Count != 0)
-            {
-                // 先把软性dependon里的都证明一遍
-                foreach (var softnode in runtimeNode.r_NodeData.Logic.SoftDependOn)
-                {
-                    
-                }
-            }
-            _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
-
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
-            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
-            ProcessAutoVerify();
-            _phaseManager?.CheckPhaseCompletion();
-
-            // [新增] 成功后，通知 ScopeManager 尝试结算整个链条
-            // 必须放在最后，否则递归可能出问题
-            if (!isAutoResolve)
-            {
-                _scopeManager?.ResolveScopeChain(nodeId);
-            }
-        }
+        
 
         public void OnProveFailed(string nodeId, bool isAutoResolve = false)
         {
@@ -177,31 +149,7 @@ namespace LogicEngine.LevelLogic
             }
         }
 
-        /// <summary>
-        /// 开始扫描全局进行自动证明，应当在证明对话之后进行
-        /// </summary>
-        private void ProcessAutoVerify()
-        {
-            bool hasChanged = true;
-            while (hasChanged)
-            {
-                hasChanged = false;
-                foreach (var kvp in _mindMapManager.RunTimeNodeDataMap)
-                {
-                    var node = kvp.Value;
-                    if (node.Status == RunTimeNodeStatus.Discovered && !node.IsInvalidated &&
-                        node.r_NodeData.Logic != null && node.r_NodeData.Logic.IsAutoVerified)
-                    {
-                        if (node.r_NodeData.Logic.GetDependOnResult())
-                        {
-                            // 这里不能用事件，因为derive事件还会调用一次autoverify，容易死循环
-                            OnProveSuccess(node.Id);
-                            hasChanged = true;
-                        }
-                    }
-                }
-            }
-        }
+        
 
         // --- Dependency Parsing (保持不变) ---
 /*
@@ -268,5 +216,214 @@ namespace LogicEngine.LevelLogic
             return false;
         }
         */
+
+        /// <summary>
+        /// 执行完整的节点证明流程（主证明 + 所有衍生证明）
+        /// </summary>
+        public void ExecuteFullProofFlow(string nodeId, bool isDerived)
+        {
+            // 步骤 1: 软依赖证明（仅在主证明时执行）
+            if (!isDerived)
+            {
+                ProcessSoftDependencyProofs(nodeId);
+            }
+
+            // 步骤 2: 主证明流程
+            ProcessMainProof(nodeId, isDerived);
+
+            // 步骤 3: Scope 证明（仅在主证明时执行）
+            if (!isDerived)
+            {
+                ProcessScopeProof(nodeId);
+            }
+
+            // 步骤 4: AutoVerified 证明（仅在主证明时执行）
+            if (!isDerived)
+            {
+                ProcessAutoVerifiedProof();
+            }
+        }
+
+        /// <summary>
+        /// 执行单个节点的主证明逻辑
+        /// </summary>
+        private void ProcessMainProof(string nodeId, bool isDerived)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
+            if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return;
+
+            // 发送主证明开始事件
+            GameEventDispatcher.DispatchMainProofStarted(nodeId);
+
+            // 设置状态
+            _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
+
+            // 触发 OnProven 对话
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+
+            // 互斥处理（所有证明都需要）
+            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
+
+            // 阶段检查
+            _phaseManager?.CheckPhaseCompletion();
+        }
+
+        /// <summary>
+        /// 处理软依赖证明（发生在主证明之前）
+        /// 使用深度优先搜索逐个证明
+        /// </summary>
+        private void ProcessSoftDependencyProofs(string nodeId)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
+
+            var softDependencies = runtimeNode.r_NodeData.Logic.SoftDependOn;
+            if (softDependencies == null || softDependencies.Count == 0) return;
+
+            // 深度优先递归证明软依赖
+            foreach (var softNodeId in softDependencies)
+            {
+                ProveNodeWithSoftDependencies(softNodeId, visited: new HashSet<string>());
+            }
+        }
+
+        /// <summary>
+        /// 证明节点及其软依赖（深度优先）
+        /// </summary>
+        private void ProveNodeWithSoftDependencies(string nodeId, HashSet<string> visited)
+        {
+            // 防止循环依赖
+            if (visited.Contains(nodeId)) return;
+            visited.Add(nodeId);
+
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return;
+
+            // 检查是否已经提交
+            if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return;
+
+            // 深度优先：先证明软依赖
+            var softDependencies = runtimeNode.r_NodeData.Logic.SoftDependOn;
+            if (softDependencies != null && softDependencies.Count > 0)
+            {
+                foreach (var softNodeId in softDependencies)
+                {
+                    ProveNodeWithSoftDependencies(softNodeId, visited);
+                }
+            }
+
+            // 检查依赖是否满足
+            if (!runtimeNode.r_NodeData.Logic.GetDependOnResult()) return;
+
+            // 发送衍生证明开始事件（仅在成功时）
+            GameEventDispatcher.DispatchDeriveProofStarted(
+                GameEventDispatcher.DeriveProofType.SoftDependency, nodeId
+            );
+
+            // 设置状态
+            _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
+
+            // 触发 OnProven 对话
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+
+            // 互斥处理
+            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
+        }
+
+        /// <summary>
+        /// 处理 Scope 证明（发生在主证明之后）
+        /// </summary>
+        private void ProcessScopeProof(string nodeId)
+        {
+            if (_scopeManager == null) return;
+
+            // 使用新的证明方法执行 Scope 结算
+            _scopeManager.ResolveScopeChainWithProof(nodeId, ProveNodeForScope);
+        }
+
+        /// <summary>
+        /// 为 Scope 证明节点（用于衍生证明）
+        /// </summary>
+        private bool ProveNodeForScope(string nodeId)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return false;
+
+            // 检查依赖
+            if (!runtimeNode.r_NodeData.Logic.GetDependOnResult()) return false;
+
+            // 检查状态
+            if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
+
+            // 发送衍生证明开始事件（仅在成功时）
+            GameEventDispatcher.DispatchDeriveProofStarted(
+                GameEventDispatcher.DeriveProofType.Scope, nodeId
+            );
+
+            // 设置状态
+            _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
+
+            // 触发 OnProven 对话
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+
+            // 互斥处理
+            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 处理 AutoVerified 证明（发生在 Scope 证明之后）
+        /// </summary>
+        private void ProcessAutoVerifiedProof()
+        {
+            bool hasChanged = true;
+            while (hasChanged)
+            {
+                hasChanged = false;
+                foreach (var kvp in _mindMapManager.RunTimeNodeDataMap)
+                {
+                    var node = kvp.Value;
+                    if (node.Status == RunTimeNodeStatus.Discovered &&
+                        !node.IsInvalidated &&
+                        node.r_NodeData.Logic != null &&
+                        node.r_NodeData.Logic.IsAutoVerified)
+                    {
+
+                        if (ProveNodeForAutoVerified(node.Id))
+                        {
+                            hasChanged = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 为 AutoVerified 证明节点
+        /// </summary>
+        private bool ProveNodeForAutoVerified(string nodeId)
+        {
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return false;
+
+            // 检查依赖
+            if (!runtimeNode.r_NodeData.Logic.GetDependOnResult()) return false;
+
+            // 检查状态
+            if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
+
+            // 发送衍生证明开始事件（仅在成功时）
+            GameEventDispatcher.DispatchDeriveProofStarted(
+                GameEventDispatcher.DeriveProofType.AutoVerified, nodeId
+            );
+
+            // 设置状态
+            _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
+
+            // 触发 OnProven 对话
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+
+            // 互斥处理
+            ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
+
+            return true;
+        }
     }
 }
