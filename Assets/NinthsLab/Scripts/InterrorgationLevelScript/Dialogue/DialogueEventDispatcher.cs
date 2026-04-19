@@ -36,5 +36,8 @@ namespace DialogueSystem
         {
             OnRequestNextDialogue?.Invoke();
         }
+
+        public static event Func<bool> IsInDialogueQueryEvent;
+        public static bool GetIsInDialogue() => IsInDialogueQueryEvent.Invoke();
     }
 }

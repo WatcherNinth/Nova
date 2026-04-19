@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using DialogueSystem;
 using Interrorgation.MidLayer;
 using Interrorgation.UI.UIState;
 using LogicEngine;
+using LogicEngine.LevelLogic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,11 +44,13 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
     protected override void SubscribeEvents()
     {
         UIEventDispatcher.OnScopeStackChanged += UpdateScopeUI;
+        UIEventDispatcher.OnNodeStatusChanged += GetCurrentProvingNode;
     }
 
     protected override void UnsubscribeEvents()
     {
         UIEventDispatcher.OnScopeStackChanged -= UpdateScopeUI;
+        UIEventDispatcher.OnNodeStatusChanged -= GetCurrentProvingNode;
     }
 
     protected override void Awake()
@@ -80,13 +84,13 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
 
     private void RefreshUI(List<string> scopeStack)
     {
-        if (scopeStack.Count == 0)
+        if (scopeStack.Count == 0 && !DialogueEventDispatcher.GetIsInDialogue())
         {
             StateMachine.TryTransitionTo(ScopeState.Hidden);
             return;
         }
         StateMachine.TryTransitionTo(ScopeState.Shown);
-        
+
         foreach (Transform child in scopeContainer)
         {
             Destroy(child.gameObject);
@@ -95,16 +99,25 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
         for (int i = 0; i < scopeStack.Count; i++)
         {
             string nodeId = scopeStack[i];
-            TMP_Text text = Instantiate(scopeTextPrefab, scopeContainer);
-            text.gameObject.SetActive(true);
-            text.text = LevelGraphContext.CurrentGraph.nodeLookup[nodeId].Node.Basic.Description;
-            if (i < scopeStack.Count - 1)
-            {
-                GameObject scopeSeparator = Instantiate(scopeSeparatorPrefab, scopeContainer);
-                scopeSeparator.gameObject.SetActive(true);
-            }
+            addScopeElement(nodeId, i < scopeStack.Count - 1);
         }
         LayoutRebuilder.ForceRebuildLayoutImmediate(scopeContainer.GetComponent<RectTransform>());
         _scopeCache = scopeStack;
+    }
+    private void addScopeElement(string nodeId, bool needSeparatorBehind, bool IsCurrentProving = false)
+    {
+        TMP_Text text = Instantiate(scopeTextPrefab, scopeContainer);
+        text.gameObject.SetActive(true);
+        text.text = LevelGraphContext.CurrentGraph.nodeLookup[nodeId].Node.Basic.Description;
+        if (needSeparatorBehind)
+        {
+            GameObject scopeSeparator = Instantiate(scopeSeparatorPrefab, scopeContainer);
+            scopeSeparator.gameObject.SetActive(true);
+        }
+    }
+
+    public void GetCurrentProvingNode(RuntimeNodeData nodeData, string actionId)
+    {
+        
     }
 }

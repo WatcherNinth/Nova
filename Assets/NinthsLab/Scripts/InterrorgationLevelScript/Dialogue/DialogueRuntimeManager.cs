@@ -12,11 +12,13 @@ namespace DialogueSystem
         private void OnEnable()
         {
             DialogueEventDispatcher.OnRequestNextDialogue += PlayNext;
+            DialogueEventDispatcher.IsInDialogueQueryEvent += GetIsPlaying;
         }
 
         private void OnDisable()
         {
             DialogueEventDispatcher.OnRequestNextDialogue -= PlayNext;
+            DialogueEventDispatcher.IsInDialogueQueryEvent -= GetIsPlaying;
         }
 
         /// <summary>
@@ -75,6 +77,10 @@ namespace DialogueSystem
                 UIEventDispatcher.DispatchActionCompleted("DialogueBatch");
                 Debug.Log("[DialogueSystem] 当前批次播放完毕");
             }
+        }
+        public bool GetIsPlaying()
+        {
+            return _isPlaying;
         }
     }
 }
