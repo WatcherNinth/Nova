@@ -19,6 +19,49 @@ namespace LogicEngine
     public static class ConditionEvaluator
     {
         // =====================================================
+        // 工具方法
+        // =====================================================
+
+        public static HashSet<string> ExtractNodeIds(string jsonContent)
+        {
+            var nodeIds = new HashSet<string>();
+            if (string.IsNullOrWhiteSpace(jsonContent)) return nodeIds;
+
+            try
+            {
+                var root = JObject.Parse(jsonContent);
+                ExtractNodeIdsRecursive(root, nodeIds);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[ConditionEvaluator] JSON 解析错误: {ex.Message}");
+            }
+
+            return nodeIds;
+        }
+
+        private static void ExtractNodeIdsRecursive(JToken token, HashSet<string> nodeIds)
+        {
+            if (token.Type != JTokenType.Object) return;
+            var obj = (JObject)token;
+
+            foreach (var property in obj.Properties())
+            {
+                string key = property.Name;
+                JToken value = property.Value;
+
+                if (value.Type == JTokenType.Object)
+                {
+                    ExtractNodeIdsRecursive(value, nodeIds);
+                }
+                else if (value.Type == JTokenType.Boolean)
+                {
+                    nodeIds.Add(key);
+                }
+            }
+        }
+
+        // =====================================================
         // 验证逻辑 (Validation)
         // =====================================================
 

@@ -127,6 +127,8 @@ namespace LogicEngine.Nodes
         public List<string> ExtraMutexList { get; set; }
         public JToken OverrideMutexTrigger { get; set; }
         public JToken DependsOn { get; set; }
+        public List<string> GeneratedDependencyNodes { get; set; }
+        public List<string> GeneratedMutexNodes { get; set; }
         public bool IsAutoVerified { get; set; }
 
         public void OnValidate(ValidationContext context)

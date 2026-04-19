@@ -147,12 +147,52 @@ namespace LogicEngine.LevelGraph
         }
 
         /// <summary>
+        /// 刷新生成的依赖和互斥节点 (Task 3)
+        /// 遍历所有节点，提取 DependsOn 条件中的所有节点，然后运行 CheckDependency 进行分类。
+        /// </summary>
+        public void RefreshGeneratedDependencies()
+        {
+            foreach (var info in nodeLookup.Values)
+            {
+                NodeData node = info.Node;
+                if (node == null || node.Logic == null) continue;
+
+                if (node.Logic.GeneratedDependencyNodes == null)
+                    node.Logic.GeneratedDependencyNodes = new List<string>();
+                if (node.Logic.GeneratedMutexNodes == null)
+                    node.Logic.GeneratedMutexNodes = new List<string>();
+
+                node.Logic.GeneratedDependencyNodes.Clear();
+                node.Logic.GeneratedMutexNodes.Clear();
+
+                if (node.Logic.DependsOn == null || !node.Logic.DependsOn.HasValues) continue;
+
+                string dependsOnJson = node.Logic.DependsOn.ToString();
+                var nodeIds = ConditionEvaluator.ExtractNodeIds(dependsOnJson);
+
+                foreach (var nodeId in nodeIds)
+                {
+                    var dependency = ConditionEvaluator.CheckDependency(nodeId, dependsOnJson);
+                    if (dependency == NodeDependency.RequiredTrue)
+                    {
+                        node.Logic.GeneratedDependencyNodes.Add(nodeId);
+                    }
+                    else if (dependency == NodeDependency.RequiredFalse)
+                    {
+                        node.Logic.GeneratedMutexNodes.Add(nodeId);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// 供外部调用的初始化方法。
         /// </summary>
         public void InitializeRuntimeData()
         {
             RefreshNodeLookup();
             RefreshTemplateList();
+            RefreshGeneratedDependencies();
         }
 
         #endregion

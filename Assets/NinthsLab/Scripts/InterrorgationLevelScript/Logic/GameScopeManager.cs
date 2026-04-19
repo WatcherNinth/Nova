@@ -49,32 +49,19 @@ namespace LogicEngine.LevelLogic
                 return;
             }
 
-            // 2. 如果目标已经在栈里，说明玩家在重复点击，不做改变，或者截断到该位置
+            // 2. 如果目标已经在栈里，说明玩家在重复点击，不做改变
             if (_scopeStack.Contains(targetNodeId))
             {
-                // 譬如 [A, B, C]，玩家点了 B，这说明玩家放弃了 C，想回到 B 的层面
-                // 此时应该把 C 弹出，变成 [A, B]
-                while (_scopeStack.Last() != targetNodeId)
-                {
-                    _scopeStack.RemoveAt(_scopeStack.Count - 1);
-                }
-                NotifyScopeChanged();
                 return;
             }
 
             // 3. [深度计算] 检查新节点是否是当前栈顶节点的“依赖项”
             // 如果 A 依赖 B，而当前栈顶是 A，玩家点了 B，那么栈应该变成 [A, B]
+            // 此处之后要加递归搜索
             string currentTopId = _scopeStack.Last();
-            if (IsDependencyOf(targetNodeId, currentTopId))
+            if (IsDependencyRecursive(targetNodeId, currentTopId))
             {
                 PushScope(targetNodeId); // 增加深度
-            }
-            else
-            {
-                // 4. 如果没关系，说明玩家换了个毫不相干的目标，重置栈
-                // 比如当前是 [A, B]，玩家点了 D (和A,B没关系)
-                _scopeStack.Clear();
-                PushScope(targetNodeId); // 切换目标
             }
         }
 
@@ -150,22 +137,46 @@ namespace LogicEngine.LevelLogic
             GameEventDispatcher.DispatchScopeStackChanged(new List<string>(_scopeStack));
         }
 
-        // --- 辅助：判断 child 是否是 parent 的直接或间接依赖 ---
+        /// <summary>
+        /// 判断 child 是否是 parent 的直接或间接依赖。只有RequiredTrue才能进，scope只显示必要的依赖
+        /// </summary>
+        /// <param name="childId"></param>
+        /// <param name="parentId"></param>
+        /// <returns></returns>
         private bool IsDependencyOf(string childId, string parentId)
         {
             if (!_mindMapManager.TryGetNode(parentId, out var parentNode)) return false;
 
-            // 这里只做简单的直接依赖检查，或者一层 BFS
-            // 也可以解析 Logic.DependsOn 的 JSON 结构
-            // 为了简化，我们假设 logicManager 提供了解析服务，或者我们简单遍历 JSON
+            return parentNode.r_NodeData.Logic.GeneratedDependencyNodes.Contains(childId);
+        }
 
-            var dependsOn = parentNode.r_NodeData.Logic?.DependsOn;
-            if (dependsOn == null) return false;
+        /// <summary>
+        /// 递归判断 child 是否是 parent 的直接或间接依赖
+        /// </summary>
+        /// <param name="childId"></param>
+        /// <param name="parentId"></param>
+        /// <param name="visited">防止循环引用</param>
+        /// <returns></returns>
+        private bool IsDependencyRecursive(string childId, string parentId, HashSet<string> visited = null)
+        {
+            if (visited == null)
+            {
+                visited = new HashSet<string>();
+            }
 
-            string jsonStr = dependsOn.ToString();
-            // 这是一个比较粗暴但有效的判断：如果依赖 JSON 字符串里包含了 childId，就认为是依赖
-            // 精确做法是递归解析 JToken，但在 ID 命名规范的情况下，字符串包含通常足够
-            return jsonStr.Contains(childId);
+            if (visited.Contains(parentId)) return false;
+            visited.Add(parentId);
+
+            if (!_mindMapManager.TryGetNode(parentId, out var parentNode)) return false;
+
+            if (parentNode.r_NodeData.Logic.GeneratedDependencyNodes.Contains(childId)) return true;
+
+            foreach (var depId in parentNode.r_NodeData.Logic.GeneratedDependencyNodes)
+            {
+                if (IsDependencyRecursive(childId, depId, visited)) return true;
+            }
+
+            return false;
         }
     }
 }
