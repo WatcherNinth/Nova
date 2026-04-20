@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using DialogueSystem;
 using Newtonsoft.Json.Linq;
 using LogicEngine.LevelGraph;
 using Interrorgation.MidLayer;
@@ -68,7 +69,8 @@ namespace LogicEngine.LevelLogic
                     if (phaseData.Dialogue?.OnPhaseComplete != null)
                     {
                         var lines = DialogueParser.GetRuntimeDialogueList(phaseData.Dialogue.OnPhaseComplete);
-                        GameEventDispatcher.DispatchDialogueGenerated(lines);
+                        var source = new DialogueSource(DialogueOwnerType.Phase, phaseId, "on_phase_complete");
+                        GameEventDispatcher.DispatchDialogueGenerated(lines, source);
                     }
 
                     // 计算解锁
@@ -206,16 +208,18 @@ namespace LogicEngine.LevelLogic
                 if (phaseData.Dialogue?.OnPhaseStart != null)
                 {
                     var lines = DialogueParser.GetRuntimeDialogueList(phaseData.Dialogue.OnPhaseStart);
-                    GameEventDispatcher.DispatchDialogueGenerated(lines);
+                    var source = new DialogueSource(DialogueOwnerType.Phase, targetPhaseId, "on_phase_start");
+                    GameEventDispatcher.DispatchDialogueGenerated(lines, source);
                 }
             }
             else
             {
                 // 如果是从 Paused -> Active (切回)，可以给个简单提示
                 string phaseName = _mindMapManager.levelGraph.phasesData[targetPhaseId].Name;
-                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { $"[系统] 你回到了对“{phaseName}”的调查。" });
+                var source = new DialogueSource(DialogueOwnerType.Phase, targetPhaseId, "phase_resume");
+                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { $"[系统] 你回到了对「{phaseName}」的调查。" }, source);
             }
-            
+
             // 6. 切换后，广播最新的可用列表 (因为状态变了)
             BroadcastAvailablePhases();
 

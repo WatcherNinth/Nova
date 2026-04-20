@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using DialogueSystem;
 using Interrorgation.MidLayer;
 using LogicEngine.LevelGraph;
 using Newtonsoft.Json.Linq;
@@ -48,7 +50,7 @@ namespace LogicEngine.LevelLogic
 
             if (!isAutoResolve)
             {
-                TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending);
+                TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnPending, nodeId, "on_pending");
                 if (runtimeNode.r_NodeData.Dialogue == null || runtimeNode.r_NodeData.Dialogue.OnPending == null)
                 {
                     Debug.Log($"[NodeLogic] 依赖未满足，节点 {nodeId} 无法被证明，但没有待定对话。");
@@ -65,13 +67,15 @@ namespace LogicEngine.LevelLogic
         /// 注意！这个方法会立刻调用UISequence，注意调用顺序！
         /// </summary>
         /// <param name="dialogueScript"></param>
-        private void TriggerDialogue(JToken dialogueScript)
+        /// <param name="nodeId"></param>
+        private void TriggerDialogue(JToken dialogueScript, string nodeId, string dialogueKey)
         {
             if (dialogueScript == null) return;
             var lines = DialogueParser.GetRuntimeDialogueList(dialogueScript);
             if (lines != null && lines.Count > 0)
             {
-                GameEventDispatcher.DispatchDialogueGenerated(lines);
+                var source = new DialogueSource(DialogueOwnerType.Node, nodeId, dialogueKey);
+                GameEventDispatcher.DispatchDialogueGenerated(lines, source);
             }
         }
 
@@ -259,7 +263,7 @@ namespace LogicEngine.LevelLogic
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
             // 触发 OnProven 对话
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven, nodeId, "on_proven");
 
             // 互斥处理（所有证明都需要）
             ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
@@ -322,7 +326,7 @@ namespace LogicEngine.LevelLogic
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
             // 触发 OnProven 对话
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven, nodeId, "on_proven");
 
             // 互斥处理
             ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
@@ -361,7 +365,7 @@ namespace LogicEngine.LevelLogic
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
             // 触发 OnProven 对话
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven, nodeId, "on_proven");
 
             // 互斥处理
             ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);
@@ -418,7 +422,7 @@ namespace LogicEngine.LevelLogic
             _mindMapManager.SetNodeStatus(nodeId, RunTimeNodeStatus.Submitted);
 
             // 触发 OnProven 对话
-            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven);
+            TriggerDialogue(runtimeNode.r_NodeData.Dialogue?.OnProven, nodeId, "on_proven");
 
             // 互斥处理
             ProcessMutex(nodeId, runtimeNode.r_NodeData.Logic);

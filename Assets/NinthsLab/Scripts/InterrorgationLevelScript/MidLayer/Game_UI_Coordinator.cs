@@ -59,6 +59,7 @@ namespace Interrorgation.MidLayer
 
             GameEventDispatcher.OnTemplateSettlement += HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated += HandleDialogueGenerated;
+            GameEventDispatcher.OnDialogueGeneratedWithSource += HandleDialogueGeneratedWithSource;
             GameEventDispatcher.OnPhaseUnlockEvents += HandlePhaseUnlock;
             GameEventDispatcher.OnDiscoveredNewTemplates += HandleDiscoveredTemplates;
             GameEventDispatcher.OnDiscoveredNewEntity += HandleDiscoveredEntities;
@@ -83,6 +84,7 @@ namespace Interrorgation.MidLayer
             GameEventDispatcher.OnScopeStackChanged -= HandleScopeStackChanged;
             GameEventDispatcher.OnTemplateSettlement -= HandleTemplateSettlement;
             GameEventDispatcher.OnDialogueGenerated -= HandleDialogueGenerated;
+            GameEventDispatcher.OnDialogueGeneratedWithSource -= HandleDialogueGeneratedWithSource;
             GameEventDispatcher.OnPhaseUnlockEvents -= HandlePhaseUnlock;
             GameEventDispatcher.OnDiscoveredNewTemplates -= HandleDiscoveredTemplates;
             GameEventDispatcher.OnDiscoveredNewEntity -= HandleDiscoveredEntities;
@@ -233,6 +235,27 @@ namespace Interrorgation.MidLayer
             {
                 Debug.LogError("[Coordinator] 未绑定 DialogueRuntimeManager！");
 
+            }
+        }
+
+        /// <summary>
+        /// 处理后端生成的对话文本（带来源信息）并推送到对话系统前端
+        /// </summary>
+        private void HandleDialogueGeneratedWithSource(List<string> dialogues, DialogueSource source)
+        {
+            Debug.Log($"[Coordinator] 收到 {dialogues.Count} 行对话，来源: {source}");
+
+            if (dialogueManager != null)
+            {
+                UISequenceManager.Instance.Enqueue(new UIDialogueCommand("DialogueBatch", () =>
+                {
+                    dialogueManager.PushNewBatch(dialogues, source);
+                    UIEventDispatcher.DispatchShowDialogues(dialogues);
+                }, dedupDescription: string.Join("\n", dialogues)));
+            }
+            else
+            {
+                Debug.LogError("[Coordinator] 未绑定 DialogueRuntimeManager！");
             }
         }
         #endregion

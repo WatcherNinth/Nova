@@ -2,6 +2,7 @@
 using System.Collections.Generic; // 引入 List
 using System.IO;
 using AIEngine.Network;
+using DialogueSystem;
 using Interrorgation.MidLayer;
 using LogicEngine.LevelGraph;
 using LogicEngine.Parser;
@@ -149,7 +150,8 @@ namespace LogicEngine.LevelLogic
             // 7. 启动逻辑
             if (currentLevelGraph.levelStartDialogue != null)
             {
-                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { currentLevelGraph.levelStartDialogue });
+                var source = new DialogueSource(DialogueOwnerType.Global, null, "level_start_dialogue");
+                GameEventDispatcher.DispatchDialogueGenerated(new List<string> { currentLevelGraph.levelStartDialogue }, source);
             }
         }
         #endregion

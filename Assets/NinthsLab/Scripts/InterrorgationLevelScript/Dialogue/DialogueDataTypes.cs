@@ -72,6 +72,11 @@ namespace DialogueSystem
         /// 原始文本（用于调试）
         /// </summary>
         public string RawOriginText { get; set; }
+
+        /// <summary>
+        /// 对话来源信息
+        /// </summary>
+        public DialogueSource Source { get; set; }
     }
     
     /// <summary>

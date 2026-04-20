@@ -28,9 +28,16 @@ namespace DialogueSystem
             OnDialogueBatchEnded?.Invoke();
         }
 
+        // 4. 对话来源变更 (当前对话的来源信息更新)
+        public static event Action<DialogueSource> OnDialogueSourceChanged;
+        public static void DispatchDialogueSourceChanged(DialogueSource source)
+        {
+            OnDialogueSourceChanged?.Invoke(source);
+        }
+
         // --- 表现层 -> 逻辑层 ---
 
-        // 4. 请求下一句 (UI 打字结束且玩家点击后触发)
+        // 5. 请求下一句 (UI 打字结束且玩家点击后触发)
         public static event Action OnRequestNextDialogue;
         public static void DispatchRequestNext()
         {
@@ -39,5 +46,8 @@ namespace DialogueSystem
 
         public static event Func<bool> IsInDialogueQueryEvent;
         public static bool GetIsInDialogue() => IsInDialogueQueryEvent.Invoke();
+
+        public static event Func<DialogueSource> GetCurrentDialogueSourceEvent;
+        public static DialogueSource GetCurrentDialogueSource() => GetCurrentDialogueSourceEvent?.Invoke();
     }
 }

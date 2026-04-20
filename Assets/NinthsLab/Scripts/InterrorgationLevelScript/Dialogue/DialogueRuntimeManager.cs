@@ -8,24 +8,38 @@ namespace DialogueSystem
     {
         private Queue<DialogueEntry> _currentQueue = new Queue<DialogueEntry>();
         private bool _isPlaying = false;
+        private DialogueSource _currentSource;
 
         private void OnEnable()
         {
             DialogueEventDispatcher.OnRequestNextDialogue += PlayNext;
             DialogueEventDispatcher.IsInDialogueQueryEvent += GetIsPlaying;
+            DialogueEventDispatcher.GetCurrentDialogueSourceEvent += GetCurrentSource;
         }
 
         private void OnDisable()
         {
             DialogueEventDispatcher.OnRequestNextDialogue -= PlayNext;
             DialogueEventDispatcher.IsInDialogueQueryEvent -= GetIsPlaying;
+            DialogueEventDispatcher.GetCurrentDialogueSourceEvent -= GetCurrentSource;
+        }
+
+        private DialogueSource GetCurrentSource()
+        {
+            return _currentSource;
         }
 
         /// <summary>
         /// 接收来自后端(Coordinator)的新数据
         /// </summary>
-        public void PushNewBatch(List<string> rawLines)
+        public void PushNewBatch(List<string> rawLines, DialogueSource source = null)
         {
+            _currentSource = source;
+            if (source != null)
+            {
+                DialogueEventDispatcher.DispatchDialogueSourceChanged(source);
+            }
+
             var batch = NovaScriptParser.ParseBatch(rawLines);
 
             // 将新批次加入队列 (或者清空旧的，取决于设计，通常是追加)
@@ -34,6 +48,7 @@ namespace DialogueSystem
 
             foreach (var entry in batch.Entries)
             {
+                entry.Source = _currentSource;
                 _currentQueue.Enqueue(entry);
             }
 

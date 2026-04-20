@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DialogueSystem;
 using LogicEngine.LevelGraph;
 using LogicEngine.LevelLogic;
 using UnityEngine;
@@ -176,6 +177,16 @@ namespace Interrorgation.MidLayer
         /// </summary>
         public static event Action<List<string>> OnDialogueGenerated;
         public static void DispatchDialogueGenerated(List<string> dialogues) => OnDialogueGenerated?.Invoke(dialogues);
+
+        /// <summary>
+        /// 产生对话/剧情文本（带来源信息）
+        /// </summary>
+        public static event Action<List<string>, DialogueSource> OnDialogueGeneratedWithSource;
+        public static void DispatchDialogueGenerated(List<string> dialogues, DialogueSource source)
+        {
+            OnDialogueGeneratedWithSource?.Invoke(dialogues, source);
+            //OnDialogueGenerated?.Invoke(dialogues);
+        }
 
         /// <summary>
         /// 调查范围堆栈变更
