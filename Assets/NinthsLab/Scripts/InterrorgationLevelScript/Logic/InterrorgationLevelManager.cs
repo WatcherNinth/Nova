@@ -185,7 +185,10 @@ namespace LogicEngine.LevelLogic
             // 执行完整的证明流程（包含所有衍生证明）
             nodeLogicManager.ExecuteFullProofFlow(nodeId, isDerived: false);
         }
-        // [新增] 启动逻辑 (激活初始阶段)
+        /// <summary>
+        /// [新增] 启动逻辑 (激活初始阶段)
+        /// todo：这个用法之后需要重写！
+        /// </summary>
         public void StartGameLogic()
         {
             if (gamePhaseManager != null)

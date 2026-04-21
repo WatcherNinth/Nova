@@ -12,7 +12,7 @@ namespace Interrorgation.UI
     /// 模板 UI 管理器
     /// 负责管理场景中所有预设的 TemplateUIScript，根据后端发来的 ID 调度显示。
     /// </summary>
-    public class TemplateUIManager : UIStateController<TemplateUIManager.DeductionBoardState>
+    public class MindmapUIManager : UIStateController<MindmapUIManager.DeductionBoardState>
     {
         public enum DeductionBoardState
         {
