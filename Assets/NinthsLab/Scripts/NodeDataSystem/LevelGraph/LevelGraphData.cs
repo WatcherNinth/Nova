@@ -161,9 +161,12 @@ namespace LogicEngine.LevelGraph
                     node.Logic.GeneratedDependencyNodes = new List<string>();
                 if (node.Logic.GeneratedMutexNodes == null)
                     node.Logic.GeneratedMutexNodes = new List<string>();
+                if (node.Logic.GeneratedRelativeNodes == null)
+                    node.Logic.GeneratedRelativeNodes = new List<string>();
 
                 node.Logic.GeneratedDependencyNodes.Clear();
                 node.Logic.GeneratedMutexNodes.Clear();
+                node.Logic.GeneratedRelativeNodes.Clear();
 
                 if (node.Logic.DependsOn == null || !node.Logic.DependsOn.HasValues) continue;
 

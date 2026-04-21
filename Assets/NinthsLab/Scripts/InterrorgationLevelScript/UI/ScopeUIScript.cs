@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using DialogueSystem;
 using Interrorgation.MidLayer;
@@ -91,9 +92,11 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
 
     private void RefreshUI(List<string> scopeStack)
     {
+        Debug.Log($"scopeUpdate: {scopeStack.Count}");
         if (scopeStack.Count == 0 && !DialogueEventDispatcher.GetIsInDialogue())
         {
             StateMachine.TryTransitionTo(ScopeState.Hidden);
+            _scopeCache = scopeStack;
             return;
         }
         StateMachine.TryTransitionTo(ScopeState.Shown);
@@ -110,33 +113,29 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
     }
     private void addScopeElement(string nodeId, bool IsCurrentProving = false)
     {
-        TMP_Text text = Instantiate(scopeTextPrefab, scopeContainer);
-        text.gameObject.SetActive(true);
-        text.text = LevelGraphContext.CurrentGraph.nodeLookup[nodeId].Node.Basic.Description;
-
-        // Forward检测：检查是否需要生成separator
-        bool needSeparator = false;
-
-        // 如果是当前正在证明的节点，且有scope缓存，则不需要separator（证明结束后会被移除）
+        // 先判断是否需要生成分隔符
+        bool needSeparator;
         if (IsCurrentProving)
         {
-            needSeparator = false;
+            needSeparator = _scopeCache != null && _scopeCache.Count != 0;
         }
         else
         {
-            // 检查后续是否还有元素
-            // 通过计算当前scopeContainer的子元素数量和_scopeCache来判断
-            int currentIndex = scopeContainer.childCount - 1;
-            if (_scopeCache != null && currentIndex < _scopeCache.Count - 1)
-            {
-                needSeparator = true;
-            }
+            needSeparator = _scopeCache != null && scopeContainer.childCount < _scopeCache.Count - 1;
         }
 
         if (needSeparator)
         {
             GameObject scopeSeparator = Instantiate(scopeSeparatorPrefab, scopeContainer);
             scopeSeparator.gameObject.SetActive(true);
+        }
+
+        TMP_Text text = Instantiate(scopeTextPrefab, scopeContainer);
+        text.gameObject.SetActive(true);
+        text.text = LevelGraphContext.CurrentGraph.nodeLookup[nodeId].Node.Basic.Description;
+        if (IsCurrentProving)
+        {
+            setScopeElementAsProving(text.gameObject);
         }
     }
 
@@ -165,22 +164,24 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
         else
         {
             string topNodeId = currentScope.Last();
-            // 检查当前证明节点是否在栈顶节点的GeneratedDependencyNodes中和relativenodes（我们认为只要相关就可以显示）
+            
+            // 检查当前证明节点是否在栈顶节点的GeneratedDependencyNodes中和relativenodes（我们认为只要相关就可以显示）,要考虑栈顶就是当前证明节点的情况
             bool isInGeneratedDeps = false;
             if (LevelGraphContext.CurrentGraph.nodeLookup.TryGetValue(topNodeId, out var topNodeData))
             {
                 isInGeneratedDeps = topNodeData.Node.Logic.GeneratedDependencyNodes.Contains(provingNodeId) ||
                 topNodeData.Node.Logic.GeneratedRelativeNodes.Contains(provingNodeId);
             }
+            bool isProvingScopeTop = topNodeId == provingNodeId;
 
-            if (isInGeneratedDeps)
+            if (isProvingScopeTop)
+            {
+                // 情况Scope: 正在证明栈顶（scope连锁证明状态）
+                setScopeElementAsProving(scopeContainer.GetChild(scopeContainer.childCount - 1).gameObject);
+            }
+            else if (isInGeneratedDeps)
             {
                 // 情况B：在GeneratedDependencyNodes中，显示节点
-                // 先显示scope里的所有元素
-                for (int i = 0; i < currentScope.Count; i++)
-                {
-                    addScopeElement(currentScope[i], IsCurrentProving: false);
-                }
                 // 添加当前证明节点
                 addScopeElement(provingNodeId, IsCurrentProving: true);
             }
@@ -222,14 +223,19 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
 
         // 恢复正常的scope显示
         List<string> currentScope = GameEventDispatcher.GetCurrentScopeStack();
-        RefreshUI(currentScope);
+        RefreshUI(_scopeCache);
     }
-    
+
     private void clearScopeContainer()
     {
         foreach (Transform child in scopeContainer)
         {
             Destroy(child.gameObject);
         }
+    }
+    
+    private void setScopeElementAsProving(GameObject element)
+    {
+        element.GetComponent<TMP_Text>().color = Color.yellow;
     }
 }
