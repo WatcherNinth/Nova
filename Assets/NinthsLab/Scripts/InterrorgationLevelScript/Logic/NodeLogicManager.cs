@@ -34,6 +34,8 @@ namespace LogicEngine.LevelLogic
 
             if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return true;
             if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
+            // 如果跟栈顶互斥那就驳回
+            if (CheckNodeMutex(nodeId, _scopeManager.GetCurrentScopeNode())) return false;
 
             // 检查依赖
             return runtimeNode.r_NodeData.Logic.GetDependOnResult();
