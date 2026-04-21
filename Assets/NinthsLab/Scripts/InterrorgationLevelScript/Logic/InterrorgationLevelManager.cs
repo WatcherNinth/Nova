@@ -81,6 +81,10 @@ namespace LogicEngine.LevelLogic
             handleRegister_ScopeManager(false);
 
             // [新增] 清理逻辑管理器
+            if (nodeLogicManager != null)
+            {
+                GameEventDispatcher.OnCheckNodeMutex -= nodeLogicManager.CheckNodeMutexPublic;
+            }
             templateLogicManager?.Dispose();
             playerMindMapManager?.UnsubscribeEvents();
         }
@@ -115,6 +119,10 @@ namespace LogicEngine.LevelLogic
             if (path == null) return;
 
             // [新增] 在重新加载前清理旧的逻辑管理器，防止事件重复订阅
+            if (nodeLogicManager != null)
+            {
+                GameEventDispatcher.OnCheckNodeMutex -= nodeLogicManager.CheckNodeMutexPublic;
+            }
             templateLogicManager?.Dispose();
             playerMindMapManager?.UnsubscribeEvents();
 
@@ -133,6 +141,7 @@ namespace LogicEngine.LevelLogic
 
             // 3. 初始化 Logic
             nodeLogicManager = new NodeLogicManager(playerMindMapManager);
+            GameEventDispatcher.OnCheckNodeMutex += nodeLogicManager.CheckNodeMutexPublic;
 
             // 4. [新增] 初始化 Scope
             gameScopeManager = new GameScopeManager(playerMindMapManager);

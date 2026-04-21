@@ -237,6 +237,12 @@ namespace Interrorgation.MidLayer
         /// </summary>
         public static event Func<List<string>> OnGetCurrentScopeStack;
         public static List<string> GetCurrentScopeStack() => OnGetCurrentScopeStack?.Invoke();
+
+        /// <summary>
+        /// [Query] 检查两个节点是否互斥
+        /// </summary>
+        public static event Func<string, string, bool> OnCheckNodeMutex;
+        public static bool CheckNodeMutex(string nodeIdA, string nodeIdB) => OnCheckNodeMutex?.Invoke(nodeIdA, nodeIdB) ?? false;
         #endregion
 
         #region 关卡初始化 (Level Initialization)

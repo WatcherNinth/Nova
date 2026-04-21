@@ -80,59 +80,24 @@ namespace LogicEngine.LevelLogic
         }
 
         // ========================================================================
-        // [核心修改] 使用 NodeMutexGroupData 进行查表式互斥处理
+        // [核心修改] 使用统一的 CheckNodeMutex 方法进行互斥处理
         // ========================================================================
         public void ProcessMutex(string sourceNodeId, LogicEngine.Nodes.NodeLogicInfo logicInfo)
         {
             Debug.Log($"[NodeLogic] 处理互斥: {sourceNodeId}");
 
-            var mutexData = _mindMapManager.levelGraph.nodeMutexGroupData;
-            if (mutexData == null || mutexData.Data == null) return;
-
-            // 遍历配置中所有的互斥组
-            foreach (var kvp in mutexData.Data)
+            // 遍历所有运行时节点
+            foreach (var kvp in _mindMapManager.RunTimeNodeDataMap)
             {
-                var mutexItems = kvp.Value;
-                if (mutexItems == null) continue;
+                string candidateNodeId = kvp.Key;
 
-                // 查找当前 sourceNodeId 是否属于该互斥组的某一个条目
-                NodeMutexItem ownerItem = null;
-                foreach (var item in mutexItems)
+                // 跳过源节点本身
+                if (candidateNodeId == sourceNodeId) continue;
+
+                // 使用统一的方法检查是否互斥
+                if (CheckNodeMutex(sourceNodeId, candidateNodeId))
                 {
-                    if (!item.IsGroupList && item.SingleNodeId == sourceNodeId)
-                    {
-                        ownerItem = item;
-                        break;
-                    }
-                    else if (item.IsGroupList && item.GroupNodeIds != null && item.GroupNodeIds.Contains(sourceNodeId))
-                    {
-                        ownerItem = item;
-                        break;
-                    }
-                }
-
-                // 如果当前节点在该互斥组中，则把该组内**其他**条目的所有节点全部作废
-                if (ownerItem != null)
-                {
-                    foreach (var item in mutexItems)
-                    {
-                        // 同一条目内部的节点不互斥（即当前节点组里的节点不互相互斥）
-                        if (item == ownerItem) continue;
-
-                        // 情况 A: 单个节点互斥
-                        if (!item.IsGroupList && !string.IsNullOrEmpty(item.SingleNodeId))
-                        {
-                            InvalidateNode(item.SingleNodeId);
-                        }
-                        // 情况 B: 节点组互斥 (列表)
-                        else if (item.IsGroupList && item.GroupNodeIds != null)
-                        {
-                            foreach (var targetId in item.GroupNodeIds)
-                            {
-                                InvalidateNode(targetId);
-                            }
-                        }
-                    }
+                    InvalidateNode(candidateNodeId);
                 }
             }
         }
@@ -143,7 +108,7 @@ namespace LogicEngine.LevelLogic
             if (_mindMapManager.TryGetNode(nodeId, out var node))
             {
                 // 只有非 Submitted 的节点才会被作废
-                // 已提交的节点通常是“赢家”，不能被作废
+                // 已提交的节点通常是"赢家"，不能被作废
                 if (node.Status != RunTimeNodeStatus.Submitted && !node.IsInvalidated)
                 {
                     node.IsInvalidated = true;
@@ -151,6 +116,90 @@ namespace LogicEngine.LevelLogic
                     GameEventDispatcher.DispatchNodeStatusChanged(node);
                 }
             }
+        }
+
+        /// <summary>
+        /// 检查两个节点是否互斥
+        /// </summary>
+        private bool CheckNodeMutex(string nodeIdA, string nodeIdB)
+        {
+            // 边界情况处理
+            if (string.IsNullOrEmpty(nodeIdA) || string.IsNullOrEmpty(nodeIdB)) return false;
+            if (nodeIdA == nodeIdB) return false;
+            if (!_mindMapManager.TryGetNode(nodeIdA, out var nodeA)) return false;
+            if (!_mindMapManager.TryGetNode(nodeIdB, out var nodeB)) return false;
+
+            // 检查 Mutex Groups
+            var mutexData = _mindMapManager.levelGraph.nodeMutexGroupData;
+            if (mutexData != null && mutexData.Data != null)
+            {
+                foreach (var kvp in mutexData.Data)
+                {
+                    var mutexItems = kvp.Value;
+                    if (mutexItems == null) continue;
+
+                    NodeMutexItem itemA = null;
+                    NodeMutexItem itemB = null;
+
+                    // 找到两个节点所在的条目
+                    foreach (var item in mutexItems)
+                    {
+                        if (!item.IsGroupList && item.SingleNodeId == nodeIdA)
+                        {
+                            itemA = item;
+                        }
+                        else if (item.IsGroupList && item.GroupNodeIds != null && item.GroupNodeIds.Contains(nodeIdA))
+                        {
+                            itemA = item;
+                        }
+
+                        if (!item.IsGroupList && item.SingleNodeId == nodeIdB)
+                        {
+                            itemB = item;
+                        }
+                        else if (item.IsGroupList && item.GroupNodeIds != null && item.GroupNodeIds.Contains(nodeIdB))
+                        {
+                            itemB = item;
+                        }
+                    }
+
+                    // 如果两个节点都在同一个互斥组的不同条目中，则互斥
+                    if (itemA != null && itemB != null && itemA != itemB)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // 检查 ExtraMutexList (双向检查)
+            if (nodeA.r_NodeData.Logic != null && nodeA.r_NodeData.Logic.ExtraMutexList != null)
+            {
+                if (nodeA.r_NodeData.Logic.ExtraMutexList.Contains(nodeIdB)) return true;
+            }
+            if (nodeB.r_NodeData.Logic != null && nodeB.r_NodeData.Logic.ExtraMutexList != null)
+            {
+                if (nodeB.r_NodeData.Logic.ExtraMutexList.Contains(nodeIdA)) return true;
+            }
+
+            // 检查 GeneratedMutexNodes (双向检查)
+            if (nodeA.r_NodeData.Logic != null && nodeA.r_NodeData.Logic.GeneratedMutexNodes != null)
+            {
+                if (nodeA.r_NodeData.Logic.GeneratedMutexNodes.Contains(nodeIdB)) return true;
+            }
+            if (nodeB.r_NodeData.Logic != null && nodeB.r_NodeData.Logic.GeneratedMutexNodes != null)
+            {
+                if (nodeB.r_NodeData.Logic.GeneratedMutexNodes.Contains(nodeIdA)) return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 检查两个节点是否互斥 (公共接口，供 GameEvent 调用)
+        /// </summary>
+        public bool CheckNodeMutexPublic(string nodeIdA, string nodeIdB)
+        {
+            return CheckNodeMutex(nodeIdA, nodeIdB);
         }
 
         
