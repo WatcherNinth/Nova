@@ -125,6 +125,10 @@ namespace LogicEngine.Nodes
     {
         public string MutexGroup { get; set; }
         public List<string> ExtraMutexList { get; set; }
+        /// <summary>
+        /// 跟MutexGroup或ExtraMutexList同时存在时它会*完全*覆盖后两者的设置。
+        /// 还没有实现
+        /// </summary>
         public JToken OverrideMutexTrigger { get; set; }
         public JToken DependsOn { get; set; }
         /// <summary>
@@ -133,6 +137,7 @@ namespace LogicEngine.Nodes
         public List<string> SoftDependOn { get; set; }
         public List<string> GeneratedDependencyNodes { get; set; }
         public List<string> GeneratedMutexNodes { get; set; }
+        public List<string> GeneratedRelativeNodes { get; set; }
         /// <summary>
         /// 这个节点在满足所有dependon前置后会自动被证明
         /// </summary>

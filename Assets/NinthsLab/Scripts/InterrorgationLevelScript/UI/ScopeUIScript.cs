@@ -165,16 +165,12 @@ public class ScopeUIScript : UIStateController<ScopeUIScript.ScopeState>
         else
         {
             string topNodeId = currentScope.Last();
-            // 检查当前证明节点是否在栈顶节点的GeneratedDependencyNodes中
+            // 检查当前证明节点是否在栈顶节点的GeneratedDependencyNodes中和relativenodes（我们认为只要相关就可以显示）
             bool isInGeneratedDeps = false;
             if (LevelGraphContext.CurrentGraph.nodeLookup.TryGetValue(topNodeId, out var topNodeData))
             {
-                isInGeneratedDeps = topNodeData.Node.Logic.GeneratedDependencyNodes.Contains(provingNodeId);
-                Debug.Log(topNodeData.Node.Logic.GeneratedDependencyNodes.Count);
-                foreach(var id in topNodeData.Node.Logic.GeneratedDependencyNodes)
-                {
-                    Debug.Log(id);
-                }
+                isInGeneratedDeps = topNodeData.Node.Logic.GeneratedDependencyNodes.Contains(provingNodeId) ||
+                topNodeData.Node.Logic.GeneratedRelativeNodes.Contains(provingNodeId);
             }
 
             if (isInGeneratedDeps)

@@ -181,6 +181,10 @@ namespace LogicEngine.LevelGraph
                     {
                         node.Logic.GeneratedMutexNodes.Add(nodeId);
                     }
+                    else if (dependency == NodeDependency.Related)
+                    {
+                        node.Logic.GeneratedRelativeNodes.Add(nodeId);
+                    }
                 }
             }
         }
