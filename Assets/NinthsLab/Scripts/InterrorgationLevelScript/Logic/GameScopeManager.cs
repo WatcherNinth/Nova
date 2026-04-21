@@ -100,7 +100,7 @@ namespace LogicEngine.LevelLogic
                     {
                         // 栈顶还没搞定，尝试利用新的局势去证明它
                         // 使用新的证明方法，避免循环调用
-                        bool success = _logicManager.TryProveNode(topId);
+                        bool success = _logicManager.TryProveNode(topId, out var result);
                         if (!success)
                         {
                             // 依然搞不定，链条断了，停止回溯

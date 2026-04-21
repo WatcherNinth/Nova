@@ -8,6 +8,16 @@ using UnityEngine; // 用于 Debug.Log
 
 namespace LogicEngine.LevelLogic
 {
+    public enum ProofResult
+    {
+        NotFound,
+        Submitted,
+        NotDiscovered,
+        Invalidated,
+        NodeMutex,
+        Regular
+    }
+
     public class NodeLogicManager
     {
         private PlayerMindMapManager _mindMapManager;
@@ -28,16 +38,39 @@ namespace LogicEngine.LevelLogic
         {
             _scopeManager = scopeManager;
         }
-        public bool TryProveNode(string nodeId)
+        public bool TryProveNode(string nodeId, out ProofResult result)
         {
-            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode)) return false;
+            if (!_mindMapManager.TryGetNode(nodeId, out var runtimeNode))
+            {
+                result = ProofResult.NotFound;
+                return false;
+            }
 
-            if (runtimeNode.Status == RunTimeNodeStatus.Submitted) return true;
-            if (runtimeNode.Status != RunTimeNodeStatus.Discovered || runtimeNode.IsInvalidated) return false;
-            // 如果跟栈顶互斥那就驳回
-            if (CheckNodeMutex(nodeId, _scopeManager.GetCurrentScopeNode())) return false;
+            if (runtimeNode.Status == RunTimeNodeStatus.Submitted)
+            {
+                result = ProofResult.Submitted;
+                return true;
+            }
 
-            // 检查依赖
+            if (runtimeNode.Status != RunTimeNodeStatus.Discovered)
+            {
+                result = ProofResult.NotDiscovered;
+                return false;
+            }
+
+            if (runtimeNode.IsInvalidated)
+            {
+                result = ProofResult.Invalidated;
+                return false;
+            }
+
+            if (CheckNodeMutex(nodeId, _scopeManager.GetCurrentScopeNode()))
+            {
+                result = ProofResult.NodeMutex;
+                return false;
+            }
+
+            result = ProofResult.Regular;
             return runtimeNode.r_NodeData.Logic.GetDependOnResult();
         }
 

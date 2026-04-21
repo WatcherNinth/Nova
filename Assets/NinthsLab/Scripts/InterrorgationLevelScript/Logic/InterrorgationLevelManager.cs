@@ -171,9 +171,13 @@ namespace LogicEngine.LevelLogic
             if (nodeLogicManager == null) return;
 
             // 检查节点是否可以证明
-            bool canProve = nodeLogicManager.TryProveNode(nodeId);
+            bool canProve = nodeLogicManager.TryProveNode(nodeId, out var result);
             if (!canProve)
             {
+                if (result == ProofResult.NodeMutex)
+                {
+                    Debug.Log($"<color=#ff0000>证明{nodeId}失败，因为它跟当前scope栈顶node互斥！这是一个之后需要发UI效果的提示！</color>");
+                }
                 nodeLogicManager.OnProveFailed(nodeId, isAutoResolve: false);
                 return;
             }
