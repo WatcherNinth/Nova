@@ -4867,6 +4867,7 @@ MonoBehaviour:
   deductionBoardPrefab: {fileID: 77192876}
   toggleButton: {fileID: 1469091595}
   _uiRoot: {fileID: 47293558}
+  _connectionLinesContainer: {fileID: 0}
 --- !u!1 &1597483094
 GameObject:
   m_ObjectHideFlags: 0
