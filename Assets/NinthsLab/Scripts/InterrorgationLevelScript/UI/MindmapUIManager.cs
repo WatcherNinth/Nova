@@ -26,6 +26,11 @@ namespace Interrorgation.UI
         [Header("Settings")]
         [SerializeField] private RectTransform _uiRoot;
 
+        [Header("Connection Lines")]
+        [SerializeField] private RectTransform _connectionLinesContainer;
+
+        private List<UILineRenderer> _connectionLines = new List<UILineRenderer>();
+
         private Dictionary<string, TemplateUIScript> _templateMap = new Dictionary<string, TemplateUIScript>();
         private Dictionary<string, MindMapNodeOptionUIScript> _optionMap = new Dictionary<string, MindMapNodeOptionUIScript>();
         private Dictionary<string, RunTimeTemplateDataStatus> _statusCache = new Dictionary<string, RunTimeTemplateDataStatus>();
@@ -83,6 +88,20 @@ namespace Interrorgation.UI
             _templateMap.Clear();
             if (_uiRoot == null) _uiRoot = GetComponent<RectTransform>();
 
+            if (_connectionLinesContainer == null)
+            {
+                GameObject container = new GameObject("ConnectionLinesContainer");
+                container.transform.SetParent(_uiRoot, false);
+                _connectionLinesContainer = container.AddComponent<RectTransform>();
+
+                _connectionLinesContainer.anchorMin = Vector2.zero;
+                _connectionLinesContainer.anchorMax = Vector2.one;
+                _connectionLinesContainer.offsetMin = Vector2.zero;
+                _connectionLinesContainer.offsetMax = Vector2.zero;
+
+                _connectionLinesContainer.SetAsFirstSibling();
+            }
+
             // 深度搜索所有子物体中的 TemplateUIScript
             var allScripts = _uiRoot.GetComponentsInChildren<TemplateUIScript>(true);
             foreach (var script in allScripts)
@@ -115,6 +134,7 @@ namespace Interrorgation.UI
                 }
             }
             Debug.Log($"[TemplateUIManager] Initialized with {_templateMap.Count} templates and {_optionMap.Count} options.");
+            CreateRandomTestConnections();
         }
 
         private void HandleNewTemplate(TemplateData template, string actionId)
@@ -328,6 +348,109 @@ namespace Interrorgation.UI
         private void HandleLevelReady()
         {
             InitializeMap();
+        }
+
+        /// <summary>
+        /// 创建两个节点之间的连接线
+        /// </summary>
+        public void CreateConnectionLine(Transform nodeA, Transform nodeB)
+        {
+            if (nodeA == null || nodeB == null)
+            {
+                Debug.LogWarning("[MindmapUIManager] Cannot create connection line with null transforms.");
+                return;
+            }
+
+            GameObject lineObj = new GameObject($"Connection_{nodeA.name}_to_{nodeB.name}");
+            lineObj.transform.SetParent(_connectionLinesContainer, false);
+            lineObj.AddComponent<RectTransform>();
+            lineObj.GetComponent<RectTransform>().anchorMin = Vector2.zero;
+            lineObj.GetComponent<RectTransform>().anchorMax = Vector2.one;
+            lineObj.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+            lineObj.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+
+            // Graphic 基类需要 CanvasRenderer 组件才能正常工作
+            lineObj.AddComponent<CanvasRenderer>();
+
+            UILineRenderer line = lineObj.AddComponent<UILineRenderer>();
+            line.targetStartTransform = nodeA;
+            line.targetEndTransform = nodeB;
+            line.enableDynamicUpdate = true;
+            line.lineWidth = 2f;
+            line.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+            line.hoverColor = Color.white;
+            line.enableHoverEffect = true;
+
+            _connectionLines.Add(line);
+        }
+
+        /// <summary>
+        /// 清除所有连接线
+        /// </summary>
+        public void ClearAllConnectionLines()
+        {
+            foreach (var line in _connectionLines)
+            {
+                if (line != null)
+                {
+                    Destroy(line.gameObject);
+                }
+            }
+            _connectionLines.Clear();
+
+            if (_connectionLinesContainer != null)
+            {
+                foreach (Transform child in _connectionLinesContainer)
+                {
+                    Destroy(child.gameObject);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 根据节点关系自动创建连接线
+        /// </summary>
+        public void AutoCreateConnections()
+        {
+            ClearAllConnectionLines();
+
+            foreach (var template in _templateMap.Values)
+            {
+
+            }
+        }
+
+        /// <summary>
+        /// 测试方法：随机选择6组模板并生成连线
+        /// </summary>
+        [ContextMenu("Test: Create Random Connections")]
+        public void CreateRandomTestConnections()
+        {
+            ClearAllConnectionLines();
+
+            if (_templateMap.Count < 2)
+            {
+                Debug.LogWarning("[MindmapUIManager] Not enough templates to create connections.");
+                return;
+            }
+
+            var templates = new List<TemplateUIScript>(_templateMap.Values);
+            int connectionCount = Mathf.Min(6, templates.Count - 1);
+
+            for (int i = 0; i < connectionCount; i++)
+            {
+                int indexA = Random.Range(0, templates.Count);
+                int indexB = Random.Range(0, templates.Count);
+
+                if (indexA == indexB)
+                {
+                    indexB = (indexB + 1) % templates.Count;
+                }
+
+                CreateConnectionLine(templates[indexA].transform, templates[indexB].transform);
+            }
+
+            Debug.Log($"[MindmapUIManager] Created {connectionCount} random test connections.");
         }
     }
 }
