@@ -4868,6 +4868,8 @@ MonoBehaviour:
   toggleButton: {fileID: 1469091595}
   _uiRoot: {fileID: 47293558}
   _connectionLinesContainer: {fileID: 0}
+  _connectionNormalMaterial: {fileID: 2100000, guid: f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1, type: 2}
+  _connectionHighlightMaterial: {fileID: 2100000, guid: a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2, type: 2}
 --- !u!1 &1597483094
 GameObject:
   m_ObjectHideFlags: 0
