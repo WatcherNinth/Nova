@@ -28,6 +28,8 @@ namespace Interrorgation.UI
 
         [Header("Connection Lines")]
         [SerializeField] private RectTransform _connectionLinesContainer;
+        [SerializeField] private Material _connectionNormalMaterial;
+        [SerializeField] private Material _connectionHighlightMaterial;
 
         private List<UILineRenderer> _connectionLines = new List<UILineRenderer>();
 
@@ -376,10 +378,12 @@ namespace Interrorgation.UI
             line.targetStartTransform = nodeA;
             line.targetEndTransform = nodeB;
             line.enableDynamicUpdate = true;
-            line.lineWidth = 2f;
-            line.color = new Color(0.7f, 0.7f, 0.7f, 1f);
-            line.hoverColor = Color.white;
+            line.lineWidth = 18f;
+            line.color = new Color(0.73f, 0.08f, 0.08f, 1f);
+            line.hoverColor = new Color(1f, 0.85f, 0.2f, 1f);
             line.enableHoverEffect = true;
+            line.normalMaterial = _connectionNormalMaterial;
+            line.highlightMaterial = _connectionHighlightMaterial;
 
             _connectionLines.Add(line);
         }

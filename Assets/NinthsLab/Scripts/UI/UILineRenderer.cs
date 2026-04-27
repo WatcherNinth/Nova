@@ -31,6 +31,14 @@ namespace Interrorgation.UI
         [SerializeField] private bool _enableHoverEffect = false;
         [SerializeField] private Color _hoverColor = Color.white;
 
+        [Header("Materials")]
+        [SerializeField] private Material _normalMaterial;
+        [SerializeField] private Material _highlightMaterial;
+
+        private Material _normalMaterialInstance;
+        private Material _highlightMaterialInstance;
+        private float _lineLengthCache;
+
         private Vector3 _cachedStartWorldPos;
         private Vector3 _cachedEndWorldPos;
         private Color _originalColor;
@@ -106,10 +114,64 @@ namespace Interrorgation.UI
             set => _hoverColor = value;
         }
 
+        public Material normalMaterial
+        {
+            get => _normalMaterial;
+            set
+            {
+                _normalMaterial = value;
+                if (_normalMaterial != null)
+                {
+                    if (_normalMaterialInstance != null)
+                        Destroy(_normalMaterialInstance);
+                    _normalMaterialInstance = new Material(_normalMaterial);
+                }
+                else
+                {
+                    _normalMaterialInstance = null;
+                }
+                // 仅在非悬停状态同步应用到渲染
+                if (!_isHovering)
+                    material = _normalMaterialInstance ?? _normalMaterial;
+            }
+        }
+
+        public Material highlightMaterial
+        {
+            get => _highlightMaterial;
+            set
+            {
+                _highlightMaterial = value;
+                if (_highlightMaterial != null)
+                {
+                    if (_highlightMaterialInstance != null)
+                        Destroy(_highlightMaterialInstance);
+                    _highlightMaterialInstance = new Material(_highlightMaterial);
+                }
+                else
+                {
+                    _highlightMaterialInstance = null;
+                }
+                // 仅在悬停状态同步应用到渲染
+                if (_isHovering)
+                    material = _highlightMaterialInstance ?? _highlightMaterial;
+            }
+        }
+
+        public float lineLength => _lineLengthCache;
+
         protected override void Awake()
         {
             base.Awake();
             _originalColor = color;
+
+            if (_normalMaterial != null)
+                _normalMaterialInstance = new Material(_normalMaterial);
+            if (_highlightMaterial != null)
+                _highlightMaterialInstance = new Material(_highlightMaterial);
+
+            material = _normalMaterialInstance ?? _normalMaterial;
+
             InitializeCachedPositions();
         }
 
@@ -143,6 +205,8 @@ namespace Interrorgation.UI
             Vector2 perpendicular = new Vector2(-direction.y, direction.x);
             Vector2 halfWidth = perpendicular * (_lineWidth * 0.5f);
 
+            _lineLengthCache = Vector2.Distance(start, end);
+
             Vector2 v1 = start + halfWidth;
             Vector2 v2 = end + halfWidth;
             Vector2 v3 = end - halfWidth;
@@ -152,15 +216,19 @@ namespace Interrorgation.UI
             vertex.color = color;
 
             vertex.position = v1;
+            vertex.uv0 = new Vector2(0, 1);
             vh.AddVert(vertex);
 
             vertex.position = v2;
+            vertex.uv0 = new Vector2(1, 1);
             vh.AddVert(vertex);
 
             vertex.position = v3;
+            vertex.uv0 = new Vector2(1, 0);
             vh.AddVert(vertex);
 
             vertex.position = v4;
+            vertex.uv0 = new Vector2(0, 0);
             vh.AddVert(vertex);
 
             vh.AddTriangle(0, 1, 2);
@@ -184,6 +252,7 @@ namespace Interrorgation.UI
 
             int startCenterIndex = vh.currentVertCount;
             vertex.position = start;
+            vertex.uv0 = new Vector2(0, 0.5f);
             vh.AddVert(vertex);
 
             for (int i = 0; i <= segments; i++)
@@ -191,12 +260,14 @@ namespace Interrorgation.UI
                 float angle = Mathf.PI * 0.5f + Mathf.PI * 2f * i / segments;
                 Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
                 vertex.position = start + offset;
+                vertex.uv0 = new Vector2(0, 0.5f + 0.5f * Mathf.Sin(angle));
                 vh.AddVert(vertex);
                 vh.AddTriangle(startCenterIndex, startCenterIndex + i + 1, startCenterIndex + ((i + 1) % (segments + 1)) + 1);
             }
 
             int endCenterIndex = vh.currentVertCount;
             vertex.position = end;
+            vertex.uv0 = new Vector2(1, 0.5f);
             vh.AddVert(vertex);
 
             for (int i = 0; i <= segments; i++)
@@ -204,6 +275,7 @@ namespace Interrorgation.UI
                 float angle = -Mathf.PI * 0.5f + Mathf.PI * 2f * i / segments;
                 Vector2 offset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
                 vertex.position = end + offset;
+                vertex.uv0 = new Vector2(1, 0.5f + 0.5f * Mathf.Sin(angle));
                 vh.AddVert(vertex);
                 vh.AddTriangle(endCenterIndex, endCenterIndex + i + 1, endCenterIndex + ((i + 1) % (segments + 1)) + 1);
             }
@@ -219,12 +291,16 @@ namespace Interrorgation.UI
 
             int startIndex = vh.currentVertCount;
             vertex.position = start - perpendicular * halfWidth - startCapOffset;
+            vertex.uv0 = new Vector2(0, 0);
             vh.AddVert(vertex);
             vertex.position = start + perpendicular * halfWidth - startCapOffset;
+            vertex.uv0 = new Vector2(0, 1);
             vh.AddVert(vertex);
             vertex.position = start + perpendicular * halfWidth;
+            vertex.uv0 = new Vector2(0, 1);
             vh.AddVert(vertex);
             vertex.position = start - perpendicular * halfWidth;
+            vertex.uv0 = new Vector2(0, 0);
             vh.AddVert(vertex);
 
             vh.AddTriangle(startIndex, startIndex + 1, startIndex + 2);
@@ -232,46 +308,80 @@ namespace Interrorgation.UI
 
             int endIndex = vh.currentVertCount;
             vertex.position = end - perpendicular * halfWidth;
+            vertex.uv0 = new Vector2(1, 0);
             vh.AddVert(vertex);
             vertex.position = end + perpendicular * halfWidth;
+            vertex.uv0 = new Vector2(1, 1);
             vh.AddVert(vertex);
             vertex.position = end + perpendicular * halfWidth + endCapOffset;
+            vertex.uv0 = new Vector2(1, 1);
             vh.AddVert(vertex);
             vertex.position = end - perpendicular * halfWidth + endCapOffset;
+            vertex.uv0 = new Vector2(1, 0);
             vh.AddVert(vertex);
 
             vh.AddTriangle(endIndex, endIndex + 1, endIndex + 2);
             vh.AddTriangle(endIndex, endIndex + 2, endIndex + 3);
         }
 
+        private float _cachedAnimTime;
+
         private void Update()
         {
-            if (!_enableDynamicUpdate) return;
-
-            bool needsUpdate = false;
-
-            if (_targetStartTransform != null)
+            if (_enableDynamicUpdate)
             {
-                if (_targetStartTransform.position != _cachedStartWorldPos)
+                bool needsUpdate = false;
+
+                if (_targetStartTransform != null)
                 {
-                    _cachedStartWorldPos = _targetStartTransform.position;
-                    needsUpdate = true;
+                    if (_targetStartTransform.position != _cachedStartWorldPos)
+                    {
+                        _cachedStartWorldPos = _targetStartTransform.position;
+                        needsUpdate = true;
+                    }
+                }
+
+                if (_targetEndTransform != null)
+                {
+                    if (_targetEndTransform.position != _cachedEndWorldPos)
+                    {
+                        _cachedEndWorldPos = _targetEndTransform.position;
+                        needsUpdate = true;
+                    }
+                }
+
+                if (needsUpdate)
+                {
+                    SetVerticesDirty();
                 }
             }
 
-            if (_targetEndTransform != null)
+            if (_isHovering && _highlightMaterialInstance != null)
             {
-                if (_targetEndTransform.position != _cachedEndWorldPos)
+                _cachedAnimTime = Time.unscaledTime % 1000f;
+                // 先写到实例上，保持同步
+                _highlightMaterialInstance.SetFloat("_AnimationTime", _cachedAnimTime);
+                // 触发 Canvas 重建，让 GetModifiedMaterial 传播到渲染材质
+                SetMaterialDirty();
+            }
+        }
+
+        /// <summary>
+        /// MaskableGraphic 在 Mask/ScrollRect 下会通过 StencilMaterial.Add()
+        /// 创建缓存材质副本进行渲染。必须重写此方法将动画参数传播到实际渲染的材质上。
+        /// </summary>
+        public override Material GetModifiedMaterial(Material baseMaterial)
+        {
+            Material result = base.GetModifiedMaterial(baseMaterial);
+            if (result != null)
+            {
+                result.SetFloat("_LineLength", _lineLengthCache);
+                if (_isHovering)
                 {
-                    _cachedEndWorldPos = _targetEndTransform.position;
-                    needsUpdate = true;
+                    result.SetFloat("_AnimationTime", _cachedAnimTime);
                 }
             }
-
-            if (needsUpdate)
-            {
-                SetVerticesDirty();
-            }
+            return result;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -279,7 +389,7 @@ namespace Interrorgation.UI
             if (!_enableHoverEffect) return;
 
             _isHovering = true;
-            color = _hoverColor;
+            material = _highlightMaterialInstance ?? _highlightMaterial;
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -287,7 +397,7 @@ namespace Interrorgation.UI
             if (!_enableHoverEffect) return;
 
             _isHovering = false;
-            color = _originalColor;
+            material = _normalMaterialInstance ?? _normalMaterial;
         }
 
         // 重写射线检测，使其只在线条附近触发
@@ -346,6 +456,11 @@ namespace Interrorgation.UI
             base.OnDestroy();
             _targetStartTransform = null;
             _targetEndTransform = null;
+
+            if (_normalMaterialInstance != null)
+                Destroy(_normalMaterialInstance);
+            if (_highlightMaterialInstance != null)
+                Destroy(_highlightMaterialInstance);
         }
     }
 }
