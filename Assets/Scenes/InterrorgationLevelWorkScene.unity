@@ -1854,7 +1854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f99d87d6d36d61459e137788005549b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LevelName: demo_v2
+  LevelName: demo_v3
   AutoLoadOnStart: 1
   DiscoverTemplateId: is_bloodstain_from_sabinna_template
   SubmitTemplateId: is_bloodstain_from_sabinna_template
@@ -7648,7 +7648,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4407525377645818920, guid: dd67776bd93f34b4aada222d8247c4ed, type: 3}
       propertyPath: m_Name
-      value: demo_v2_Board
+      value: demo_v2
       objectReference: {fileID: 0}
     - target: {fileID: 4577922620979289186, guid: dd67776bd93f34b4aada222d8247c4ed, type: 3}
       propertyPath: m_SizeDelta.y
