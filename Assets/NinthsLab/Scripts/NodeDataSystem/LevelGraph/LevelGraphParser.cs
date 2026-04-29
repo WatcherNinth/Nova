@@ -37,11 +37,12 @@ namespace LogicEngine.Parser
             return levelGraph;
         }
 
-        public static LevelGraphData TryParseAndInit(string jsonText)
+        public static LevelGraphData TryParseAndInit(string jsonText, string levelId)
         {
             var currentLevelGraph = Parse(jsonText);
             try
             {
+                currentLevelGraph.levelId = levelId; // [修改3] 在这里设置 levelId
                 // D. [初始化运行数据] (生成 nodeLookup 等)
                 // 这一步必须在 SelfCheck 之前，否则子模块查不到数据
                 currentLevelGraph.InitializeRuntimeData();

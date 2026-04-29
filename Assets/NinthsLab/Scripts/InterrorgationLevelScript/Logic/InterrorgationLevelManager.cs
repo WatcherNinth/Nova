@@ -127,8 +127,7 @@ namespace LogicEngine.LevelLogic
             playerMindMapManager?.UnsubscribeEvents();
 
             string levelJson = File.ReadAllText(path);
-            currentLevelGraph = LevelGraphParser.Parse(levelJson);
-            currentLevelGraph.InitializeRuntimeData();
+            currentLevelGraph = LevelGraphParser.TryParseAndInit(levelJson, name);
 
             GameEventDispatcher.DispatchLevelGraphLoaded(currentLevelGraph);
 

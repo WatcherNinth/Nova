@@ -12,6 +12,8 @@ namespace LogicEngine.LevelGraph
         // 数据字段
         // ==========================================
 
+        public string levelId;
+
         public string levelStartDialogue;
         public Dictionary<string, NodeData> universalNodesData = new Dictionary<string, NodeData>();
         public Dictionary<string, PhaseData> phasesData = new Dictionary<string, PhaseData>();
